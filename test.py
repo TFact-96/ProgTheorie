@@ -16,11 +16,16 @@ class lattice_SAW:
         self.N = len(amino)
         self.state = np.array([[0, 0]])
         self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        self.move_code = [1, 2, -1, -2]
+        self.output_moves = []
         self.total_nodes = 1
 
     def walk(self):
         while self.total_nodes < self.N:
-            new_node = self.state[-1] + self.moves[np.random.randint(len(self.moves))]
+            random_move_index = np.random.randint(len(self.moves))
+            new_node = self.state[-1] + self.moves[random_move_index]
+            move_code = self.move_code[random_move_index]
+
             overlap = False
 
             # check if this node overlaps the chain
@@ -35,8 +40,11 @@ class lattice_SAW:
 
             # if new node doesnt overlap
             if overlap == False:
+                self.output_moves.append([self.amino[self.total_nodes - 1], move_code])
+
                 self.state = np.vstack((self.state, new_node))
                 self.total_nodes += 1
+
 
                 if video is True:
                     x = []
@@ -57,6 +65,10 @@ class lattice_SAW:
 
         x = []
         y = []
+
+        # Print desired output moves
+        for move in self.output_moves:
+            print(move[0], move[1])
 
         for i in range(self.total_nodes):
             x.append(self.state[i][0])
