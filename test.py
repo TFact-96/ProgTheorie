@@ -98,10 +98,10 @@ class lattice_SAW:
             # get new node coords
             new_node, move_code = self.get_random_move()
 
-            # Check for H-bonds (new node doesn't overlap own chain, new node is H, more than 2 nodes already exist)
+            # Check for H-bonds (new node doesn't overlap own chain, and new node is H)
             if self.amino[len(self.state)] == "H" and not self.check_overlap(new_node):
 
-                # compare own H-node with all other nodes already put into the chain
+                # compare this new H-node with all other nodes already put into the chain
                 for compare_node in range(len(self.state)):
 
                     # if index length greater than 1 (they're not neighbor nodes) and other node also an H
