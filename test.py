@@ -91,7 +91,7 @@ class lattice_SAW:
         dist = 2
         i = 0
 
-        # try to repeat 'i' random moves, until another H-node is found that is 1 distance away from own H-node
+        # try make new node choose a move that finds a H-bond
         # if not found after i times, just add the node with a random move.
         while dist > 1 and i < tries:
 
@@ -112,7 +112,6 @@ class lattice_SAW:
 
                         # H-bond if distance is 1
                         if dist <= 1:
-                            print(f"node1: {len(self.state)}, node2: {compare_node}")
 
                             # decrease stability
                             self.stability -= 1
