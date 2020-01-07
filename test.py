@@ -6,8 +6,8 @@ from scipy.spatial.distance import cdist
 import statistics as stat
 
 video = False
-amino = "HHPHHHHPPHPPHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHPPHPHPHPH"
-optimalization_tries = 10
+amino = "HHPHHHPHPHHHPHHHHHHHHHHHHHHHHHHHHHHHHHHHHHPHPHPHPPPHPPPHHHHHHHHHHHHHH"
+optimalization_tries = 100
 
 class lattice_SAW:
     def __init__(self, amino, optimalization_tries):
@@ -23,27 +23,35 @@ class lattice_SAW:
         self.stability = 0
 
     def walk(self):
-        while self.node_number < len(self.amino):
+
+        # while amount of nodes is smaller than the whole amino string length
+        while len(self.state) < len(self.amino):
+
+            # handle new node coords
             new_node, move_code = self.bond_optimalization(self.optimalization_tries)
 
-            if not self.overlap(new_node):
-                self.overlap_counter = 0
-                self.output_moves.append([self.amino[self.node_number], move_code])
-                self.state = np.vstack((self.state, new_node))
-                self.node_number += 1
+            # if the node doesn't overlap its own chain
+            if not self.check_overlap(new_node):
 
-        # Print desired output moves
+                # append node to data output with its fold code
+                self.output_moves.append([self.amino[len(self.state)], move_code])
+
+                # append the new node to the existing chain
+                self.state = np.vstack((self.state, new_node))
+
+        # Print desired output data
         for move in self.output_moves:
             print(move[0], move[1])
 
-        # Plot final result
         x = []
         y = []
 
-        for i in range(self.node_number):
+        # append all nodes in coord list
+        for i in range(len(self.state)):
             x.append(self.state[i][0])
             y.append(self.state[i][1])
 
+        # plot final result
         plt.title("Amino acid chain")
         #plt.plot([self.state[node][0], self.state[compare_node][0]], [self.state[node][1], self.state[compare_node][1]], "--", markersize=1, color='orange', zorder=1)
         plt.plot(x, y, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {self.stability})")
@@ -54,48 +62,65 @@ class lattice_SAW:
         plt.show()
 
     def get_random_move(self):
-        # get random move of node
+        # get random move of new node added to chain
         random_move_index = np.random.randint(len(self.moves))
+        # last old node coords + random move
         new_node = self.state[-1] + self.moves[random_move_index]
+        # for data output
         move_code = self.move_code[random_move_index]
 
         return new_node, move_code
 
-    def overlap(self, new_node):
-        # check if chain got stuck
+    def check_overlap(self, new_node):
+        # check if chain got stuck, for if the program already tried random moves 100 times and none accepted.
         if self.overlap_counter > 100:
             print("Chain got stuck!")
             return True
 
-        # check if this node overlaps the chain
+        # check if this node overlaps the chain (new node overlaps other node)
         for node in self.state:
             if node[0] == new_node[0] and node[1] == new_node[1]:
                 self.overlap_counter += 1
                 return True
 
+        # reset overlap_counter if new node is added
+        self.overlap_counter = 0
         return False
 
     def bond_optimalization(self, tries):
         dist = 2
         i = 0
-        new_node, move_code = self.get_random_move()
 
-        # Optimalize H-bonds
-        if not self.overlap(new_node) and self.amino[self.node_number] == "H" and self.node_number > 2:
-            while dist > 1 and i < tries:
-                # compare with each other H node
-                for compare_node in range(self.node_number + 1):
-                    # if index length greater than 1 (not neighbor nodes) and other node also an H
-                    if self.amino[compare_node] == "H" and (abs(compare_node - self.node_number) > 1):
-                        # calculate distance
+        # try to repeat 'i' random moves, until another H-node is found that is 1 distance away from own H-node
+        # if not found after i times, just add the node with a random move.
+        while dist > 1 and i < tries:
+
+            # get new node coords
+            new_node, move_code = self.get_random_move()
+
+            # Check for H-bonds (new node doesn't overlap own chain, new node is H, more than 2 nodes already exist)
+            if self.amino[len(self.state)] == "H" and not self.check_overlap(new_node):
+
+                # compare own H-node with all other nodes already put into the chain
+                for compare_node in range(len(self.state)):
+
+                    # if index length greater than 1 (they're not neighbor nodes) and other node also an H
+                    if self.amino[compare_node] == "H" and (abs(compare_node - len(self.state)) > 1):
+
+                        # calculate distance between these nodes
                         dist = math.sqrt((new_node[0] - self.state[compare_node][0])**2 + (new_node[1] - self.state[compare_node][1])**2)
 
                         # H-bond if distance is 1
-                        if dist == 1:
-                            self.stability -= 0.5
-                            plt.plot([new_node[0], self.state[compare_node][0]], [new_node[1], self.state[compare_node][1]], "--", markersize=1, color='orange', zorder=1)
+                        if dist <= 1:
+                            print(f"node1: {len(self.state)}, node2: {compare_node}")
 
-                i += 1
+                            # decrease stability
+                            self.stability -= 1
+
+                            # plot this H-bond between the two nodes
+                            plt.plot([new_node[0], self.state[compare_node][0]], [new_node[1], self.state[compare_node][1]], "--", markersize=1, color='orange', zorder=1)
+                            break
+            i += 1
 
         return new_node, move_code
 
