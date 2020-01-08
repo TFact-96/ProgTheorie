@@ -205,8 +205,8 @@ class AminoLattice:
         return stability
 
     def get_optimal_node(self):
-        stability = 0
-        new_stability = 0
+        stability = self.calculate_bonds(True)
+        new_stability = stability
         i = 0
 
         # if a move makes stability change; keep that move
@@ -225,6 +225,7 @@ class AminoLattice:
 
             # break if stability changed
             if new_stability < stability:
+                print(new_atom, "True")
                 break
 
             i += 1
