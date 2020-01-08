@@ -5,9 +5,8 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import statistics as stat
 
-video = False
-amino = "HCHCHHHHCCHCP"
-optimalization_tries = 1000
+amino = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+optimalization_tries = 100
 
 class Atom:
     # object for an atom in the amino chain
