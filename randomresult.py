@@ -187,7 +187,7 @@ class AminoLattice:
                             self.stability -= 1
                             self.hh_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
 
-                        if atom.type == "H" and compare_atom.type == "C":
+                        if (atom.type == "H" and compare_atom.type == "C") or (atom.type == "C" and compare_atom.type == "H"):
                             self.stability -= 1
                             self.ch_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
 
