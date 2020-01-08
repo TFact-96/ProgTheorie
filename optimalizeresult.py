@@ -225,7 +225,6 @@ class AminoLattice:
 
             # break if stability changed
             if new_stability < stability:
-                print(new_atom, "True")
                 break
 
             i += 1
