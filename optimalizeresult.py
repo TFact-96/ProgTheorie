@@ -5,7 +5,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import statistics as stat
 
-amino = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
+amino = "CHCHCHCHCHCHCHCCCCHHHHCHCHCCCCCHHHP"
 optimalization_tries = 100
 
 class Atom:
@@ -198,7 +198,7 @@ class AminoLattice:
                             stability -= 1
                             hh_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
 
-                        if atom.type == "H" and compare_atom.type == "C":
+                        if (atom.type == "H" and compare_atom.type == "C") or (atom.type == "C" and compare_atom.type == "H"):
                             stability -= 1
                             ch_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
 
