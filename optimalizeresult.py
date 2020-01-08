@@ -5,7 +5,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import statistics as stat
 
-amino = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+amino = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
 optimalization_tries = 100
 
 class Atom:
@@ -33,15 +33,20 @@ class Atom:
 
 class AminoLattice:
     def __init__(self, amino):
+        # for stuck nodes
         self.overlap_counter = 0
+
+        # amount of random tries to make atom find an atom bond with its random move
         self.optimalization_tries = optimalization_tries
+
+        # amino string
         self.amino = amino
 
         # create atom object for initial node at (0,0) with first string char as type
         self.first_node = Atom(0, 0)
         self.first_node.type = self.amino[0]
 
-        # put this in a chain array
+        # whole chain array of atom nodes
         self.chain = [self.first_node]
 
         # available moves
@@ -49,7 +54,7 @@ class AminoLattice:
         # folding code corresponding to move index
         self.move_code = [1, 2, -1, -2]
 
-        # different types of bonds between nodes
+        # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
         self.cc_bonds = []
         self.ch_bonds = []
@@ -96,16 +101,23 @@ class AminoLattice:
         # plot the bond lines
         for hh_bond in self.hh_bonds:
             plt.plot(hh_bond[0], hh_bond[1], "--", markersize=1, color='yellow', zorder=1)
+            plt.text((hh_bond[0][0] + hh_bond[0][1]) / 2, (hh_bond[1][0] + hh_bond[1][1]) / 2, "-1")
 
         for ch_bond in self.ch_bonds:
             plt.plot(ch_bond[0], ch_bond[1], "--", markersize=1, color='green', zorder=1)
+            plt.text((ch_bond[0][0] + ch_bond[0][1]) / 2, (ch_bond[1][0] + ch_bond[1][1]) / 2, "-1")
 
         for cc_bond in self.cc_bonds:
             plt.plot(cc_bond[0], cc_bond[1], "--", markersize=1, color='pink', zorder=1)
+            plt.text((cc_bond[0][0] + cc_bond[0][1]) / 2, (cc_bond[1][0] + cc_bond[1][1]) / 2, "-5")
 
         # plot the chain itself
         plt.plot(x, y, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {self.stability})")
         plt.scatter(x, y, color=color, zorder=2)
+
+        # plot atomtype at coord
+        for i in range(len(x)):
+            plt.text(x[i] + 0.05, y[i] + 0.05, self.chain[i].type)
 
         # rest info and show plot
         plt.title("Amino acid chain")

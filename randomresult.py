@@ -93,20 +93,24 @@ class AminoLattice:
 
         # plot the bond lines
         for hh_bond in self.hh_bonds:
-            print(hh_bond)
             plt.plot(hh_bond[0], hh_bond[1], "--", markersize=1, color='yellow', zorder=1)
+            plt.text((hh_bond[0][0] + hh_bond[0][1]) / 2, (hh_bond[1][0] + hh_bond[1][1]) / 2, "-1")
 
         for ch_bond in self.ch_bonds:
-            print(ch_bond)
             plt.plot(ch_bond[0], ch_bond[1], "--", markersize=1, color='green', zorder=1)
+            plt.text((ch_bond[0][0] + ch_bond[0][1]) / 2, (ch_bond[1][0] + ch_bond[1][1]) / 2, "-1")
 
         for cc_bond in self.cc_bonds:
-            print(cc_bond)
             plt.plot(cc_bond[0], cc_bond[1], "--", markersize=1, color='pink', zorder=1)
+            plt.text((cc_bond[0][0] + cc_bond[0][1]) / 2, (cc_bond[1][0] + cc_bond[1][1]) / 2, "-5")
 
         # plot the chain itself
         plt.plot(x, y, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {self.stability})")
         plt.scatter(x, y, color=color, zorder=2)
+
+        # plot atomtype at coord
+        for i in range(len(x)):
+            plt.text(x[i] + 0.05, y[i] + 0.05, self.chain[i].type)
 
         # rest info and show plot
         plt.title("Amino acid chain")
