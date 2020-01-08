@@ -203,6 +203,7 @@ class AminoLattice:
 
         return stability
 
+    ###################################### OPTIMALIZATION ALGORITHM
     def get_optimal_node(self):
         stability = self.calculate_bonds(True)
         new_stability = stability
@@ -230,6 +231,8 @@ class AminoLattice:
 
         # return the new atom
         return new_atom
+
+    ###################################### END OPTIMALIZATION ALGORITHM
 
 chain = AminoLattice(amino)
 chain.generate_nodes()
