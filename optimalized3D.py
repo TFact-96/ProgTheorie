@@ -2,16 +2,18 @@ import math
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class Atom:
     # object for an atom in the amino chain
-    def __init__(self, x, y):
+    def __init__(self, x, y, z):
         # nth atom in the chain
         self.n = 0
 
         # coords
         self.x = x
         self.y = y
+        self.z = z
 
         # atom type (default P)
         self.type = "P"
@@ -44,16 +46,17 @@ class AminoLattice:
         self.amino = amino
 
         # create atom object for initial node at (0,0) with first string char as type
-        self.first_node = Atom(0, 0)
+        self.first_node = Atom(0, 0, 0)
         self.first_node.type = self.amino[0]
 
         # whole chain array of atom nodes with initial node as start
         self.chain = [self.first_node]
 
         # available moves
-        self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
+                      [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
         # folding code corresponding to move index
-        self.move_code = [1, 2, -1, -2]
+        self.move_code = [1, 2, 3, -1, -2, -3]
 
         # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
@@ -88,7 +91,8 @@ class AminoLattice:
         # last atom coords + random move
         new_x = last_atom.x + self.moves[random_move_index][0]
         new_y = last_atom.y + self.moves[random_move_index][1]
-        new_coords = [new_x, new_y]
+        new_z = last_atom.z + self.moves[random_move_index][2]
+        new_coords = [new_x, new_y, new_z]
 
         # get fold code that creates this move
         fold_code = self.move_code[random_move_index]
@@ -104,7 +108,7 @@ class AminoLattice:
 
         # if doesnt overlap; accepted!
         # make Atom object with this
-        new_node = Atom(new_coords[0], new_coords[1])
+        new_node = Atom(new_coords[0], new_coords[1], new_coords[2])
 
         # set atomnumber
         new_node.n = last_atom.n + 1
@@ -121,7 +125,7 @@ class AminoLattice:
     def check_overlap(self, new_coords):
         # check if this node overlaps the chain (new node overlaps any other node)
         for node in self.chain:
-            if node.x == new_coords[0] and node.y == new_coords[1]:
+            if node.x == new_coords[0] and node.y == new_coords[1] and node.z == new_coords[2]:
                 self.overlap_counter += 1
                 return True
 
@@ -145,7 +149,7 @@ class AminoLattice:
             for compare_atom in bondable_atoms:
                 # if theyre not neighbor nodes
                 if (abs(compare_atom.n - atom.n) > 1):
-                    dist = math.sqrt((atom.x - compare_atom.x)**2 + (atom.y - compare_atom.y)**2)
+                    dist = math.sqrt((atom.x - compare_atom.x)**2 + (atom.y - compare_atom.y)**2 + (atom.z - compare_atom.z)**2)
 
                     # if distance is 1 nontheless => bond depending on atom types
                     if dist <= 1:
@@ -153,19 +157,19 @@ class AminoLattice:
                             stability -= 1
 
                             if not only_stability:
-                                hh_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
+                                hh_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
 
                         if (atom.type == "H" and compare_atom.type == "C") or (atom.type == "C" and compare_atom.type == "H"):
                             stability -= 1
 
                             if not only_stability:
-                                ch_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
+                                ch_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
 
                         if atom.type == "C" and compare_atom.type == "C":
                             stability -= 5
 
                             if not only_stability:
-                                cc_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y]])
+                                cc_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
 
             # delete this index for double count prevention
             bondable_atoms.pop(atom_nr)
@@ -230,12 +234,14 @@ class AminoLattice:
         # prepare for plotting
         x = []
         y = []
+        z = []
         color = []
 
         # append all nodes in coord list
         for node in self.chain:
             x.append(node.x)
             y.append(node.y)
+            z.append(node.z)
 
             # set node colors
             if node.type == "H":
@@ -248,39 +254,36 @@ class AminoLattice:
         # calculate the bonds in this chain
         self.stability, self.hh_bonds, self.ch_bonds, self.cc_bonds = self.calculate_bonds(False)
 
-        return x, y, color
+        return x, y, z, color
 
     ###################################### Plotting the chain
     def plot_chain(self):
-        x, y, color = self.get_plot_data()
+        x, y, z, color = self.get_plot_data()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
 
         # plot the bond lines
         for hh_bond in self.hh_bonds:
-            plt.plot(hh_bond[0], hh_bond[1], "--", markersize=1, color='red', zorder=1)
-            plt.text((hh_bond[0][0] + hh_bond[0][1]) / 2, (hh_bond[1][0] + hh_bond[1][1]) / 2, "-1")
+            ax.plot3D(hh_bond[0], hh_bond[1], hh_bond[2], "--", markersize=1, color='red', zorder=1)
 
         for ch_bond in self.ch_bonds:
-            plt.plot(ch_bond[0], ch_bond[1], "--", markersize=1, color='orange', zorder=1)
-            plt.text((ch_bond[0][0] + ch_bond[0][1]) / 2, (ch_bond[1][0] + ch_bond[1][1]) / 2, "-1")
+            ax.plot3D(ch_bond[0], ch_bond[1], ch_bond[2], "--", markersize=1, color='orange', zorder=1)
 
         for cc_bond in self.cc_bonds:
-            plt.plot(cc_bond[0], cc_bond[1], "--", markersize=1, color='yellow', zorder=1)
-            plt.text((cc_bond[0][0] + cc_bond[0][1]) / 2, (cc_bond[1][0] + cc_bond[1][1]) / 2, "-5")
+            ax.plot3D(cc_bond[0], cc_bond[1], cc_bond[2], "--", markersize=1, color='yellow', zorder=1)
 
         # plot the chain itself
-        plt.plot(x, y, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {self.stability})")
-        plt.scatter(x, y, color=color, zorder=2)
+        ax.plot3D(x, y, z, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {self.stability})")
+        ax.scatter3D(x, y, z, color=color, zorder=2)
 
         # plot atomtype name at its node coord
         for i in range(len(x)):
-            plt.text(x[i] + 0.05, y[i] + 0.05, self.chain[i].type)
+            ax.text(x[i] + 0.05, y[i] + 0.05, z[i] + 0.05, self.chain[i].type)
+
+        plt.show()
 
         # rest info and show plot
-        plt.title("Amino acid chain")
-        plt.ylabel('y-as')
-        plt.xlabel('x-as')
-        plt.legend()
-        plt.show()
 
 ###################################### Just get one calculation of the chain
 def calculate_one_chain(random_move, optimal_move):
