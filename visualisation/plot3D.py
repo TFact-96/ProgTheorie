@@ -60,7 +60,7 @@ def plot_chain(lattice):
         x, y, z,
         color=color,
         edgecolor='black',
-        s=50,
+        s=100,
         depthshade=False
     )
 
@@ -72,11 +72,22 @@ def plot_chain(lattice):
                                markerfacecolor='blue', markersize=8),
                         Line2D([0], [0], marker='o', color='black', label='C-atom',
                                markerfacecolor='yellow', markersize=8),
-                        Line2D([0], [0], linestyle="--", color='red', lw=1, label="H-H bond"),
-                        Line2D([0], [0], linestyle="--", color='orange', lw=1, label="H-C bond"),
-                        Line2D([0], [0], linestyle="--", color='yellow', lw=1, label="C-C bond"),
+                        Line2D([0], [0], linestyle="--", color='red', lw=1, label="H-H (Stability -1)"),
+                        Line2D([0], [0], linestyle="--", color='orange', lw=1, label="H-C (Stability -1)"),
+                        Line2D([0], [0], linestyle="--", color='yellow', lw=1, label="C-C (Stability -5)"),
 
                     ]
+
+    # Hide grid lines
+    ax.grid(False)
+
+    # Hide axes ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_zticks([])
+    # plt axis and grid off
+    plt.axis('off')
+    plt.grid(b=None)
 
     ax.legend(handles=custom_legend)
     ax.set_title(f"Amino molecule chain (Stability: {lattice.stability})")
