@@ -2,6 +2,7 @@ import random
 import math
 from classes.Atom import Atom
 import numpy as np
+import itertools
 
 class AminoLattice:
     def __init__(self, amino):
@@ -88,44 +89,63 @@ class AminoLattice:
     ###################################### Calculates current HH/CH/CC bonds (and coords), and current stability based on current chain
     def get_stability_and_bonds(self, only_stability):
         # create list of all bondable atoms in the chain
-        bondable_atoms = [atom for atom in self.chain if atom.type == "C" or atom.type == "H"]
+        bondable_atoms = [
+            atom for atom in self.chain if atom.type == "C" or atom.type == "H"
+        ]
+
         atom_nr = 0
         stability = 0
         hh_bonds = []
         ch_bonds = []
         cc_bonds = []
 
-        # check each atom
-        for atom in bondable_atoms:
-            # compare with each other atom in chain
-            for compare_atom in bondable_atoms:
-                # if theyre not neighbor nodes
-                if (abs(compare_atom.n - atom.n) > 1):
-                    dist = math.sqrt((atom.x - compare_atom.x)**2 + (atom.y - compare_atom.y)**2 + (atom.z - compare_atom.z)**2)
+        # compare atom with each other atom in chain
+        for atom, compare_atom in itertools.combinations(bondable_atoms, 2):
 
-                    # if distance is 1 nontheless => bond depending on atom types
-                    if dist <= 1:
-                        if atom.type == "H" and compare_atom.type == "H":
-                            stability -= 1
+            # if theyre not neighbor nodes
+            if (abs(compare_atom.n - atom.n) > 1):
+                dist = math.sqrt(
+                    (atom.x - compare_atom.x)**2
+                    + (atom.y - compare_atom.y)**2
+                    + (atom.z - compare_atom.z)**2
+                )
 
-                            if not only_stability:
-                                hh_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
+                # if distance is 1 nontheless => bond depending on atom types
+                if dist <= 1:
+                    if atom.type == "H" and compare_atom.type == "H":
+                        stability -= 1
 
-                        if (atom.type == "H" and compare_atom.type == "C") or (atom.type == "C" and compare_atom.type == "H"):
-                            stability -= 1
+                        if not only_stability:
+                            hh_bonds.append(
+                                [[atom.x, compare_atom.x],
+                                [atom.y, compare_atom.y],
+                                [atom.z, compare_atom.z]]
+                            )
 
-                            if not only_stability:
-                                ch_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
+                    if (atom.type == "H" and compare_atom.type == "C") or (
+                        atom.type == "C" and compare_atom.type == "H"
+                    ):
+                        stability -= 1
 
-                        if atom.type == "C" and compare_atom.type == "C":
-                            stability -= 5
+                        if not only_stability:
+                            ch_bonds.append(
+                                [[atom.x, compare_atom.x],
+                                [atom.y, compare_atom.y],
+                                [atom.z, compare_atom.z]]
+                            )
 
-                            if not only_stability:
-                                cc_bonds.append([[atom.x, compare_atom.x], [atom.y, compare_atom.y], [atom.z, compare_atom.z]])
+                    if atom.type == "C" and compare_atom.type == "C":
+                        stability -= 5
 
-            # delete this index for double count prevention
-            bondable_atoms.pop(atom_nr)
-            atom_nr += 1
+                        if not only_stability:
+                            cc_bonds.append(
+                                [[atom.x, compare_atom.x],
+                                [atom.y, compare_atom.y],
+                                [atom.z, compare_atom.z]]
+                            )
+
+        # delete this index for double count prevention
+        atom_nr += 1
 
         if only_stability == True:
             return stability

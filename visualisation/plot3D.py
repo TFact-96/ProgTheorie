@@ -1,5 +1,7 @@
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from visualisation.data import get_plot_data
 
 ###################################### Plotting the chain
@@ -11,23 +13,73 @@ def plot_chain(lattice):
 
     # plot the bond lines
     for hh_bond in lattice.hh_bonds:
-        ax.plot3D(hh_bond[0], hh_bond[1], hh_bond[2], "--", markersize=1, color='red', zorder=1)
-        #plt.text((hh_bond[0][0] + hh_bond[0][1]) / 2, (hh_bond[1][0] + hh_bond[1][1]) / 2, "-1")
+        ax.plot3D(
+            hh_bond[0], hh_bond[1], hh_bond[2],
+            "--",
+            markersize=1,
+            color='red',
+            zorder=-1
+        )
+
+        # Plot how much a bond reduces stability
+        #plt.text(
+            # (hh_bond[0][0] + hh_bond[0][1]) / 2,
+            # (hh_bond[1][0] + hh_bond[1][1]) / 2,
+            # (hh_bond[2][0] + hh_bond[2][1]) / 2,
+            # "-1"
+        # )
 
     for ch_bond in lattice.ch_bonds:
-        ax.plot3D(ch_bond[0], ch_bond[1], ch_bond[2], "--", markersize=1, color='orange', zorder=1)
+        ax.plot3D(
+            ch_bond[0], ch_bond[1], ch_bond[2],
+            "--",
+            markersize=1,
+            color='orange',
+            zorder=-1
+        )
 
     for cc_bond in lattice.cc_bonds:
-        ax.plot3D(cc_bond[0], cc_bond[1], cc_bond[2], "--", markersize=1, color='yellow', zorder=1)
+        ax.plot3D(
+            cc_bond[0], cc_bond[1], cc_bond[2],
+            "--",
+            markersize=1,
+            color='yellow',
+            zorder=-1
+        )
 
     # plot the chain itself
-    ax.plot3D(x, y, z, "-", linewidth=3, color='black', zorder=1, label=f"Amino chain (Stability: {lattice.stability})")
-    ax.scatter3D(x, y, z, color=color, zorder=2)
+    ax.plot3D(
+        x, y, z,
+        "-",
+        linewidth=2,
+        color='black',
+        zorder=0,
+    )
 
-    # plot atomtype name at its node coord
-    for i in range(len(x)):
-        ax.text(x[i] + 0.05, y[i] + 0.05, z[i] + 0.05, lattice.chain[i].type)
+    ax.scatter3D(
+        x, y, z,
+        color=color,
+        edgecolor='black',
+        s=50,
+        depthshade=False
+    )
 
+    custom_legend = [
+                        Line2D([0], [0], color='black', lw=2, label="Amino chain"),
+                        Line2D([0], [0], marker='o', color='black', label='H-atom',
+                               markerfacecolor='red', markersize=8),
+                        Line2D([0], [0], marker='o', color='black', label='P-atom',
+                               markerfacecolor='blue', markersize=8),
+                        Line2D([0], [0], marker='o', color='black', label='C-atom',
+                               markerfacecolor='yellow', markersize=8),
+                        Line2D([0], [0], linestyle="--", color='red', lw=1, label="H-H bond"),
+                        Line2D([0], [0], linestyle="--", color='orange', lw=1, label="H-C bond"),
+                        Line2D([0], [0], linestyle="--", color='yellow', lw=1, label="C-C bond"),
+
+                    ]
+
+    ax.legend(handles=custom_legend)
+    ax.set_title(f"Amino molecule chain (Stability: {lattice.stability})")
     plt.show()
 
     # rest info and show plot

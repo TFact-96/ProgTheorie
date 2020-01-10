@@ -39,7 +39,7 @@ def get_plot_data(lattice):
         if node.type == "H":
             node.color = 'red'
         elif node.type == "C":
-            node.color = 'orange'
+            node.color = 'yellow'
 
         color.append(node.color)
 
