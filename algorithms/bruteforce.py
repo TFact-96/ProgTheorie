@@ -22,7 +22,8 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
                 best_lattice = lattice
                 best_stability = stability
                 print(f"Generation {i}: Stability {best_stability}.")
-
+        else:
+            print(f"Generation {i}: Chain got stuck!")
 
     # print this chain
     get_chain_data(best_lattice, True)

@@ -6,8 +6,13 @@ from visualisation.plot3D import plot_chain
 
 def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
     lattice = AminoLattice(amino)
-    generated_chain = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
-    return generated_chain
+    lattice = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
+
+    if lattice.chain_stuck:
+        print("Chain got stuck! Try again.")
+        return
+
+    return lattice
 
 if __name__ == "__main__":
     amino = input("\nEnter desired amino-chain (C's, H's and P's): ")
@@ -22,11 +27,17 @@ if __name__ == "__main__":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
             best_chain = bruteforce_chains(amino, iterations, False, 0)
-            # plot this chain
-            plot_chain(best_chain)
+
+            # stuck chain check (chain is None when stuck)
+            if best_chain:
+                plot_chain(best_chain)
+                
         else:
             lattice = generate_one_chain(amino, False, 0)
-            plot_chain(lattice)
+
+            # stuck chain check (lattice is None when stuck)
+            if lattice:
+                plot_chain(lattice)
 
 
     if str_optimize == "y":
@@ -34,10 +45,13 @@ if __name__ == "__main__":
             iterations = int(input("How many chain generations for brute forcing?: "))
             optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             best_chain = bruteforce_chains(amino, iterations, True, optimalization_tries)
-            # plot this chain
-            plot_chain(best_chain)
+
+            if best_chain:
+                plot_chain(best_chain)
 
         else:
             optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             lattice = generate_one_chain(amino, True, optimalization_tries)
-            plot_chain(lattice)
+
+            if lattice:
+                plot_chain(lattice)

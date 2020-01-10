@@ -14,8 +14,5 @@ def generate_chain(lattice, use_optimize_algorithm, optimalization_tries):
 
         # append the new node to the existing chain
         lattice.chain.append(new_node)
-
-    if lattice.chain_stuck:
-        print("Chain got stuck! Try again.")
-
+        
     return lattice
