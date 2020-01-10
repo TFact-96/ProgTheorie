@@ -85,7 +85,7 @@ class AminoLattice:
         self.overlap_counter = 0
         return False
 
-    ###################################### Calculates current HH/CH/CC bonds (and coords), and current stability
+    ###################################### Calculates current HH/CH/CC bonds (and coords), and current stability based on current chain
     def get_stability_and_bonds(self, only_stability):
         # create list of all bondable atoms in the chain
         bondable_atoms = [atom for atom in self.chain if atom.type == "C" or atom.type == "H"]
@@ -132,6 +132,7 @@ class AminoLattice:
 
         return stability, hh_bonds, ch_bonds, cc_bonds
 
+    ######################################### Sets the current stability and bonds attributes based on the current chain
     def set_stability_and_bonds(self):
         stability, hh_bonds, ch_bonds, cc_bonds = self.get_stability_and_bonds(False)
         self.stability = stability

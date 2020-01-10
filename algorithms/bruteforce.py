@@ -11,21 +11,21 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
     # try n iterations for best stability
     for i in range(iterations):
         lattice = AminoLattice(amino)
-        generated_chain = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
+        lattice = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
 
         # only count non-stuck chains
-        if not generated_chain.chain_stuck:
-            stability, moves = get_chain_data(generated_chain, False)
+        if not lattice.chain_stuck:
+            stability, moves = get_chain_data(lattice, False)
 
             # if this generation is a new record
             if stability <= best_stability:
-                best_chain = generated_chain
+                best_lattice = lattice
                 best_stability = stability
                 print(f"Generation {i}: Stability {best_stability}.")
 
 
     # print this chain
-    get_chain_data(best_chain, True)
+    get_chain_data(best_lattice, True)
 
-    return best_chain
+    return best_lattice
 ###################################### END (bruteforce) ALGORITHM
