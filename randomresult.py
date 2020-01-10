@@ -6,7 +6,7 @@ from scipy.spatial.distance import cdist
 import statistics as stat
 
 video = False
-amino = "HCHCHHHHCCHCP"
+amino = "CHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCHCH"
 optimalization_tries = 100
 
 class Atom:
