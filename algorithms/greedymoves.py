@@ -1,11 +1,11 @@
 ###################################### OPTIMALIZATION ALGORITHM (The more C's and H's, the better it works)
-def generate_greedy_move(lattice, optimalization_tries):
+def generate_greedy_move(lattice):
     stability = lattice.get_stability_and_bonds(True)
     new_stability = stability
     i = 0
 
     # if a move makes stability change; keep that move
-    while i < optimalization_tries and stability == new_stability:
+    while len(lattice.leftover_moves) > 0 and stability == new_stability:
         # get a random new atom
         new_atom = lattice.generate_random_valid_node()
 
@@ -22,8 +22,6 @@ def generate_greedy_move(lattice, optimalization_tries):
             # break if stability changed
             if new_stability < stability:
                 break
-
-        i += 1
 
     # return the new atom
     return new_atom
