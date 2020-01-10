@@ -4,7 +4,7 @@ from algorithms.bruteforce import bruteforce_chains
 from visualisation.data import get_chain_data, get_plot_data
 from visualisation.plot3D import plot_chain
 
-def generate_one_chain(use_optimize_algorithm, optimalization_tries):
+def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
     lattice = AminoLattice(amino)
     generated_chain = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
     return generated_chain
@@ -25,7 +25,7 @@ if __name__ == "__main__":
             # plot this chain
             plot_chain(best_chain)
         else:
-            lattice = generate_one_chain(False, 0)
+            lattice = generate_one_chain(amino, False, 0)
             plot_chain(lattice)
 
 
@@ -39,5 +39,5 @@ if __name__ == "__main__":
 
         else:
             optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
-            lattice = generate_one_chain(True, optimalization_tries)
+            lattice = generate_one_chain(amino, True, optimalization_tries)
             plot_chain(lattice)
