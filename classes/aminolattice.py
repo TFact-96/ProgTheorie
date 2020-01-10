@@ -2,33 +2,45 @@ from .atom import Atom
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import itertools
 
 optimalization_tries = 100
 
 
 class AminoLattice:
-    def __init__(self, amino):
+    def __init__(self, amino, random_move, optimal_move):
+        # either use random moves per new atom added or an optimal move
+        self.random_move = random_move
+        self.optimal_move = optimal_move
+
+        # amount of tries to make atom find an atom bond with its random move
+        self.optimalization_tries = optimalization_tries
+
         # for stuck nodes
         self.overlap_counter = 0
-
-        # amount of random tries to make atom find an atom bond with its random move
-        self.optimalization_tries = optimalization_tries
+        self.chain_stuck = False
 
         # amino string
         self.amino = amino
 
         # create atom object for initial node at (0,0) with first string char as type
-        self.first_node = Atom(0, 0)
+        self.first_node = Atom(0, 0, 0)
         self.first_node.type = self.amino[0]
 
-        # whole chain array of atom nodes
+        # whole chain array of atom nodes with initial node as start
         self.chain = [self.first_node]
 
         # available moves
-        self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-
-        # desired output corresponding to move index
-        self.move_code = [1, 2, -1, -2]
+        self.moves = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+            [-1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1],
+        ]
+        # folding code corresponding to move index
+        self.move_code = [1, 2, 3, -1, -2, -3]
 
         # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
@@ -38,99 +50,22 @@ class AminoLattice:
         # general chain stability
         self.stability = 0
 
-    def generate_nodes(self):
-        # while amount of nodes is smaller than the whole amino string length
-        while len(self.chain) < len(self.amino):
-            # generate a random move
-            # new_node = self.get_next_node()
+    ###################################### Generating all atoms one by one onto the lattice
+    def generate_chain(self):
+        # while amount of nodes already generated is smaller than the whole amino string length
+        while len(self.chain) < len(self.amino) and not self.chain_stuck:
 
-            # generate a optimalized move (new node always makes bond-making moves if possible)
-            new_node = self.get_optimal_node()
+            if self.random_move == True:
+                # get a random move per new atom added to chain
+                new_node = self.get_next_node()
+            elif self.optimal_move == True:
+                # generate a optimalized move (new node always makes bond-making moves if possible)
+                new_node = self.get_optimal_node()
 
             # append the new node to the existing chain
             self.chain.append(new_node)
 
-        # prepare for plotting
-        x = []
-        y = []
-        color = []
-
-        # append all nodes in coord list
-        for node in self.chain:
-            x.append(node.x)
-            y.append(node.y)
-
-            # set node colors
-            if node.type == "H":
-                node.color = "red"
-            elif node.type == "C":
-                node.color = "orange"
-
-            color.append(node.color)
-
-            # Print the type and fold code in terminal while we're at it.
-            print(node.type, node.fold_code)
-
-        # calculate the bonds in this chain
-        (
-            self.stability,
-            self.hh_bonds,
-            self.ch_bonds,
-            self.cc_bonds,
-        ) = self.calculate_bonds(False)
-
-        # plot the bond lines
-        for hh_bond in self.hh_bonds:
-            plt.plot(
-                hh_bond[0], hh_bond[1], "--", markersize=1, color="yellow", zorder=1
-            )
-            plt.text(
-                (hh_bond[0][0] + hh_bond[0][1]) / 2,
-                (hh_bond[1][0] + hh_bond[1][1]) / 2,
-                "-1",
-            )
-
-        for ch_bond in self.ch_bonds:
-            plt.plot(
-                ch_bond[0], ch_bond[1], "--", markersize=1, color="green", zorder=1
-            )
-            plt.text(
-                (ch_bond[0][0] + ch_bond[0][1]) / 2,
-                (ch_bond[1][0] + ch_bond[1][1]) / 2,
-                "-1",
-            )
-
-        for cc_bond in self.cc_bonds:
-            plt.plot(cc_bond[0], cc_bond[1], "--", markersize=1, color="pink", zorder=1)
-            plt.text(
-                (cc_bond[0][0] + cc_bond[0][1]) / 2,
-                (cc_bond[1][0] + cc_bond[1][1]) / 2,
-                "-5",
-            )
-
-        # plot the chain itself
-        plt.plot(
-            x,
-            y,
-            "-",
-            linewidth=3,
-            color="black",
-            zorder=1,
-            label=f"Amino chain (Stability: {self.stability})",
-        )
-        plt.scatter(x, y, color=color, zorder=2)
-
-        # plot atomtype at coord
-        for i in range(len(x)):
-            plt.text(x[i] + 0.05, y[i] + 0.05, self.chain[i].type)
-
-        # rest info and show plot
-        plt.title("Amino acid chain")
-        plt.ylabel("y-as")
-        plt.xlabel("x-as")
-        plt.legend()
-        plt.show()
-
+    ###################################### Returns next Atom object with non-self-overlapping coords. Returns none if stuck
     def get_next_node(self):
         # get random move of new node added to chain
         random_move_index = np.random.randint(len(self.moves))
@@ -140,15 +75,16 @@ class AminoLattice:
         # last atom coords + random move
         new_x = last_atom.x + self.moves[random_move_index][0]
         new_y = last_atom.y + self.moves[random_move_index][1]
-        new_coords = [new_x, new_y]
+        new_z = last_atom.z + self.moves[random_move_index][2]
+        new_coords = [new_x, new_y, new_z]
 
         # get fold code that creates this move
         fold_code = self.move_code[random_move_index]
 
         # if more than 100 random moves are tried (see check_overlap()); almost 100% chance that chain is stuck; Exit program
         if self.overlap_counter > 100:
-            print("Chain got stuck!")
-            exit(0)
+            self.chain_stuck = True
+            return
 
         # if the new node overlaps its own chain; try new move.
         if self.check_overlap(new_coords):
@@ -156,7 +92,7 @@ class AminoLattice:
 
         # if doesnt overlap; accepted!
         # make Atom object with this
-        new_node = Atom(new_coords[0], new_coords[1])
+        new_node = Atom(new_coords[0], new_coords[1], new_coords[2])
 
         # set atomnumber
         new_node.n = last_atom.n + 1
@@ -169,10 +105,15 @@ class AminoLattice:
 
         return new_node
 
+    ###################################### Checking if new coords overlap the already generated chain
     def check_overlap(self, new_coords):
         # check if this node overlaps the chain (new node overlaps any other node)
         for node in self.chain:
-            if node.x == new_coords[0] and node.y == new_coords[1]:
+            if (
+                node.x == new_coords[0]
+                and node.y == new_coords[1]
+                and node.z == new_coords[2]
+            ):
                 self.overlap_counter += 1
                 return True
 
@@ -180,59 +121,81 @@ class AminoLattice:
         self.overlap_counter = 0
         return False
 
+    ###################################### Calculates current HH/CH/CC bonds (and coords), and current stability
     def calculate_bonds(self, only_stability):
         # create list of all bondable atoms in the chain
-        bondable_atoms = [
-            atom for atom in self.chain if atom.type == "C" or atom.type == "H"
-        ]
+        bondable_atoms = []
+
+        for atom in self.chain:
+            if atom.type == "C" or atom.type == "H":
+                bondable_atoms.append(atom)
+
         atom_nr = 0
         stability = 0
         hh_bonds = []
         ch_bonds = []
         cc_bonds = []
 
-        # check each atom
-        for atom in bondable_atoms:
-            # compare with each other atom in chain
-            for compare_atom in bondable_atoms:
-                # if theyre not neighbor nodes
-                if abs(compare_atom.n - atom.n) > 1:
-                    dist = math.sqrt(
-                        (atom.x - compare_atom.x) ** 2 + (atom.y - compare_atom.y) ** 2
-                    )
+        # compare with each other atom in chain
+        for atom, compare_atom in itertools.combinations(bondable_atoms, 2):
 
-                    # if distance is 1 nontheless => bond depending on atom types
-                    if dist <= 1:
-                        if atom.type == "H" and compare_atom.type == "H":
-                            stability -= 1
+            # if theyre not neighbor nodes
+            if abs(compare_atom.n - atom.n) > 1:
+                dist = math.sqrt(
+                    (atom.x - compare_atom.x) ** 2
+                    + (atom.y - compare_atom.y) ** 2
+                    + (atom.z - compare_atom.z) ** 2
+                )
+
+                # if distance is 1 nontheless => bond depending on atom types
+                if dist <= 1:
+                    if atom.type == "H" and compare_atom.type == "H":
+                        stability -= 1
+
+                        if not only_stability:
                             hh_bonds.append(
-                                [[atom.x, compare_atom.x], [atom.y, compare_atom.y]]
+                                [
+                                    [atom.x, compare_atom.x],
+                                    [atom.y, compare_atom.y],
+                                    [atom.z, compare_atom.z],
+                                ]
                             )
 
-                        if (atom.type == "H" and compare_atom.type == "C") or (
-                            atom.type == "C" and compare_atom.type == "H"
-                        ):
-                            stability -= 1
+                    if (atom.type == "H" and compare_atom.type == "C") or (
+                        atom.type == "C" and compare_atom.type == "H"
+                    ):
+                        stability -= 1
+
+                        if not only_stability:
                             ch_bonds.append(
-                                [[atom.x, compare_atom.x], [atom.y, compare_atom.y]]
+                                [
+                                    [atom.x, compare_atom.x],
+                                    [atom.y, compare_atom.y],
+                                    [atom.z, compare_atom.z],
+                                ]
                             )
 
-                        if atom.type == "C" and compare_atom.type == "C":
-                            stability -= 5
+                    if atom.type == "C" and compare_atom.type == "C":
+                        stability -= 5
+
+                        if not only_stability:
                             cc_bonds.append(
-                                [[atom.x, compare_atom.x], [atom.y, compare_atom.y]]
+                                [
+                                    [atom.x, compare_atom.x],
+                                    [atom.y, compare_atom.y],
+                                    [atom.z, compare_atom.z],
+                                ]
                             )
 
             # delete this index for double count prevention
-            bondable_atoms.pop(atom_nr)
             atom_nr += 1
 
-        if only_stability == False:
-            return stability, hh_bonds, ch_bonds, cc_bonds
+        if only_stability == True:
+            return stability
 
-        return stability
+        return stability, hh_bonds, ch_bonds, cc_bonds
 
-    ###################################### OPTIMALIZATION ALGORITHM
+    ###################################### OPTIMALIZATION ALGORITHM (The more C's and H's, the better it works)
     def get_optimal_node(self):
         stability = self.calculate_bonds(True)
         new_stability = stability
@@ -243,18 +206,19 @@ class AminoLattice:
             # get a random new atom
             new_atom = self.get_next_node()
 
-            # append to chain for testing
-            self.chain.append(new_atom)
+            if new_atom:
+                # append to chain for testing
+                self.chain.append(new_atom)
 
-            # calculate new stability with this move
-            new_stability = self.calculate_bonds(True)
+                # calculate new stability with this move
+                new_stability = self.calculate_bonds(True)
 
-            # pop atom (otherwise it keeps adding)
-            self.chain.pop(-1)
+                # pop atom (otherwise it keeps adding)
+                self.chain.pop(-1)
 
-            # break if stability changed
-            if new_stability < stability:
-                break
+                # break if stability changed
+                if new_stability < stability:
+                    break
 
             i += 1
 
@@ -262,3 +226,118 @@ class AminoLattice:
         return new_atom
 
     ###################################### END OPTIMALIZATION ALGORITHM
+
+    ###################################### Returns resulting stability of whole chain and a tuple list of fold codes per atom
+    def get_chain_data(self, print_data):
+        # cant get data if chain was stuck
+        if self.chain_stuck:
+            return
+
+        stability = self.calculate_bonds(True)
+        moves = [[node.type, node.fold_code] for node in self.chain]
+
+        if print_data:
+            print(f"\nThe stability of this amino-acid is {stability}.\n")
+            print(f"Its moves are:")
+
+            for node in moves:
+                print(f"{node[0]} {node[1]}")
+
+        return stability, moves
+
+    ###################################### Preparing lists for plotting amino chain
+    def get_plot_data(self):
+        # prepare for plotting
+        x = []
+        y = []
+        z = []
+        color = []
+
+        # append all nodes in coord list
+        for node in self.chain:
+            x.append(node.x)
+            y.append(node.y)
+            z.append(node.z)
+
+            # set node colors
+            if node.type == "H":
+                node.color = "red"
+            elif node.type == "C":
+                node.color = "orange"
+
+            color.append(node.color)
+
+        # calculate the bonds in this chain
+
+        (
+            self.stability,
+            self.hh_bonds,
+            self.ch_bonds,
+            self.cc_bonds,
+        ) = self.calculate_bonds(False)
+
+        return x, y, z, color
+
+    ###################################### Plotting the chain
+    def plot_chain(self):
+        x, y, z, color = self.get_plot_data()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+
+        # plot the bond lines
+        for hh_bond in self.hh_bonds:
+            ax.plot3D(
+                hh_bond[0],
+                hh_bond[1],
+                hh_bond[2],
+                "--",
+                markersize=1,
+                color="red",
+                zorder=1,
+            )
+
+        for ch_bond in self.ch_bonds:
+            ax.plot3D(
+                ch_bond[0],
+                ch_bond[1],
+                ch_bond[2],
+                "--",
+                markersize=1,
+                color="orange",
+                zorder=1,
+            )
+
+        for cc_bond in self.cc_bonds:
+            ax.plot3D(
+                cc_bond[0],
+                cc_bond[1],
+                cc_bond[2],
+                "--",
+                markersize=1,
+                color="yellow",
+                zorder=1,
+            )
+
+        # plot the chain itself
+        ax.plot3D(
+            x,
+            y,
+            z,
+            "-",
+            linewidth=3,
+            color="black",
+            zorder=1,
+            label=f"Amino chain (Stability: {self.stability})",
+        )
+        ax.scatter3D(x, y, z, color=color, zorder=2)
+
+        # plot atomtype name at its node coord
+        for i in range(len(x)):
+            ax.text(x[i] + 0.05, y[i] + 0.05, z[i] + 0.05, self.chain[i].type)
+
+        print(self.ch_bonds)
+
+        plt.show()
+
+        # rest info and show plot
