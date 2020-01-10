@@ -11,14 +11,14 @@ def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
 
 if __name__ == "__main__":
     amino = input("\nEnter desired amino-chain (C's, H's and P's): ")
-    str = input("Random generation or optimal generation? (y = optimal / n = random): ")
+    str_optimize = input("Random generation or optimal generation? (y = optimal / n = random): ")
     str_brute = input("Brute force generation to find optimal amino fold? (y/n): ")
 
-    if (str != "y" and str != "n") or (str_brute != "y" and str_brute != "n"):
+    if (str_optimize != "y" and str_optimize != "n") or (str_brute != "y" and str_brute != "n"):
         print("Only answer with y or n please.")
         exit(0)
 
-    if str == "n":
+    if str_optimize == "n":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
             best_chain = bruteforce_chains(amino, iterations, False, 0)
@@ -29,7 +29,7 @@ if __name__ == "__main__":
             plot_chain(lattice)
 
 
-    if str == "y":
+    if str_optimize == "y":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
             optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
