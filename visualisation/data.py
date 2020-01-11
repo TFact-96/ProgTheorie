@@ -1,11 +1,14 @@
 import os
+import csv
+import time
+from classes.AminoLattice import AminoLattice
 
 # clearing the terminal
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 ###################################### Returns resulting stability of whole chain and a tuple list of fold codes per atom
-def get_chain_data(lattice, print_data):
+def get_chain_data(lattice, print_data, write_data):
     # cant get data if chain was stuck
     if lattice.chain_stuck:
         return
@@ -23,7 +26,60 @@ def get_chain_data(lattice, print_data):
         for node in moves:
             print(f"{node[0]} {node[1]}")
 
+    if write_data:
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename = "AminoChain" + timestr
+
+        with open(f"data/{filename}.csv", mode='w') as chain:
+            atom = csv.writer(chain, delimiter=',')
+
+            atom.writerow(['atom', 'fold_code'])
+
+            for node in moves:
+                atom.writerow(node)
+
     return lattice.stability, moves
+
+###################################### Generate chain from existing CSV
+def get_chain_from_file(file):
+    amino = []
+    fold_codes = []
+    moves = []
+    new_x = 0
+    new_y = 0
+    new_z = 0
+
+    # read datafile and put amino string and fold codes into lists
+    with open(f"data/{file}.csv", mode='r') as chain_data:
+        chain_reader = csv.DictReader(chain_data)
+        line_count = 1
+        for atom in chain_reader:
+            amino.append(atom["atom"])
+            fold_codes.append(atom["fold_code"])
+            line_count += 1
+
+    # make lattice object with this amino
+    lattice = AminoLattice("".join(amino))
+
+    # get all move coordinates from the fold codes
+    for fold in fold_codes:
+        if fold != "0":
+            moves.append(lattice.moves[lattice.move_code[fold]])
+
+    # create atom objects based on moves from the zeroeth and put them in the lattice chain
+    for i in range(len(moves)):
+        new_x += moves[i][0]
+        new_y += moves[i][1]
+        new_z += moves[i][2]
+
+        new_coords = [new_x, new_y, new_z]
+        last_atom = lattice.chain[-1]
+        fold_code = fold_codes[i]
+
+        atom = lattice.create_atom_object(new_coords, last_atom, fold_code)
+        lattice.chain.append(atom)
+
+    return lattice
 
 ###################################### Preparing lists for plotting amino chain
 def get_plot_data(lattice):

@@ -23,8 +23,10 @@ class AminoLattice:
         # available moves
         self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
                       [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
+
         # folding code corresponding to move index
-        self.move_code = [1, 2, 3, -1, -2, -3]
+        self.move_code = {"1":0, "2":1, "3":2, "-1":3, "-2":4, "-3":5}
+        self.move_code_reverse = {0:"1", 1:"2", 2:"3", 3:"-1", 4:"-2", 5:"-3"}
 
         # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
@@ -44,6 +46,9 @@ class AminoLattice:
         # get random move of new node added to chain
         random_move_index = np.random.randint(len(self.moves))
 
+        # get fold code that creates this move
+        fold_code = self.move_code_reverse[random_move_index]
+
         # last atom needed to generate next one
         last_atom = self.chain[-1]
 
@@ -53,13 +58,28 @@ class AminoLattice:
         new_z = last_atom.z + self.moves[random_move_index][2]
         new_coords = [new_x, new_y, new_z]
 
-        # get fold code that creates this move
-        fold_code = self.move_code[random_move_index]
-
         # if the new node overlaps its own chain; try new move.
         if self.check_node_overlap(new_coords):
             return self.generate_random_valid_node()
 
+
+        # no overlap: accepted, create an atom object at this coord
+        return self.create_atom_object(new_coords, last_atom, fold_code)
+
+    ###################################### Checking if new coords overlap the already generated chain
+    def check_node_overlap(self, new_coords):
+        # check if this node overlaps the chain (new node overlaps any other node)
+        for node in self.chain:
+            if node.x == new_coords[0] and node.y == new_coords[1] and node.z == new_coords[2]:
+                self.overlap_counter += 1
+                return True
+
+        # reset overlap_counter if new node is added
+        self.overlap_counter = 0
+        return False
+
+    ####################################### creating a next atom object based on the last atom and fold code to get to new coords
+    def create_atom_object(self, new_coords, last_atom, fold_code):
         # if doesnt overlap; accepted!
         # make Atom object
         new_node = Atom(new_coords[0], new_coords[1], new_coords[2])
@@ -74,18 +94,6 @@ class AminoLattice:
         last_atom.fold_code = fold_code
 
         return new_node
-
-    ###################################### Checking if new coords overlap the already generated chain
-    def check_node_overlap(self, new_coords):
-        # check if this node overlaps the chain (new node overlaps any other node)
-        for node in self.chain:
-            if node.x == new_coords[0] and node.y == new_coords[1] and node.z == new_coords[2]:
-                self.overlap_counter += 1
-                return True
-
-        # reset overlap_counter if new node is added
-        self.overlap_counter = 0
-        return False
 
     ###################################### Calculates current HH/CH/CC bonds (and coords), and current stability based on current chain
     def get_stability_and_bonds(self, only_stability):

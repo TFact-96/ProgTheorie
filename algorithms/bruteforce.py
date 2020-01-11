@@ -20,7 +20,7 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
 
         # only count non-stuck chains
         if not lattice.chain_stuck:
-            stability, moves = get_chain_data(lattice, False)
+            stability, moves = get_chain_data(lattice, False, False)
 
             # if this generation is a new record
             if stability <= best_stability:
@@ -28,9 +28,6 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
                 best_stability = stability
                 best_generation = i
                 print(f"Generation {i}: Stability {best_stability}.")
-
-    # print this chain
-    get_chain_data(best_lattice, True)
 
     return best_lattice
 ###################################### END (bruteforce) ALGORITHM
