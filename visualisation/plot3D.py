@@ -22,7 +22,7 @@ def plot_chain(lattice):
         )
 
         # Plot how much a bond reduces stability
-        #plt.text(
+        #ax.text(
             # (hh_bond[0][0] + hh_bond[0][1]) / 2,
             # (hh_bond[1][0] + hh_bond[1][1]) / 2,
             # (hh_bond[2][0] + hh_bond[2][1]) / 2,
@@ -47,11 +47,22 @@ def plot_chain(lattice):
             zorder=-1
         )
 
+    # plot text at start and ending atom
+    ax.text(
+         x[0], y[0], z[0] + 0.1,
+         "Start"
+    )
+
+    ax.text(
+         x[-1], y[-1], z[-1] + 0.1,
+         "Finish"
+    )
+
     # plot the chain itself
     ax.plot3D(
         x, y, z,
         "-",
-        linewidth=2,
+        linewidth=3,
         color='black',
         zorder=0,
     )

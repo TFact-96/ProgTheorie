@@ -26,6 +26,9 @@ class AminoLattice:
         # folding code corresponding to move index
         self.move_code = [1, 2, 3, -1, -2, -3]
 
+        # already used moves
+        self.leftover_moves = self.moves
+
         # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
         self.cc_bonds = []
@@ -36,31 +39,36 @@ class AminoLattice:
 
     ###################################### Returns next Atom object with non-self-overlapping coords. Returns none if stuck.
     def generate_random_valid_node(self):
-        # get random move of new node added to chain
-        random_move_index = np.random.randint(len(self.moves))
-        # last atom needed to generate next one
-        last_atom = self.chain[-1]
-
-        # last atom coords + random move
-        new_x = last_atom.x + self.moves[random_move_index][0]
-        new_y = last_atom.y + self.moves[random_move_index][1]
-        new_z = last_atom.z + self.moves[random_move_index][2]
-        new_coords = [new_x, new_y, new_z]
-
-        # get fold code that creates this move
-        fold_code = self.move_code[random_move_index]
-
         # if more than 100 random moves are tried (see check_overlap()); almost 100% chance that chain is stuck; Exit program
         if self.overlap_counter > 100:
             self.chain_stuck = True
             return
 
+        # get random move of new node added to chain
+        random_move_index = np.random.randint(len(self.leftover_moves))
+
+        # last atom needed to generate next one
+        last_atom = self.chain[-1]
+
+        # last atom coords + random move
+        new_x = last_atom.x + self.leftover_moves[random_move_index][0]
+        new_y = last_atom.y + self.leftover_moves[random_move_index][1]
+        new_z = last_atom.z + self.leftover_moves[random_move_index][2]
+        new_coords = [new_x, new_y, new_z]
+
+        # get fold code that creates this move
+        fold_code = self.move_code[random_move_index]
+
         # if the new node overlaps its own chain; try new move.
         if self.check_node_overlap(new_coords):
+            self.leftover_moves.pop(random_move_index)
             return self.generate_random_valid_node()
 
         # if doesnt overlap; accepted!
-        # make Atom object with this
+        # reset leftover_moves to all moves (for next new node generation)
+        self.leftover_moves = self.moves
+
+        # make Atom object
         new_node = Atom(new_coords[0], new_coords[1], new_coords[2])
 
         # set atomnumber

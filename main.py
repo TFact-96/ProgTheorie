@@ -31,7 +31,7 @@ if __name__ == "__main__":
             # stuck chain check (chain is None when stuck)
             if best_chain:
                 plot_chain(best_chain)
-                
+
         else:
             lattice = generate_one_chain(amino, False, 0)
 
