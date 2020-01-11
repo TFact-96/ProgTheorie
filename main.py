@@ -5,6 +5,14 @@ from visualisation.data import get_chain_data, get_plot_data, get_chain_from_fil
 from visualisation.plot3D import plot_chain
 import os
 
+
+# Get this shitty optimalization_tries out. It slows down the program by a significant deal.
+# Optimalization_tries means the amount of moves a new atom will try until stability change is found.
+# It does moves in a random way, and an already used move can be used again, consuming a try for no reason.
+#
+# TIP: write the generate_random_valid_node function in AminoLattice class so that an already used move will not be tried again,
+# and if all moves are used and no stability change has occured, make it do a random move.
+# Spent 8 hours on that to no avail, will buy coffee for you if you fix it.
 optimalization_tries = 10
 
 def clear_terminal():
@@ -39,7 +47,6 @@ def get_user_input_for_generating_chain():
         return iterations, amino, str_optimize, str_brute
 
     return 0, amino, str_optimize, str_brute
-
 
 if __name__ == "__main__":
     clear_terminal()
