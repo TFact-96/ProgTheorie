@@ -1,4 +1,4 @@
-from algorithms.optimizingalgorithms.greedymoves import generate_greedy_move
+from algorithms.optimizingalgorithms.greedymoves import generate_atom_greedy_move
 from classes.AminoLattice import AminoLattice
 
 ###################################### Generating all atoms one by one onto the lattice
@@ -10,10 +10,10 @@ def generate_chain(amino, use_optimize_algorithm, optimalization_tries):
 
         if use_optimize_algorithm:
             # generate a optimalized move (new node always makes bond-making moves if possible)
-            new_node = generate_greedy_move(lattice, optimalization_tries)
+            new_node = generate_atom_greedy_move(lattice, optimalization_tries)
         else:
             # get a random move per new atom added to chain
-            new_node = lattice.generate_random_valid_node()
+            new_node = lattice.generate_atom_random_move()
 
         # append the new node to the existing chain
         lattice.chain.append(new_node)

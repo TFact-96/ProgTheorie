@@ -1,5 +1,5 @@
 ###################################### Greedy ALGORITHM (The more C's and H's, the better it works)
-def generate_greedy_move(lattice, optimalization_tries):
+def generate_atom_greedy_move(lattice, optimalization_tries):
     stability = lattice.get_stability_and_bonds(True)
     new_stability = stability
     i = 0
@@ -7,7 +7,7 @@ def generate_greedy_move(lattice, optimalization_tries):
     # if a move makes stability change; keep that move
     while i < optimalization_tries and stability == new_stability:
         # get a random new atom
-        new_atom = lattice.generate_random_valid_node()
+        new_atom = lattice.generate_atom_random_move()
 
         if new_atom:
             # append to chain for testing

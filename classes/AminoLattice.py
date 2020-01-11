@@ -37,7 +37,7 @@ class AminoLattice:
         self.stability = 0
 
     ###################################### Returns next Atom object with non-self-overlapping coords. Returns none if stuck.
-    def generate_random_valid_node(self):
+    def generate_atom_random_move(self):
         # if more than 100 random moves are tried (see check_overlap()); almost 100% chance that chain is stuck; Exit program
         if self.overlap_counter > 100:
             self.chain_stuck = True
@@ -60,7 +60,7 @@ class AminoLattice:
 
         # if the new node overlaps its own chain; try new move.
         if self.check_node_overlap(new_coords):
-            return self.generate_random_valid_node()
+            return self.generate_atom_random_move()
 
         # no overlap: accepted, create an atom object at this coord
         return self.create_atom_object(new_coords, last_atom, fold_code)

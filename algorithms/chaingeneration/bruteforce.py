@@ -23,5 +23,6 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
                 best_generation = i
                 print(f"Generation {i}: Stability {best_stability}.")
 
+    print(f"\nFinished! Best generation was {best_generation} with Stability = {best_stability}")
     return best_lattice
 ###################################### END (bruteforce) ALGORITHM
