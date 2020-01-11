@@ -1,5 +1,5 @@
 # ProgTheorie
 
 - Getting started
--- Do `pip3 install -r requirements.txt`
--- Run `python main.py` for further instructions
+Do `pip3 install -r requirements.txt` <br>
+Run `python main.py` for further instructions
