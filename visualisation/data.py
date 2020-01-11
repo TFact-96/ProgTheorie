@@ -7,29 +7,21 @@ from classes.AminoLattice import AminoLattice
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-###################################### Returns resulting stability of whole chain and a tuple list of fold codes per atom
-def get_chain_data(lattice, print_data):
+###################################### Returns resulting stability of whole chain and a tuple list of (atom, fold_code)
+def get_chain_data(lattice):
     # cant get data if chain was stuck
     if lattice.chain_stuck:
         return
 
-    # set stability level and bonds of the chain
+    # set final stability level and bonds of the chain in the object
     lattice.set_stability_and_bonds()
 
-    move_data = [[node.type, node.fold_code] for node in lattice.chain]
-
-    if print_data:
-        clear_terminal()
-        print(f"\nThe stability of this amino-acid is {lattice.stability}.\n")
-        print(f"Its moves are:")
-
-        for node in move_data:
-            print(f"{node[0]} {node[1]}")
+    move_data = [(node.type, node.fold_code) for node in lattice.chain]
 
     return lattice.stability, move_data
 
 
-##################################### Write this to a csv file with datestamp in name
+##################################### Write move_data to a csv file with datestamp in name
 def write_chain_to_csv(move_data):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename = "AminoChain" + f"(S={move_data[0]})-" + timestr
@@ -66,7 +58,7 @@ def get_chain_from_file(file):
     # get all move coordinates from the fold codes
     for fold in fold_codes:
         if fold != "0":
-            moves.append(lattice.moves[lattice.move_code[fold]])
+            moves.append(lattice.moves[lattice.fold_code_to_index[fold]])
 
     # create atom objects based on moves from the zeroeth and put them in the lattice chain
     for i in range(len(moves)):

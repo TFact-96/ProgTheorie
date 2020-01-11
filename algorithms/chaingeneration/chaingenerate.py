@@ -1,7 +1,10 @@
-from algorithms.greedymoves import generate_greedy_move
+from algorithms.optimizingalgorithms.greedymoves import generate_greedy_move
+from classes.AminoLattice import AminoLattice
 
 ###################################### Generating all atoms one by one onto the lattice
-def generate_chain(lattice, use_optimize_algorithm, optimalization_tries):
+def generate_chain(amino, use_optimize_algorithm, optimalization_tries):
+    lattice = AminoLattice(amino)
+
     # while amount of nodes already generated is smaller than the whole amino string length
     while len(lattice.chain) < len(lattice.amino) and not lattice.chain_stuck:
 
@@ -14,5 +17,10 @@ def generate_chain(lattice, use_optimize_algorithm, optimalization_tries):
 
         # append the new node to the existing chain
         lattice.chain.append(new_node)
+
+    # dont count stuck chains
+    if lattice.chain_stuck:
+        print("A generated chain got stuck!")
+        return
 
     return lattice

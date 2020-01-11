@@ -1,4 +1,4 @@
-###################################### OPTIMALIZATION ALGORITHM (The more C's and H's, the better it works)
+###################################### Greedy ALGORITHM (The more C's and H's, the better it works)
 def generate_greedy_move(lattice, optimalization_tries):
     stability = lattice.get_stability_and_bonds(True)
     new_stability = stability

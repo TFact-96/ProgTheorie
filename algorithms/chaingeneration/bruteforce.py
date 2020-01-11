@@ -1,11 +1,6 @@
 from classes.AminoLattice import AminoLattice
-from algorithms.chaingenerate import generate_chain
+from algorithms.chaingeneration.chaingenerate import generate_chain
 from visualisation.data import get_chain_data
-import os
-
-# clearing the terminal
-def clear_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 ###################################### (bruteforce) ALGORITHM
 def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_tries):
@@ -15,12 +10,11 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
 
     # try n iterations for best stability
     for i in range(iterations):
-        lattice = AminoLattice(amino)
-        lattice = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
+        lattice = generate_chain(amino, use_optimize_algorithm, optimalization_tries)
 
-        # only count non-stuck chains
-        if not lattice.chain_stuck:
-            stability, moves = get_chain_data(lattice, False)
+        # only count non-stuck chains (aka lattice is not None)
+        if lattice:
+            stability, moves = get_chain_data(lattice)
 
             # if this generation is a new record
             if stability <= best_stability:

@@ -1,21 +1,11 @@
 from classes.AminoLattice import AminoLattice
-from algorithms.chaingenerate import generate_chain
-from algorithms.bruteforce import bruteforce_chains
+from algorithms.chaingeneration.chaingenerate import generate_chain
+from algorithms.chaingeneration.bruteforce import bruteforce_chains
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
 from visualisation.plot3D import plot_chain
 import os
 
 optimalization_tries = 10
-
-def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
-    lattice = AminoLattice(amino)
-    lattice = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
-
-    if lattice.chain_stuck:
-        print("Chain got stuck! Try again.")
-        return
-
-    return lattice
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -27,7 +17,7 @@ def plotting_and_data_handler(lattice):
 
     save_data = input("Do you want to save the atom moves of the chain into a .csv file? (y/n): ")
     if (save_data == "y"):
-        write_chain_to_csv(get_chain_data(lattice, False))
+        write_chain_to_csv(get_chain_data(lattice))
 
 def get_user_input_for_generating_chain():
     amino = input("Enter desired amino-chain (C's, H's and P's): ")
@@ -66,6 +56,7 @@ if __name__ == "__main__":
         exit(0)
 
     ################### Get chain data input for generation
+    clear_terminal()
     iterations, amino, str_optimize, str_brute = get_user_input_for_generating_chain()
 
     ################### Chain generation
@@ -78,7 +69,7 @@ if __name__ == "__main__":
             lattice = bruteforce_chains(amino, iterations, False, 0)
         # non bruteforce
         else:
-            lattice = generate_one_chain(amino, False, 0)
+            lattice = generate_chain(amino, False, 0)
 
     # Optimized (greedymoves) generation
     if str_optimize == "y":
@@ -87,7 +78,7 @@ if __name__ == "__main__":
             lattice = bruteforce_chains(amino, iterations, True, optimalization_tries)
         # not bruteforce
         else:
-            lattice = generate_one_chain(amino, True, optimalization_tries)
+            lattice = generate_chain(amino, True, optimalization_tries)
 
     # Handling plotting and data of chain
     if lattice:

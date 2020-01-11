@@ -25,8 +25,8 @@ class AminoLattice:
                       [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
 
         # folding code corresponding to move index
-        self.move_code = {"1":0, "2":1, "3":2, "-1":3, "-2":4, "-3":5}
-        self.move_code_reverse = {0:"1", 1:"2", 2:"3", 3:"-1", 4:"-2", 5:"-3"}
+        self.fold_code_to_index = {"1":0, "2":1, "3":2, "-1":3, "-2":4, "-3":5}
+        self.index_to_fold_code = {0:"1", 1:"2", 2:"3", 3:"-1", 4:"-2", 5:"-3"}
 
         # different types of bonds between nodes (consists of coordinates between nodes)
         self.hh_bonds = []
@@ -47,7 +47,7 @@ class AminoLattice:
         random_move_index = np.random.randint(len(self.moves))
 
         # get fold code that creates this move
-        fold_code = self.move_code_reverse[random_move_index]
+        fold_code = self.index_to_fold_code[random_move_index]
 
         # last atom needed to generate next one
         last_atom = self.chain[-1]
@@ -61,7 +61,6 @@ class AminoLattice:
         # if the new node overlaps its own chain; try new move.
         if self.check_node_overlap(new_coords):
             return self.generate_random_valid_node()
-
 
         # no overlap: accepted, create an atom object at this coord
         return self.create_atom_object(new_coords, last_atom, fold_code)
@@ -80,7 +79,6 @@ class AminoLattice:
 
     ####################################### creating a next atom object based on the last atom and fold code to get to new coords
     def create_atom_object(self, new_coords, last_atom, fold_code):
-        # if doesnt overlap; accepted!
         # make Atom object
         new_node = Atom(new_coords[0], new_coords[1], new_coords[2])
 
