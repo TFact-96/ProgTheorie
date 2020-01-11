@@ -8,7 +8,7 @@ def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 ###################################### Returns resulting stability of whole chain and a tuple list of fold codes per atom
-def get_chain_data(lattice, print_data, write_data):
+def get_chain_data(lattice, print_data):
     # cant get data if chain was stuck
     if lattice.chain_stuck:
         return
@@ -16,29 +16,31 @@ def get_chain_data(lattice, print_data, write_data):
     # set stability level and bonds of the chain
     lattice.set_stability_and_bonds()
 
-    moves = [[node.type, node.fold_code] for node in lattice.chain]
+    move_data = [[node.type, node.fold_code] for node in lattice.chain]
 
     if print_data:
         clear_terminal()
         print(f"\nThe stability of this amino-acid is {lattice.stability}.\n")
         print(f"Its moves are:")
 
-        for node in moves:
+        for node in move_data:
             print(f"{node[0]} {node[1]}")
 
-    if write_data:
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename = "AminoChain" + timestr
+    return lattice.stability, move_data
 
-        with open(f"data/{filename}.csv", mode='w') as chain:
-            atom = csv.writer(chain, delimiter=',')
 
-            atom.writerow(['atom', 'fold_code'])
+##################################### Write this to a csv file with datestamp in name
+def write_chain_to_csv(move_data):
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filename = "AminoChain" + f"(S={move_data[0]})-" + timestr
 
-            for node in moves:
-                atom.writerow(node)
+    with open(f"data/{filename}.csv", mode='w') as chain:
+        atom = csv.writer(chain, delimiter=',')
 
-    return lattice.stability, moves
+        atom.writerow(['atom', 'fold_code'])
+
+        for node in move_data[1]:
+            atom.writerow(node)
 
 ###################################### Generate chain from existing CSV
 def get_chain_from_file(file):

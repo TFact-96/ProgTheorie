@@ -1,7 +1,7 @@
 from classes.AminoLattice import AminoLattice
 from algorithms.chaingenerate import generate_chain
 from algorithms.bruteforce import bruteforce_chains
-from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file
+from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
 from visualisation.plot3D import plot_chain
 import os
 
@@ -20,6 +20,16 @@ def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def plotting_and_data_handler(lattice):
+    plot = input("Do you want to plot the chain? (y/n): ")
+    if (plot == "y"):
+        plot_chain(lattice)
+
+    save_data = input("Do you want to save the atom moves of the chain into a .csv file? (y/n): ")
+    if (save_data == "y"):
+        write_chain_to_csv(get_chain_data(lattice, False))
+
+
 if __name__ == "__main__":
     clear_terminal()
 
@@ -33,7 +43,6 @@ if __name__ == "__main__":
             plot_chain(lattice)
 
         exit(0)
-
 
     ################### Generating chain data
     amino = input("Enter desired amino-chain (C's, H's and P's): ")
@@ -54,11 +63,11 @@ if __name__ == "__main__":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
             clear_terminal()
-            best_chain = bruteforce_chains(amino, iterations, False, 0)
+            lattice = bruteforce_chains(amino, iterations, False, 0)
 
             # stuck chain check (chain is None when stuck)
-            if best_chain:
-                plot_chain(best_chain)
+            if lattice:
+                plotting_and_data_handler(lattice)
 
         else:
             clear_terminal()
@@ -66,28 +75,20 @@ if __name__ == "__main__":
 
             # stuck chain check (lattice is None when stuck)
             if lattice:
-                plot_chain(lattice)
+                plotting_and_data_handler(lattice)
 
     if str_optimize == "y":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
             clear_terminal()
-            best_chain = bruteforce_chains(amino, iterations, True, optimalization_tries)
+            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries)
 
-            if best_chain:
-
-                plot = input("Do you want to plot the best chain? (y/n): ")
-                if (plot == "y"):
-                    plot_chain(best_chain)
-
-                save_data = input("Do you want to save the atom moves of the best chain into a .csv file? (y/n): ")
-                if (save_data == "y"):
-                    get_chain_data(best_chain, False, True)
-
+            if lattice:
+                plotting_and_data_handler(lattice)
 
         else:
             clear_terminal()
             lattice = generate_one_chain(amino, True, optimalization_tries)
 
             if lattice:
-                plot_chain(lattice)
+                plotting_and_data_handler(lattice)
