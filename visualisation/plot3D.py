@@ -22,7 +22,7 @@ def plot_chain(lattice):
         )
 
         # Plot how much a bond reduces stability
-        #ax.text(
+        #plt.text(
             # (hh_bond[0][0] + hh_bond[0][1]) / 2,
             # (hh_bond[1][0] + hh_bond[1][1]) / 2,
             # (hh_bond[2][0] + hh_bond[2][1]) / 2,

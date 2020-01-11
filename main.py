@@ -5,6 +5,8 @@ from visualisation.data import get_chain_data, get_plot_data
 from visualisation.plot3D import plot_chain
 import os
 
+optimalization_tries = 10
+
 def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
     lattice = AminoLattice(amino)
     lattice = generate_chain(lattice, use_optimize_algorithm, optimalization_tries)
@@ -18,12 +20,11 @@ def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-
 if __name__ == "__main__":
     clear_terminal()
-    amino = input("\nEnter desired amino-chain (C's, H's and P's): ")
-    str_optimize = input("Random generation or optimal generation? (y = optimal / n = random): ")
-    str_brute = input("Brute force generation to find optimal amino fold? (y/n): ")
+    amino = input("Enter desired amino-chain (C's, H's and P's): ")
+    str_optimize = input("Random generation or greedy-move algorithm optimization? (y = greedy / n = random): ")
+    str_brute = input("Brute force generate chains and find best one? (y/n): ")
 
     if (str_optimize != "y" and str_optimize != "n") or (str_brute != "y" and str_brute != "n"):
         print("Only answer with y or n please.")
@@ -51,7 +52,6 @@ if __name__ == "__main__":
     if str_optimize == "y":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
-            optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             clear_terminal()
             best_chain = bruteforce_chains(amino, iterations, True, optimalization_tries)
 
@@ -59,7 +59,6 @@ if __name__ == "__main__":
                 plot_chain(best_chain)
 
         else:
-            optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             clear_terminal()
             lattice = generate_one_chain(amino, True, optimalization_tries)
 

@@ -1,3 +1,9 @@
+import os
+
+# clearing the terminal
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 ###################################### Returns resulting stability of whole chain and a tuple list of fold codes per atom
 def get_chain_data(lattice, print_data):
     # cant get data if chain was stuck
@@ -10,6 +16,7 @@ def get_chain_data(lattice, print_data):
     moves = [[node.type, node.fold_code] for node in lattice.chain]
 
     if print_data:
+        clear_terminal()
         print(f"\nThe stability of this amino-acid is {lattice.stability}.\n")
         print(f"Its moves are:")
 
