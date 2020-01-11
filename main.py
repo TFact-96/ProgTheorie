@@ -18,11 +18,12 @@ def generate_one_chain(amino, use_optimize_algorithm, optimalization_tries):
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 if __name__ == "__main__":
     clear_terminal()
     amino = input("\nEnter desired amino-chain (C's, H's and P's): ")
-    str_optimize = input("Random generation or greedy-move optimization? (y = greedy move / n = random): ")
-    str_brute = input("Brute force generate multiple chains and output best one? (y/n): ")
+    str_optimize = input("Random generation or optimal generation? (y = optimal / n = random): ")
+    str_brute = input("Brute force generation to find optimal amino fold? (y/n): ")
 
     if (str_optimize != "y" and str_optimize != "n") or (str_brute != "y" and str_brute != "n"):
         print("Only answer with y or n please.")
@@ -39,6 +40,7 @@ if __name__ == "__main__":
                 plot_chain(best_chain)
 
         else:
+            clear_terminal()
             lattice = generate_one_chain(amino, False, 0)
 
             # stuck chain check (lattice is None when stuck)
@@ -49,15 +51,17 @@ if __name__ == "__main__":
     if str_optimize == "y":
         if str_brute == "y":
             iterations = int(input("How many chain generations for brute forcing?: "))
+            optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             clear_terminal()
-            best_chain = bruteforce_chains(amino, iterations, True)
+            best_chain = bruteforce_chains(amino, iterations, True, optimalization_tries)
 
             if best_chain:
                 plot_chain(best_chain)
 
         else:
+            optimalization_tries = int(input("How many times should a node try for an optimal move?: "))
             clear_terminal()
-            lattice = generate_one_chain(amino, True)
+            lattice = generate_one_chain(amino, True, optimalization_tries)
 
             if lattice:
                 plot_chain(lattice)
