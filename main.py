@@ -29,22 +29,7 @@ def plotting_and_data_handler(lattice):
     if (save_data == "y"):
         write_chain_to_csv(get_chain_data(lattice, False))
 
-
-if __name__ == "__main__":
-    clear_terminal()
-
-    ################### Loading existing chain data
-    from_csv = input("Plot an existing amino chain from a .csv file, or generate a new one? (y = load / n = generate): ")
-
-    if (from_csv == "y"):
-        file = input("Give the filename from the data folder (without .csv extension): ")
-        lattice = get_chain_from_file(file)
-        if lattice:
-            plot_chain(lattice)
-
-        exit(0)
-
-    ################### Generating chain data
+def get_user_input_for_generating_chain():
     amino = input("Enter desired amino-chain (C's, H's and P's): ")
 
     for atom in amino:
@@ -59,36 +44,53 @@ if __name__ == "__main__":
         print("Only answer with y or n please.")
         exit(0)
 
+    if str_brute == "y":
+        iterations = int(input("How many chain generations for brute forcing?: "))
+        return iterations, amino, str_optimize, str_brute
+
+    return 0, amino, str_optimize, str_brute
+
+
+if __name__ == "__main__":
+    clear_terminal()
+
+    ################### Loading existing chain data or generating own?
+    from_csv = input("Plot an existing amino chain from a .csv file, or generate a new one? (y = load / n = generate): ")
+
+    if (from_csv == "y"):
+        file = input("Give the filename from the data folder (without .csv extension): ")
+        lattice = get_chain_from_file(file)
+        if lattice:
+            plot_chain(lattice)
+
+        exit(0)
+
+    ################### Get chain data input for generation
+    iterations, amino, str_optimize, str_brute = get_user_input_for_generating_chain()
+
+    ################### Chain generation
+    clear_terminal()
+
+    # Random generation
     if str_optimize == "n":
+        # bruteforce
         if str_brute == "y":
-            iterations = int(input("How many chain generations for brute forcing?: "))
-            clear_terminal()
             lattice = bruteforce_chains(amino, iterations, False, 0)
-
-            # stuck chain check (chain is None when stuck)
-            if lattice:
-                plotting_and_data_handler(lattice)
-
+        # non bruteforce
         else:
-            clear_terminal()
             lattice = generate_one_chain(amino, False, 0)
 
-            # stuck chain check (lattice is None when stuck)
-            if lattice:
-                plotting_and_data_handler(lattice)
-
+    # Optimized (greedymoves) generation
     if str_optimize == "y":
+        # bruteforce
         if str_brute == "y":
-            iterations = int(input("How many chain generations for brute forcing?: "))
-            clear_terminal()
             lattice = bruteforce_chains(amino, iterations, True, optimalization_tries)
-
-            if lattice:
-                plotting_and_data_handler(lattice)
-
+        # not bruteforce
         else:
-            clear_terminal()
             lattice = generate_one_chain(amino, True, optimalization_tries)
 
-            if lattice:
-                plotting_and_data_handler(lattice)
+    # Handling plotting and data of chain
+    if lattice:
+        plotting_and_data_handler(lattice)
+
+    exit(0)
