@@ -6,17 +6,6 @@ from visualisation.plot3D import plot_chain
 import os
 
 # Get this shitty optimalization_tries out. It slows down the program by a significant deal.
-# Optimalization_tries means the amount of moves a new atom will try until stability change is found.
-# It does moves in a random way, and an already used move can be used again, consuming a try for no reason.
-# So, even if it uses 20+ random moves, it wouldn't even ensure that it uses the move where the bond is found.
-#
-# TIP: rewrite the generate_random_valid_node() function in AminoLattice class so that an already used move will not be tried again,
-# and if all possible moves are used and no stability change has occured; make it do a random move.
-# This would make the "amount of tries" obsolete, and only 6 moves max would be used vs 20+ random moves.
-# Which makes the runtime of the greedy-moves algorithm about 5x faster than it now is,
-# (but still on average 3x slower than the random-moves, albeit infinitely more efficient)
-#
-# Spent 8 hours on this shit to no avail, will buy coffee and frikandelbroodje for you if you fix it.
 optimalization_tries = 10
 
 def clear_terminal():
