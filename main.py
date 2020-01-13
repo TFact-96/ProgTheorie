@@ -62,7 +62,7 @@ def main():
         if lattice:
             plot_chain(lattice)
 
-        exit(0)
+        prompt_rerun()
 
     ################### Get chain data input for generation
     iterations, amino, str_optimize, str_brute = get_user_input_for_generating_chain()
@@ -91,6 +91,9 @@ def main():
     if lattice:
         plotting_and_data_handler(lattice)
     
+    prompt_rerun()
+
+def prompt_rerun():
     rerun = 0
     while rerun != "y" and rerun != "n":
         rerun = input("Do you want to try another amino chain? (y/n):")
@@ -99,6 +102,6 @@ def main():
         main()
     
     exit(0)
-
+    
 if __name__ == "__main__":
     main()
