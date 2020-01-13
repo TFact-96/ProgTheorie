@@ -56,11 +56,9 @@ if __name__ == "__main__":
         exit(0)
 
     ################### Get chain data input for generation
-    clear_terminal()
     iterations, amino, str_optimize, str_brute = get_user_input_for_generating_chain()
 
     ################### Chain generation
-    clear_terminal()
 
     # Random generation
     if str_optimize == "n":
