@@ -6,7 +6,7 @@ from visualisation.data import get_chain_data
 def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_tries):
     best_stability = 0
 
-    print(f"Brute force generating {iterations} chains:")
+    print(f"\nBrute force generating {iterations} chains:")
 
     # try n iterations for best stability
     for i in range(iterations):
@@ -23,6 +23,6 @@ def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_
                 best_generation = i
                 print(f"Generation {i}: Stability {best_stability}.")
 
-    print(f"\nFinished! Best generation was {best_generation} with Stability = {best_stability}")
+    print(f"Finished! Best generation was {best_generation} with Stability = {best_stability}")
     return best_lattice
 ###################################### END (bruteforce) ALGORITHM

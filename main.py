@@ -12,7 +12,7 @@ def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def plotting_and_data_handler(lattice):
-    plot = input("Do you want to plot the chain? (y/n): ")
+    plot = input("\nDo you want to plot the chain? (y/n): ")
     if (plot == "y"):
         plot_chain(lattice)
 
@@ -36,12 +36,21 @@ def get_user_input_for_generating_chain():
         exit(0)
 
     if str_brute == "y":
-        iterations = int(input("How many chain generations for brute forcing?: "))
+        try:
+            iterations = int(input("How many chain generations for brute forcing?: "))
+        except ValueError:
+            print("Only positive integer for brute force iterations please.")
+            exit(0)
+        
+        if iterations < 0:
+            print("Only positive integer for brute force iterations please.")
+            exit(0)
+            
         return iterations, amino, str_optimize, str_brute
 
     return 0, amino, str_optimize, str_brute
 
-if __name__ == "__main__":
+def main():
     clear_terminal()
 
     ################### Loading existing chain data or generating own?
@@ -81,5 +90,15 @@ if __name__ == "__main__":
     # Handling plotting and data of chain
     if lattice:
         plotting_and_data_handler(lattice)
-
+    
+    rerun = 0
+    while rerun != "y" and rerun != "n":
+        rerun = input("Do you want to try another amino chain? (y/n):")
+    
+    if rerun == "y":
+        main()
+    
     exit(0)
+
+if __name__ == "__main__":
+    main()
