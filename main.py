@@ -53,7 +53,6 @@ if __name__ == "__main__":
         if lattice:
             plot_chain(lattice)
 
-        clear_terminal()
         exit(0)
 
     ################### Get chain data input for generation
@@ -85,5 +84,4 @@ if __name__ == "__main__":
     if lattice:
         plotting_and_data_handler(lattice)
 
-    clear_terminal()
     exit(0)

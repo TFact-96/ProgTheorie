@@ -33,6 +33,8 @@ def write_chain_to_csv(move_data):
 
         for node in move_data[1]:
             atom.writerow(node)
+    
+    print(f"File saved to {filename}.csv in the /data folder.")
 
 ###################################### Generate chain from existing CSV
 def get_chain_from_file(file):
@@ -43,8 +45,13 @@ def get_chain_from_file(file):
     new_y = 0
     new_z = 0
 
+    # check if file exists
+    if not os.path.isfile(f"data/{file}.csv"):
+        print("File not found.")
+        return
+        
     # read datafile and put amino string and fold codes into lists
-    with open(f"data/{file}.csv", mode='r') as chain_data:
+    with open(f"data/{file}.csv", mode='r') as chain_data:    
         chain_reader = csv.DictReader(chain_data)
         line_count = 1
         for atom in chain_reader:
