@@ -100,7 +100,6 @@ class AminoLattice:
             atom for atom in self.chain if atom.type == "C" or atom.type == "H"
         ]
 
-        atom_nr = 0
         stability = 0
         hh_bonds = []
         ch_bonds = []
@@ -150,9 +149,6 @@ class AminoLattice:
                                 [atom.y, compare_atom.y],
                                 [atom.z, compare_atom.z]]
                             )
-
-        # delete this index for double count prevention
-        atom_nr += 1
 
         if only_stability == True:
             return stability
