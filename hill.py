@@ -1,5 +1,7 @@
 import numpy as np
 import math
+import copy
+import random
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
@@ -34,10 +36,12 @@ class NodeChain:
     def __init__(self, amino):
 
         self.stability = 0
+        self.old_stability = 0
         self.amino = amino
         self.first_node = Node(0, 0)
         self.first_node.type = amino[0]
         self.chain = {0: self.first_node}
+
         self.cc_bonds = []
         self.ch_bonds = []
 
@@ -47,25 +51,29 @@ class NodeChain:
         self.diagonal_moves = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
 
     def link_neighbours(self):
+        temp_stability = 0
+
         for node_key, node in self.chain.items():
 
             for node_neighbour in node.neighbours:
 
                 if node.type == "C" and node_neighbour.type == "C":
-                    self.stability -= 5
+                    temp_stability -= 5
                     self.cc_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
                 elif node.type == "C":
-                    self.stability -= 1
+                    temp_stability -= 1
                     self.ch_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
                 else:
-                    self.stability -= 1
+                    temp_stability -= 1
                     self.ch_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
+
+        self.stability = temp_stability
 
     def update_neighbours(self):
 
@@ -84,7 +92,13 @@ class NodeChain:
             ) and (abs(node_1_index - node_2_index) != 1):
 
                 node_1.neighbours.append(node_2)
+
         self.link_neighbours()
+
+    def reset_neighbours(self):
+
+        for node_key, node in self.chain.items():
+            node.neighbours = []
 
     def create_chain(self):
         index = 0
@@ -102,7 +116,6 @@ class NodeChain:
                 self.chain[index] = Node(new_x, new_y)
                 self.chain[index].n = index
                 self.chain[index].type = self.amino[index]
-        print(self.chain)
 
     def no_overlap(self, x, y):
 
@@ -131,11 +144,11 @@ class NodeChain:
             else:
                 color.append("blue")
 
-        for cc_bond in self.cc_bonds:
-            plt.plot(cc_bond[0], cc_bond[1], "y--")
+        # for cc_bond in self.cc_bonds:
+        #     plt.plot(cc_bond[0], cc_bond[1], "y--")
 
-        for ch_bond in self.ch_bonds:
-            plt.plot(ch_bond[0], ch_bond[1], "r--")
+        # for ch_bond in self.ch_bonds:
+        #     plt.plot(ch_bond[0], ch_bond[1], "r--")
 
         # plot atomtype name at its node coord
         for i in range(len(plot_x)):
@@ -159,6 +172,9 @@ class NodeChain:
         node_i1_coords = np.array([node_i1.x, node_i1.y])
         vector1 = node_i1_coords - node_i_coords
 
+        chain_copy = copy.deepcopy(self.chain)
+        self.old_stability = self.stability
+
         checker = {
             "[1, 1]": [True, [1, 1]],
             "[1, -1]": [True, [1, -1]],
@@ -180,11 +196,8 @@ class NodeChain:
                 and (np.linalg.norm(L - node_i1_coords) == 1.0)
                 and (self.check_point(C))
             ):
-                print("pullmove")
                 # residue of chain follows in footsteps
                 for index in range(int(node.n - 1)):
-
-                    print(index)
 
                     residue_node = self.chain[index]
                     residue_node_next = self.chain[index + 2]
@@ -200,16 +213,27 @@ class NodeChain:
                 previous_node = self.chain[int(node.n) - 1]
                 previous_node.x = C[0]
                 previous_node.y = C[1]
+                break
 
+        self.reset_neighbours()
         self.update_neighbours()
 
+        if self.stability > self.old_stability:
+            self.chain = chain_copy
+
+            self.reset_neighbours()
+            self.update_neighbours()
+
+            print(self.stability)
+
     def random_pull(self):
-        pull_chain = self.chain[4]
-        self.pull_move(pull_chain)
+
+        for x in range(100):
+            d = random.randint(1, 10)
+            self.pull_move(self.chain[d])
 
 
 k = NodeChain("CHHCHHCHHCHC")
 k.create_chain()
-k.plot_chain()
 k.random_pull()
 k.plot_chain()
