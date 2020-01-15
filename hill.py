@@ -102,6 +102,7 @@ class NodeChain:
                 self.chain[index] = Node(new_x, new_y)
                 self.chain[index].n = index
                 self.chain[index].type = self.amino[index]
+        print(self.chain)
 
     def no_overlap(self, x, y):
 
@@ -181,10 +182,12 @@ class NodeChain:
             ):
                 print("pullmove")
                 # residue of chain follows in footsteps
-                for index in range(int(node.n) - 1):
+                for index in range(int(node.n - 1)):
+
+                    print(index)
+
                     residue_node = self.chain[index]
-                    residue_node_next = self.chain[index + 1]
-                    print(residue_node, residue_node_next)
+                    residue_node_next = self.chain[index + 2]
 
                     residue_node.x = residue_node_next.x
                     residue_node.y = residue_node_next.y
@@ -201,13 +204,12 @@ class NodeChain:
         self.update_neighbours()
 
     def random_pull(self):
-        pull_chain = self.chain[3]
+        pull_chain = self.chain[4]
         self.pull_move(pull_chain)
-
-        print(pull_chain.type, pull_chain.n)
 
 
 k = NodeChain("CHHCHHCHHCHC")
 k.create_chain()
+k.plot_chain()
 k.random_pull()
 k.plot_chain()
