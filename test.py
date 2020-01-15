@@ -1,6 +1,5 @@
 import itertools
+import numpy as np
 
-["a", "b", "c"]
-
-for p, k in itertools.combinations(["a", "b", "c"], 2):
-    print(p, k)
+for k in range(-1):
+    print(k)
