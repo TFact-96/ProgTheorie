@@ -14,6 +14,7 @@ class Node:
         # coords
         self.x = x
         self.y = y
+        self.n = 0
 
         # atom type (default P)
         self.type = "P"
@@ -99,9 +100,8 @@ class NodeChain:
             if self.no_overlap(new_x, new_y):
                 index += 1
                 self.chain[index] = Node(new_x, new_y)
+                self.chain[index].n = index
                 self.chain[index].type = self.amino[index]
-
-        self.update_neighbours()
 
     def no_overlap(self, x, y):
 
@@ -147,43 +147,44 @@ class NodeChain:
     # checks if a point has a node or not
     def check_point(self, array):
         for index, nodes in self.chain.items():
-            if array == np.array([nodes.x, nodes.y]):
+            if str(array) == str(np.array([nodes.x, nodes.y])):
                 return False
         return True
 
     def pull_move(self, node):
 
         node_i_coords = np.array([node.x, node.y])
-        node_i1 = self.chain[int(node) + 1]
-        node_i1_coords = np.array[node_i1.x, node_i1.y]
+        node_i1 = self.chain[int(node.n) + 1]
+        node_i1_coords = np.array([node_i1.x, node_i1.y])
         vector1 = node_i1_coords - node_i_coords
 
         checker = {
-            repr([1, 1]): True,
-            repr([1, -1]): True,
-            repr([-1, 1]): True,
-            repr([-1, -1]): True,
+            "[1, 1]": [True, [1, 1]],
+            "[1, -1]": [True, [1, -1]],
+            "[-1, 1]": [True, [-1, 1]],
+            "[-1, -1]": [True, [-1, -1]],
         }
 
         for d_move in self.diagonal_moves:
             if not self.check_point(node_i_coords + np.array(d_move)):
-                checker[str(d_move)] = False
+                checker[str(d_move)][0] = False
 
         for d_check, d_bool in checker.items():
-            L = node_i_coords + np.array(d_check)
+            L = node_i_coords + np.array(d_bool[1])
             C = L - vector1
 
             # checks pull move requirements
             if (
-                (d_bool == True)
+                (d_bool[0] == True)
                 and (np.linalg.norm(L - node_i1_coords) == 1.0)
                 and (self.check_point(C))
             ):
-
+                print("pullmove")
                 # residue of chain follows in footsteps
-                for index in range(int(node) - 1):
+                for index in range(int(node.n) - 1):
                     residue_node = self.chain[index]
                     residue_node_next = self.chain[index + 1]
+                    print(residue_node, residue_node_next)
 
                     residue_node.x = residue_node_next.x
                     residue_node.y = residue_node_next.y
@@ -193,11 +194,20 @@ class NodeChain:
                 node.y = L[1]
 
                 # Previous node moves to C
-                previous_node = self.chain[int(node) - 1]
+                previous_node = self.chain[int(node.n) - 1]
                 previous_node.x = C[0]
                 previous_node.y = C[1]
+
+        self.update_neighbours()
+
+    def random_pull(self):
+        pull_chain = self.chain[3]
+        self.pull_move(pull_chain)
+
+        print(pull_chain.type, pull_chain.n)
 
 
 k = NodeChain("CHHCHHCHHCHC")
 k.create_chain()
+k.random_pull()
 k.plot_chain()
