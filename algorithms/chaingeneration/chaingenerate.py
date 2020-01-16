@@ -2,8 +2,8 @@ from algorithms.optimizingalgorithms.greedymoves import generate_atom_greedy_mov
 from classes.AminoLattice import AminoLattice
 
 ###################################### Generating all atoms one by one onto the lattice
-def generate_chain(amino, use_optimize_algorithm, optimalization_tries, ThreeD, HillClimb):
-    lattice = AminoLattice(amino, ThreeD, HillClimb)
+def generate_chain(amino, use_optimize_algorithm, optimalization_tries, ThreeD):
+    lattice = AminoLattice(amino, ThreeD)
     index = 0
     # while amount of nodes already generated is smaller than the whole amino string length
     while len(lattice.chain) < len(lattice.amino) and not lattice.chain_stuck:

@@ -10,7 +10,7 @@ import copy
 import matplotlib.pyplot as plt
 
 class AminoLattice:
-    def __init__(self, amino, ThreeD, HillClimb):
+    def __init__(self, amino, ThreeD):
         # 2D or 3D
         self.ThreeD = ThreeD
         

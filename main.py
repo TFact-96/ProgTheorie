@@ -9,8 +9,6 @@ import os
 # Get this shitty optimalization_tries out. It slows down the program by a significant deal.
 optimalization_tries = 20
 
-ThreeD = False
-
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -82,19 +80,19 @@ def main():
     if str_optimize == "n":
         # bruteforce
         if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, False, 0, ThreeD, HillClimb)
+            lattice = bruteforce_chains(amino, iterations, False, 0, ThreeD)
         # non bruteforce
         else:
-            lattice = generate_chain(amino, False, 0, ThreeD, HillClimb)
+            lattice = generate_chain(amino, False, 0, ThreeD)
 
     # Optimized (greedymoves) generation
     if str_optimize == "y":
         # bruteforce
         if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries, ThreeD, HillClimb)
+            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries, ThreeD)
         # not bruteforce
         else:
-            lattice = generate_chain(amino, True, optimalization_tries, ThreeD, HillClimb)
+            lattice = generate_chain(amino, True, optimalization_tries, ThreeD)
 
     # Handling plotting and data of chain
     if lattice:
@@ -122,12 +120,14 @@ if __name__ == "__main__":
     #plot_multiple_chains(chain_nr, chain_stability)
     
     # Mehmet's hill climb
-    
+    ThreeD = False
+    greedy = True
+    amino = "CHHCHHPPPCHCCPPCHPCHPHCPHPHCPHCHCHPHPCPHCHCHHCPPPPCHHCHC"
     best_stability = 0
     best_chain_list = []
     for i in range(5):
-        # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False, HillClimb=True)
-        k = generate_chain("CHHCHHPPPCHCCPPCHPCHPHCPHPHCPHCHCHPHPCPHCHCHHCPPPPCHHCHC", True, optimalization_tries, False, True)
+        # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False)
+        k = generate_chain(amino, greedy, optimalization_tries, ThreeD)
         
         if k:
             k.random_pull()
