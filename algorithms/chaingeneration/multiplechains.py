@@ -3,7 +3,7 @@ from algorithms.chaingeneration.chaingenerate import generate_chain
 from visualisation.data import get_chain_data
 
 ###################################### (bruteforce) ALGORITHM
-def multiple_chains(amino, iterations, use_optimize_algorithm, optimalization_tries, ThreeD, HillClimb):
+def multiple_chains(amino, iterations, use_optimize_algorithm, optimalization_tries, ThreeD):
     chain_stability = []
     chain_nr = []
     
@@ -11,7 +11,7 @@ def multiple_chains(amino, iterations, use_optimize_algorithm, optimalization_tr
 
     # try n iterations for best stability
     for i in range(iterations):
-        lattice = generate_chain(amino, use_optimize_algorithm, optimalization_tries, ThreeD, HillClimb)
+        lattice = generate_chain(amino, use_optimize_algorithm, optimalization_tries, ThreeD)
 
         # only count non-stuck chains (aka lattice is not None)
         if lattice:
