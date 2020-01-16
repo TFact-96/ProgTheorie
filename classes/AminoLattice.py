@@ -333,11 +333,11 @@ class AminoLattice:
         self.set_stability_and_bonds()
 
         if self.stability > self.old_stability:
+            print(f"Bad pull, reverting")
             self.chain = chain_copy
             
             # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list
             self.set_stability_and_bonds()
-            print(f"Bad pull, reverting")
         
         elif self.stability < self.old_stability:
             print(f"Better stability found: {self.stability}")
