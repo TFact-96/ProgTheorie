@@ -122,8 +122,20 @@ if __name__ == "__main__":
     #plot_multiple_chains(chain_nr, chain_stability)
     
     # Mehmet's hill climb
-    # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False, HillClimb=True)
-    k = generate_chain("CHHCHHPPPCHCCPPCHPCHPHCPHPHCPHCHCHPHPCPHCHCHHCPPPPCHHCHC", True, optimalization_tries, False, True)
-    k.random_pull()
-    k.plot_chain()    
+    
+    best_stability = 0
+    best_chain_list = []
+    for i in range(5):
+        # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False, HillClimb=True)
+        k = generate_chain("CHHCHHPPPCHCCPPCHPCHPHCPHPHCPHCHCHPHPCPHCHCHHCPPPPCHHCHC", True, optimalization_tries, False, True)
+        
+        if k:
+            k.random_pull()
+            k.set_stability_and_bonds()
+            if k.stability < best_stability:
+                best_k = k
+                best_chain_list.append(k.chain)
+                best_stability = k.stability
+                print(f"That was a record chain: Stability {best_k.stability}")
+            
     #main()

@@ -23,5 +23,6 @@ def generate_chain(amino, use_optimize_algorithm, optimalization_tries, ThreeD, 
     if lattice.chain_stuck:
         print("A generated chain got stuck!")
         return
-
+    
+    print("Generated a chain.")
     return lattice

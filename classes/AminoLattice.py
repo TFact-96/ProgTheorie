@@ -74,7 +74,6 @@ class AminoLattice:
 
         # last atom needed to generate next one
         last_atom = self.chain[len(self.chain) - 1]
-        print(last_atom)
 
         # last atom coords + random move
         if self.ThreeD:
@@ -385,11 +384,15 @@ class AminoLattice:
             print(f"Better Stability: {self.stability}")
 
     def random_pull(self):
-        self.plot_chain()
         pull_times = 100
+        print(f"Before pulling {pull_times} times")
+        self.plot_chain()
         
         for x in range(pull_times):
             d = random.randint(1, len(self.chain) - 2)
             print(f"Pulling node {d}...")
             self.pull_move(self.chain[d])
+        
+        print(f"After pulling {pull_times} times")
+        self.plot_chain()
 
