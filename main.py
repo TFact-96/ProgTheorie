@@ -1,12 +1,15 @@
 from classes.AminoLattice import AminoLattice
 from algorithms.chaingeneration.chaingenerate import generate_chain
 from algorithms.chaingeneration.bruteforce import bruteforce_chains
+from algorithms.chaingeneration.multiplechains import multiple_chains
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
-from visualisation.plot3D import plot_chain
+from visualisation.plot3D import plot_chain2D, plot_chain3D, plot_multiple_chains
 import os
 
 # Get this shitty optimalization_tries out. It slows down the program by a significant deal.
-optimalization_tries = 10
+optimalization_tries = 20
+
+ThreeD = False
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -14,7 +17,10 @@ def clear_terminal():
 def plotting_and_data_handler(lattice):
     plot = input("\nDo you want to plot the chain? (y/n): ")
     if (plot == "y"):
-        plot_chain(lattice)
+        if ThreeD:
+            plot_chain3D(lattice)
+        else:
+            plot_chain2D(lattice)
 
     save_data = input("Do you want to save the atom moves of the chain into a .csv file? (y/n): ")
     if (save_data == "y"):
@@ -60,7 +66,10 @@ def main():
         file = input("Give the filename from the data folder (without .csv extension): ")
         lattice = get_chain_from_file(file)
         if lattice:
-            plot_chain(lattice)
+            if ThreeD:
+                plot_chain3D(lattice)
+            else:
+                plot_chain2D(lattice)
 
         prompt_rerun()
 
@@ -73,19 +82,19 @@ def main():
     if str_optimize == "n":
         # bruteforce
         if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, False, 0)
+            lattice = bruteforce_chains(amino, iterations, False, 0, ThreeD, HillClimb)
         # non bruteforce
         else:
-            lattice = generate_chain(amino, False, 0)
+            lattice = generate_chain(amino, False, 0, ThreeD, HillClimb)
 
     # Optimized (greedymoves) generation
     if str_optimize == "y":
         # bruteforce
         if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries)
+            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries, ThreeD, HillClimb)
         # not bruteforce
         else:
-            lattice = generate_chain(amino, True, optimalization_tries)
+            lattice = generate_chain(amino, True, optimalization_tries, ThreeD, HillClimb)
 
     # Handling plotting and data of chain
     if lattice:
@@ -104,4 +113,17 @@ def prompt_rerun():
     exit(0)
     
 if __name__ == "__main__":
-    main()
+    
+    # statistics plotting for quantifying quality of algorithm
+    #amino = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
+    #iterations = 500
+    #use_optimize_algorithm = True
+    #chain_nr, chain_stability = multiple_chains(amino, iterations, use_optimize_algorithm, optimalization_tries)
+    #plot_multiple_chains(chain_nr, chain_stability)
+    
+    # Mehmet's hill climb
+    # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False, HillClimb=True)
+    k = generate_chain("CHHCHHPPPCHCCPPCHPCHPHCPHPHCPHCHCHPHPCPHCHCHHCPPPPCHHCHC", True, optimalization_tries, False, True)
+    k.random_pull()
+    k.plot_chain()    
+    #main()

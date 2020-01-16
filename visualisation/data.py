@@ -83,7 +83,7 @@ def get_chain_from_file(file):
     return lattice
 
 ###################################### Preparing lists for plotting amino chain
-def get_plot_data(lattice):
+def get_plot_data(lattice, ThreeD):
     # prepare for plotting
     x = []
     y = []
@@ -97,7 +97,9 @@ def get_plot_data(lattice):
     for node in lattice.chain:
         x.append(node.x)
         y.append(node.y)
-        z.append(node.z)
+        
+        if ThreeD:
+            z.append(node.z)
 
         # set node colors
         if node.type == "H":
@@ -106,5 +108,8 @@ def get_plot_data(lattice):
             node.color = 'yellow'
 
         color.append(node.color)
-
-    return x, y, z, color
+    
+    if ThreeD:
+        return x, y, z, color
+    else:
+        return x, y, color

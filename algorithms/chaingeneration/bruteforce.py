@@ -3,14 +3,14 @@ from algorithms.chaingeneration.chaingenerate import generate_chain
 from visualisation.data import get_chain_data
 
 ###################################### (bruteforce) ALGORITHM
-def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_tries):
+def bruteforce_chains(amino, iterations, use_optimize_algorithm, optimalization_tries, HillClimb):
     best_stability = 0
 
     print(f"\nBrute force generating {iterations} chains:")
 
     # try n iterations for best stability
     for i in range(iterations):
-        lattice = generate_chain(amino, use_optimize_algorithm, optimalization_tries)
+        lattice = generate_chain(amino, use_optimize_algorithm, optimalization_tries, HillClimb)
 
         # only count non-stuck chains (aka lattice is not None)
         if lattice:
