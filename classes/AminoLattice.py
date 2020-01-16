@@ -333,7 +333,6 @@ class AminoLattice:
         self.set_stability_and_bonds()
 
         if self.stability > self.old_stability:
-            print(f"Bad pull, reverting")
             self.chain = chain_copy
             # reset stability and bonds
             self.set_stability_and_bonds()
@@ -344,6 +343,5 @@ class AminoLattice:
     def random_pull(self, pull_times_per_chain):                
         for x in range(pull_times_per_chain):
             d = random.randint(1, len(self.chain) - 2)
-            print(f"{x}: Pulling node {d}")
             self.pull_move(self.chain[d])
         

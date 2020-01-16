@@ -121,8 +121,8 @@ if __name__ == "__main__":
     
     # Mehmet's hill climb
     ThreeD = False
-    greedy = False
-    greedy_chain_generations = 1
+    greedy = True
+    greedy_chain_generations = 10
     pull_times_per_chain = 1000
     amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
     best_stability = 0
@@ -135,13 +135,11 @@ if __name__ == "__main__":
         if k:
             # set bonds and stability
             k.set_stability_and_bonds()
-            print(f"Generated greedy chain nr {i}: Stability {k.stability}")
+            print(f"Generated chain nr {i}: Stability {k.stability}")
 
             # pulling this chain
             k.random_pull(pull_times_per_chain)
             
-            # set bonds and stability again
-            k.set_stability_and_bonds()
             print(f"After pulling this chain: Stability {k.stability}\n")
             
             if k.stability < best_stability:
