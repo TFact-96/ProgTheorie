@@ -248,14 +248,14 @@ class AminoLattice:
                     self.cc_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
-                elif node.type == "C":
+                if (node.type == "C" and node_neighbour.type == "H") or (node.type == "H" and node_neighbour.type == "C"):
                     temp_stability -= 1
                     self.ch_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
-                else:
+                if node.type == "H" and node_neighbour.type == "H":
                     temp_stability -= 1
-                    self.ch_bonds.append(
+                    self.hh_bonds.append(
                         [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
                     )
 
@@ -381,18 +381,8 @@ class AminoLattice:
             self.reset_neighbours()
             self.update_neighbours()
 
-            print(f"Better Stability: {self.stability}")
-
-    def random_pull(self):
-        pull_times = 100
-        print(f"Before pulling {pull_times} times")
-        self.plot_chain()
-        
-        for x in range(pull_times):
+    def random_pull(self, pull_times_per_chain):                
+        for x in range(pull_times_per_chain):
             d = random.randint(1, len(self.chain) - 2)
-            print(f"Pulling node {d}...")
             self.pull_move(self.chain[d])
         
-        print(f"After pulling {pull_times} times")
-        self.plot_chain()
-
