@@ -136,6 +136,6 @@ if __name__ == "__main__":
                 best_k = k
                 best_chain_list.append(k.chain)
                 best_stability = k.stability
-                print(f"That was a record chain: Stability {best_k.stability}")
+                print(f"That was a record chain: Stability {best_k.stability}")            
             
     #main()
