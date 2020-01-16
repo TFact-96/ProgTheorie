@@ -121,28 +121,32 @@ if __name__ == "__main__":
     
     # Mehmet's hill climb
     ThreeD = False
-    greedy = True
-    greedy_chain_generations = 100
-    pull_times_per_chain = 100
+    greedy = False
+    greedy_chain_generations = 1
+    pull_times_per_chain = 1000
     amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
     best_stability = 0
     best_chain_list = []
     
-    for i in range(greedy_chain_generations):
+    for i in range(0, greedy_chain_generations):
         # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False)
         k = generate_chain(amino, greedy, optimalization_tries, ThreeD)
         
         if k:
+            # set bonds and stability
             k.set_stability_and_bonds()
             print(f"Generated greedy chain nr {i}: Stability {k.stability}")
 
+            # pulling this chain
             k.random_pull(pull_times_per_chain)
+            
+            # set bonds and stability again
             k.set_stability_and_bonds()
             print(f"After pulling this chain: Stability {k.stability}\n")
             
             if k.stability < best_stability:
                 best_k = k
-                best_chain_list.append(k.chain)
+                best_chain_list.append(k)
                 best_stability = k.stability
                 print(f"That was a record chain.\n")    
                 

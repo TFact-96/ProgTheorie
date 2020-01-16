@@ -236,53 +236,6 @@ class AminoLattice:
         
         
     ############################################## MEHMET'S HILL CLIMB, only 2D
-    def link_neighbours(self):
-        temp_stability = 0
-        
-        for node_key, node in self.chain.items():
-
-            for node_neighbour in node.neighbours:
-
-                if node.type == "C" and node_neighbour.type == "C":
-                    temp_stability -= 5
-                    self.cc_bonds.append(
-                        [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
-                    )
-                if (node.type == "C" and node_neighbour.type == "H") or (node.type == "H" and node_neighbour.type == "C"):
-                    temp_stability -= 1
-                    self.ch_bonds.append(
-                        [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
-                    )
-                if node.type == "H" and node_neighbour.type == "H":
-                    temp_stability -= 1
-                    self.hh_bonds.append(
-                        [[node.x, node_neighbour.x], [node.y, node_neighbour.y]]
-                    )
-
-        self.stability = temp_stability
-
-    def update_neighbours(self):
-        for a, b in itertools.combinations(list(self.chain.items()), 2):
-            node_1_index = a[0]
-            node_2_index = b[0]
-            node_1 = a[1]
-            node_2 = b[1]
-
-            # Deduct coordinates to create vector and check vector length
-            if (
-                np.linalg.norm(
-                    np.array([node_1.x, node_1.y]) - np.array([node_2.x, node_2.y])
-                )
-                == 1.0 ) and (abs(node_1_index - node_2_index) != 1):
-
-                node_1.neighbours.append(node_2)
-
-        self.link_neighbours()
-
-    def reset_neighbours(self):
-        for node_key, node in self.chain.items():
-            node.neighbours = []
-
     def plot_chain(self):
         plot_x = []
         plot_y = []
@@ -301,11 +254,15 @@ class AminoLattice:
             else:
                 color.append("blue")
 
-        # for cc_bond in self.cc_bonds:
-        #     plt.plot(cc_bond[0], cc_bond[1], "y--")
+        for cc_bond in self.cc_bonds:
+             plt.plot(cc_bond[0], cc_bond[1], "y--")
 
-        # for ch_bond in self.ch_bonds:
-        #     plt.plot(ch_bond[0], ch_bond[1], "r--")
+        for ch_bond in self.ch_bonds:
+             plt.plot(ch_bond[0], ch_bond[1], "--", color="orange")
+
+        for hh_bond in self.hh_bonds:
+             plt.plot(hh_bond[0], hh_bond[1], "r--")
+
 
         # plot atomtype name at its node coord
         for i in range(len(plot_x)):
@@ -372,17 +329,22 @@ class AminoLattice:
                 previous_node.y = C[1]
                 break
 
-        self.reset_neighbours()
-        self.update_neighbours()
+        # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list
+        self.set_stability_and_bonds()
 
         if self.stability > self.old_stability:
             self.chain = chain_copy
-
-            self.reset_neighbours()
-            self.update_neighbours()
+            
+            # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list
+            self.set_stability_and_bonds()
+            print(f"Bad pull, reverting")
+        
+        elif self.stability < self.old_stability:
+            print(f"Better stability found: {self.stability}")
 
     def random_pull(self, pull_times_per_chain):                
         for x in range(pull_times_per_chain):
             d = random.randint(1, len(self.chain) - 2)
+            print(f"{x}: Pulling node {d}")
             self.pull_move(self.chain[d])
         
