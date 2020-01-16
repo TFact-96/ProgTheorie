@@ -329,14 +329,13 @@ class AminoLattice:
                 previous_node.y = C[1]
                 break
 
-        # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list
+        # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list. All with current self.chain
         self.set_stability_and_bonds()
 
         if self.stability > self.old_stability:
             print(f"Bad pull, reverting")
             self.chain = chain_copy
-            
-            # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list
+            # reset stability and bonds
             self.set_stability_and_bonds()
         
         elif self.stability < self.old_stability:
