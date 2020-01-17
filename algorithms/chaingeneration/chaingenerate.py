@@ -23,5 +23,8 @@ def generate_chain(protein, use_greedy, greedy_tries, ThreeD):
     if Chain.state_stuck:
         print("A generated chain got stuck!")
         return
+    
+    # calculate and set the protein stability, and put the bonds in their respective coord list
+    Chain.set_stability_and_bonds()
 
     return Chain

@@ -2,7 +2,7 @@ from classes.ChainLattice import ChainLattice
 from algorithms.chaingeneration.chaingenerate import generate_chain
 from visualisation.data import get_chain_data
 
-###################################### (bruteforce) ALGORITHM
+###################################### Generates multiple random/greedy chains and puts their stability vs chain nr in a list
 def multiple_chains(protein, iterations, use_greedy, greedy_tries, ThreeD):
     chain_stability = []
     chain_nr = []
@@ -13,12 +13,14 @@ def multiple_chains(protein, iterations, use_greedy, greedy_tries, ThreeD):
     for i in range(iterations):
         Chain = generate_chain(protein, use_greedy, greedy_tries, ThreeD)
 
-        # only count non-stuck chains (aka lattice is not None)
-        if lattice:
+        # only count non-stuck chains (aka Chain is not None)
+        if Chain:
+            # calculate stability and set bonds in bond list
+            Chain.set_stability_and_bonds()
             stability, moves = get_chain_data(Chain)
             chain_nr.append(i)
             chain_stability.append(stability)
 
 
     return chain_nr, chain_stability
-###################################### END (bruteforce) ALGORITHM
+######################################
