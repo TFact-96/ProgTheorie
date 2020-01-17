@@ -37,6 +37,9 @@ class ChainLattice:
         if self.ThreeD:
             self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
                         [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
+            self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
+                                    [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
+                                    [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
         else:
             self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
             self.diagonal_moves = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
@@ -239,27 +242,35 @@ class ChainLattice:
     # checks if a point has a amino or not
     def check_point(self, array):
         for index, aminos in self.state.items():
-            if str(array) == str(np.array([aminos.x, aminos.y])):
+            if str(array) == str(np.array([aminos.x, aminos.y, aminos.z])):
                 return False
         return True
 
     def pull_move(self, amino):
 
-        amino_i_coords = np.array([amino.x, amino.y])
+        amino_i_coords = np.array([amino.x, amino.y, amino.z])
         amino_i1 = self.state[int(amino.n) + 1]
-        amino_i1_coords = np.array([amino_i1.x, amino_i1.y])
+        amino_i1_coords = np.array([amino_i1.x, amino_i1.y, amino_i1.z])
         vector1 = amino_i1_coords - amino_i_coords
 
         state_copy = copy.deepcopy(self.state)
-        self.old_stability = self.stability
+        self.old_stability = copy.deepcopy(self.stability)
 
         checker = {
-            "[1, 1]": [True, [1, 1]],
-            "[1, -1]": [True, [1, -1]],
-            "[-1, 1]": [True, [-1, 1]],
-            "[-1, -1]": [True, [-1, -1]],
-        }
-
+            "[-1, 1, 0]": [True, [-1, 1, 0]],
+            "[-1, -1, 0]": [True, [-1, -1, 0]],
+            "[-1, 0, 1]": [True, [-1, 0, 1]],
+            "[-1, 0, -1]": [True, [-1, 0, -1]],
+            "[0, 1, 1]": [True, [0, 1, 1]],
+            "[0, 1, -1]": [True, [0, 1, -1]],
+            "[0, -1, 1]": [True, [0, -1, 1]],
+            "[0, -1, -1]": [True, [0, -1, -1]],
+            "[1, -1, 0]": [True, [1, -1, 0]],
+            "[1, 1, 0]": [True, [1, 1, 0]],
+            "[1, 0, 1]": [True, [1, 0, 1]],
+            "[1, 0, -1]": [True, [1, 0, -1]],
+        }    
+            
         for d_move in self.diagonal_moves:
             if not self.check_point(amino_i_coords + np.array(d_move)):
                 checker[str(d_move)][0] = False
@@ -282,15 +293,18 @@ class ChainLattice:
 
                     residue_amino.x = residue_amino_next.x
                     residue_amino.y = residue_amino_next.y
+                    residue_amino.z = residue_amino_next.z
 
                 # amino moves to L
                 amino.x = L[0]
                 amino.y = L[1]
+                amino.z = L[2]
 
                 # Previous amino moves to C
                 previous_amino = self.state[int(amino.n) - 1]
                 previous_amino.x = C[0]
                 previous_amino.y = C[1]
+                previous_amino.z = C[2]
                 break
 
         # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list. All with current self.state
