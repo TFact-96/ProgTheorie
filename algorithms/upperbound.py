@@ -1,3 +1,5 @@
+# This only works if each bond is can not bind to any more other C's or H's.
+
 def calc_upperbound(protein):
     c_count = len([amino for amino in protein if amino == "C"])
     h_count = len([amino for amino in protein if amino == "H"])
@@ -20,12 +22,23 @@ def calc_upperbound(protein):
         
     # calc upperbound of stability by combinations of c's and h's
     if c_even and h_even:
-        min_stability = -(5*c_count + h_count) / 2 # no unbound aminos
+        # first bond all C's --> S=-5*(c_count/2), 
+        # then all H's --> S=-(h_count/2), Total:
+        min_stability = -(5*c_count + h_count) / 2 # no unbound rest aminos
+        
     elif c_even and not h_even:
+        # first bond all C's --> S=-5*(c_count/2), 
+        # then all H's but one --> S=-(h_count - 1)/2, Total:
         min_stability = -(5*c_count + (h_count - 1)) / 2 # always an unbound H
+        
     elif h_even and not c_even:
+        # first bond all C's but one --> S=-5*(c_count - 1)/2, 
+        # then all H's --> S=-(h_count/2). Total:
         min_stability = -(5*(c_count - 1) + h_count) / 2 # always an unbound H or C
+        
     elif not h_even and not c_even:
-        min_stability = - 1 - ((5*(c_count - 1) + (h_count - 1)) / 2) # no unbound aminos
+        # first bond all C's but one --> S=-5*(c_count - 1)/2, then all H's but one --> S=-(h_count - 1)/2
+        # Then rest C and H makes a bond: S= -1. Total:
+        min_stability = - 1 - ((5*(c_count - 1) + (h_count - 1)) / 2) # no unbound rest aminos
         
     return min_stability

@@ -33,7 +33,7 @@ def get_user_input_for_generating_chain():
     # calculate upperbound
     if protein:
         min_stability = calc_upperbound(protein)
-        print(f"The minimal possible stability of this protein chain is {min_stability}\n")
+        print(f"The naive minimal stability of this protein is {min_stability}\n")
         
     str_greedy = input("Random chain generation or greedy-move algorithm chain generation? (y = greedy / n = random): ")
 
