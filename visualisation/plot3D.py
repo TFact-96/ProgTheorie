@@ -7,7 +7,7 @@ import numpy as np
 
 ###################################### Plotting the chain
 def plot_chain3D(Chain):
-    x, y, z, color = get_plot_data(Chain, True)
+    x, y, z, color = get_plot_data(Chain)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')

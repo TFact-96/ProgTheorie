@@ -21,7 +21,7 @@ def generate_chain(protein, use_greedy, greedy_tries):
 
     # dont count stuck chains
     if Chain.state_stuck:
-        print("A generated chain got stuck!\n")
+        print("\nA generated chain got stuck!")
         return
     
     # calculate and set the protein stability, and put the bonds in their respective coord list

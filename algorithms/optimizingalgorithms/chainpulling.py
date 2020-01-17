@@ -13,9 +13,9 @@ def chain_pulling(amino, use_greedy, optimalization_tries, chain_generations, pu
             Chain.set_stability_and_bonds()
             
             if use_greedy:
-                print(f"Generated greedy chain nr {i + 1}: Stability {Chain.stability} (before pulling)")
+                print(f"\nGenerated greedy chain nr {i + 1}: Stability {Chain.stability} (before pulling)")
             else:
-                print(f"Generated random chain nr {i + 1}: Stability {Chain.stability} (before pulling)")
+                print(f"\nGenerated random chain nr {i + 1}: Stability {Chain.stability} (before pulling)")
             print("Pulling...")
             # pulling this chain
             Chain.random_pull(pull_times_per_chain)
@@ -25,9 +25,9 @@ def chain_pulling(amino, use_greedy, optimalization_tries, chain_generations, pu
                 best_chain = Chain
                 best_chain_list.append(Chain)
                 best_stability = Chain.stability
-                print(f"After pulling this chain: Stability {Chain.stability} (Record)\n")
+                print(f"After pulling this chain: Stability {Chain.stability} (Record)")
             else:
-                print(f"After pulling this chain: Stability {Chain.stability}\n")
+                print(f"After pulling this chain: Stability {Chain.stability}")
         else:
             # stuck chains will not be counted, so the count goes one lower
             i -= 1

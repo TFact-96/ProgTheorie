@@ -3,7 +3,7 @@ from algorithms.chaingeneration.chaingenerate import generate_chain
 from algorithms.chaingeneration.multiplechains import multiple_chains
 from algorithms.optimizingalgorithms.chainpulling import chain_pulling
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
-from visualisation.plot3D import plot_chain2D, plot_chain3D, plot_multiple_chains
+from visualisation.plot3D import plot_chain3D, plot_multiple_chains
 import os
 
 # Get this shitty greedy_tries out. It slows down the program by a significant deal.
