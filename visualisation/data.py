@@ -10,7 +10,6 @@ def clear_terminal():
 ###################################### Returns resulting stability of whole chain and a tuple list of (amino, fold_code)
 def get_chain_data(Chain):
     move_data = [(amino.type, amino.fold_code) for amino_key, amino in Chain.state.items()]
-    print(move_data)
     return Chain.stability, move_data
 
 ##################################### Write move_data to a csv file with datestamp in name
