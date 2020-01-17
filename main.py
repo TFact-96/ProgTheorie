@@ -2,6 +2,7 @@ from classes.ChainLattice import ChainLattice
 from algorithms.chaingeneration.chaingenerate import generate_chain
 from algorithms.chaingeneration.multiplechains import multiple_chains
 from algorithms.optimizingalgorithms.chainpulling import chain_pulling
+from algorithms.upperbound import calc_upperbound
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
 from visualisation.plot3D import plot_chain3D, plot_multiple_chains
 import os
@@ -28,7 +29,12 @@ def get_user_input_for_generating_chain():
         if amino != "H" and amino != "C" and amino != "P":
             print("Only C, H and P aminos allowed.")
             exit(0)
-
+    
+    # calculate upperbound
+    if protein:
+        min_stability = calc_upperbound(protein)
+        print(f"The minimal possible stability of this protein chain is {min_stability}\n")
+        
     str_greedy = input("Random chain generation or greedy-move algorithm chain generation? (y = greedy / n = random): ")
 
     str_hillclimb = input("Chain-pulling for better stability (Hill Climb Algorithm) after generation of the chain? (y/n): ")
