@@ -6,14 +6,14 @@ from visualisation.data import get_plot_data
 import numpy as np
 
 ###################################### Plotting the chain
-def plot_chain3D(lattice):
-    x, y, z, color = get_plot_data(lattice, True)
+def plot_chain3D(Chain):
+    x, y, z, color = get_plot_data(Chain, True)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # plot the bond lines
-    for hh_bond in lattice.hh_bonds:
+    for hh_bond in Chain.hh_bonds:
         ax.plot3D(
             hh_bond[0], hh_bond[1], hh_bond[2],
             "--",
@@ -30,7 +30,7 @@ def plot_chain3D(lattice):
             # "-1"
         # )
 
-    for ch_bond in lattice.ch_bonds:
+    for ch_bond in Chain.ch_bonds:
         ax.plot3D(
             ch_bond[0], ch_bond[1], ch_bond[2],
             "--",
@@ -39,7 +39,7 @@ def plot_chain3D(lattice):
             zorder=-1
         )
 
-    for cc_bond in lattice.cc_bonds:
+    for cc_bond in Chain.cc_bonds:
         ax.plot3D(
             cc_bond[0], cc_bond[1], cc_bond[2],
             "--",
@@ -102,15 +102,15 @@ def plot_chain3D(lattice):
     plt.grid(b=None)
 
     ax.legend(handles=custom_legend)
-    ax.set_title(f"Protein chain (Stability: {lattice.stability})")
+    ax.set_title(f"Protein chain (Stability: {Chain.stability})")
     plt.show()
 
-def plot_chain2D(lattice):
-    x, y, color = get_plot_data(lattice, False)
+def plot_chain2D(Chain):
+    x, y, color = get_plot_data(Chain, False)
 
 
     # plot the bond lines
-    for hh_bond in lattice.hh_bonds:
+    for hh_bond in Chain.hh_bonds:
         plt.plot(
             hh_bond[0], hh_bond[1],
             "--",
@@ -127,7 +127,7 @@ def plot_chain2D(lattice):
             # "-1"
         # )
 
-    for ch_bond in lattice.ch_bonds:
+    for ch_bond in Chain.ch_bonds:
         plt.plot(
             ch_bond[0], ch_bond[1],
             "--",
@@ -136,7 +136,7 @@ def plot_chain2D(lattice):
             zorder=-1
         )
 
-    for cc_bond in lattice.cc_bonds:
+    for cc_bond in Chain.cc_bonds:
         plt.plot(
             cc_bond[0], cc_bond[1],
             "--",
@@ -170,7 +170,6 @@ def plot_chain2D(lattice):
         color=color,
         edgecolor='black',
         s=100,
-        depthshade=False
     )
 
     custom_legend = [
@@ -192,24 +191,24 @@ def plot_chain2D(lattice):
     plt.grid(b=None)
 
     plt.legend(handles=custom_legend)
-    plt.title(f"Protein chain (Stability: {lattice.stability})")
+    plt.title(f"Protein chain (Stability: {Chain.stability})")
     plt.show()
 
 def plot_multiple_chains(chain_nr, chain_data):
     x = chain_nr
     y = chain_data
-    
+
     average = np.average(chain_data)
     standard_dev = float(np.std(chain_data))
-    
+
     # 95% chance the stability is within this interval
     TwoStdDevAway = average - (2 * standard_dev)
     PositiveTwoStdAway = average + (2 * standard_dev)
-    
+
     # stability cant be over zero
     if PositiveTwoStdAway > 0:
         PositiveTwoStdAway = 0
-        
+
     plt.hlines(average, chain_nr[0], chain_nr[-1], zorder=1, colors='red', linewidth=3, label="Average stability: %.2f" % (average))
     plt.hlines(PositiveTwoStdAway, chain_nr[0], chain_nr[-1], zorder=1, colors='orange', linestyles="--", label="95 percent confidence interval (std. dev = %.2f )" % (float(standard_dev)))
     plt.hlines(TwoStdDevAway, chain_nr[0], chain_nr[-1], zorder=1, colors='orange', linestyles="--")

@@ -1,153 +1,122 @@
-from classes.AminoLattice import AminoLattice
+from classes.ChainLattice import ChainLattice
 from algorithms.chaingeneration.chaingenerate import generate_chain
-from algorithms.chaingeneration.bruteforce import bruteforce_chains
 from algorithms.chaingeneration.multiplechains import multiple_chains
+from algorithms.optimizingalgorithms.chainpulling import chain_pulling
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
 from visualisation.plot3D import plot_chain2D, plot_chain3D, plot_multiple_chains
 import os
 
-# Get this shitty optimalization_tries out. It slows down the program by a significant deal.
-optimalization_tries = 20
+# Get this shitty greedy_tries out. It slows down the program by a significant deal.
+greedy_tries = 20
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def plotting_and_data_handler(lattice):
+def plotting_and_data_handler(Chain, ThreeD):
     plot = input("\nDo you want to plot the chain? (y/n): ")
     if (plot == "y"):
         if ThreeD:
-            plot_chain3D(lattice)
+            plot_chain3D(Chain)
         else:
-            plot_chain2D(lattice)
+            plot_chain2D(Chain)
 
-    save_data = input("Do you want to save the atom moves of the chain into a .csv file? (y/n): ")
+    save_data = input("Do you want to save the amino moves of the chain into a .csv file? (Warning: only saves the non-pulled version of the chain) (y/n): ")
     if (save_data == "y"):
-        write_chain_to_csv(get_chain_data(lattice))
+        write_chain_to_csv(get_chain_data(Chain))
 
 def get_user_input_for_generating_chain():
-    amino = input("Enter desired amino-chain (C's, H's and P's): ")
+    protein = input("Enter desired protein-chain (C's, H's and P's): ")
 
-    for atom in amino:
-        if atom != "H" and atom != "C" and atom != "P":
-            print("Only C, H and P atoms allowed.")
+    for amino in protein:
+        if amino != "H" and amino != "C" and amino != "P":
+            print("Only C, H and P aminos allowed.")
             exit(0)
 
-    str_optimize = input("Random generation or greedy-move algorithm optimization? (y = greedy / n = random): ")
-    str_brute = input("Brute force generate chains and find best one? (y/n): ")
+    str_greedy = input("Random chain generation or greedy-move algorithm chain generation? (y = greedy / n = random): ")
 
-    if (str_optimize != "y" and str_optimize != "n") or (str_brute != "y" and str_brute != "n"):
+    str_hillclimb = input("Chain-pulling for better stability (Hill Climb Algorithm) after generation of the chain? (y/n): ")
+
+    if (str_greedy != "y" and str_greedy != "n") or (str_hillclimb != "y" and str_hillclimb != "n"):
         print("Only answer with y or n please.")
         exit(0)
 
-    if str_brute == "y":
-        try:
-            iterations = int(input("How many chain generations for brute forcing?: "))
-        except ValueError:
-            print("Only positive integer for brute force iterations please.")
-            exit(0)
-        
-        if iterations < 0:
-            print("Only positive integer for brute force iterations please.")
-            exit(0)
-            
-        return iterations, amino, str_optimize, str_brute
-
-    return 0, amino, str_optimize, str_brute
+    return protein, str_greedy, str_hillclimb
 
 def main():
     clear_terminal()
 
+    # 3D or 2D protein chains
+    str_threeD = input("Do you want to use 3D or 2D? (y = 3D / n = 2D): ")
+
+    if str_threeD == "y":
+        ThreeD = True
+    else:
+        ThreeD = False
+
     ################### Loading existing chain data or generating own?
-    from_csv = input("Plot an existing amino chain from a .csv file, or generate a new one? (y = load / n = generate): ")
+    from_csv = input("Plot an existing protein chain from a .csv file, or generate a new one? (y = load / n = generate): ")
 
     if (from_csv == "y"):
         file = input("Give the filename from the data folder (without .csv extension): ")
-        lattice = get_chain_from_file(file)
-        if lattice:
+        Chain = get_chain_from_file(file, ThreeD)
+        if Chain:
             if ThreeD:
-                plot_chain3D(lattice)
+                plot_chain3D(Chain)
             else:
-                plot_chain2D(lattice)
+                plot_chain2D(Chain)
 
         prompt_rerun()
 
     ################### Get chain data input for generation
-    iterations, amino, str_optimize, str_brute = get_user_input_for_generating_chain()
+    protein, str_greedy, str_hillclimb = get_user_input_for_generating_chain()
 
     ################### Chain generation
 
-    # Random generation
-    if str_optimize == "n":
-        # bruteforce
-        if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, False, 0, ThreeD)
-        # non bruteforce
-        else:
-            lattice = generate_chain(amino, False, 0, ThreeD)
+    # if no chain pulling
+    if str_hillclimb == "n":
+        # Random generation
+        if str_greedy == "n":
+            Chain = generate_chain(protein, False, greedy_tries, ThreeD)
 
-    # Optimized (greedymoves) generation
-    if str_optimize == "y":
-        # bruteforce
-        if str_brute == "y":
-            lattice = bruteforce_chains(amino, iterations, True, optimalization_tries, ThreeD)
-        # not bruteforce
+        # Optimized (greedymoves) generation
+        if str_greedy == "y":
+            Chain = generate_chain(protein, True, greedy_tries, ThreeD)
+
+    # Using Mehmet's hillclimb ChainPulling algorithm after generating chains
+    if str_hillclimb == "y":
+        chain_generations = int(input("How many chains should be generated to pull?: "))
+        pull_times_per_chain = int(input("How many random pulls should be executed within each chain?: "))
+
+        if str_greedy == "n":
+            pulled_random_chains_list = chain_pulling(protein, False, greedy_tries, chain_generations, pull_times_per_chain, ThreeD)
+            # just getting the best Chain
+            Chain = pulled_random_chains_list[-1]
         else:
-            lattice = generate_chain(amino, True, optimalization_tries, ThreeD)
+            pulled_greedy_chains_list = chain_pulling(protein, True, greedy_tries, chain_generations, pull_times_per_chain, ThreeD)
+            Chain = pulled_greedy_chains_list[-1]
 
     # Handling plotting and data of chain
-    if lattice:
-        plotting_and_data_handler(lattice)
-    
+    if Chain:
+        plotting_and_data_handler(Chain, ThreeD)
+
     prompt_rerun()
 
 def prompt_rerun():
     rerun = 0
     while rerun != "y" and rerun != "n":
-        rerun = input("Do you want to try another amino chain? (y/n):")
-    
+        rerun = input("Do you want to try another protein chain? (y/n):")
+
     if rerun == "y":
         main()
-    
+
     exit(0)
-    
+
 if __name__ == "__main__":
-    
+    main()
+
     # statistics plotting for quantifying quality of algorithm
-    #amino = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
+    #protein = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
     #iterations = 500
     #use_optimize_algorithm = True
-    #chain_nr, chain_stability = multiple_chains(amino, iterations, use_optimize_algorithm, optimalization_tries)
+    #chain_nr, chain_stability = multiple_chains(protein, iterations, use_optimize_algorithm, greedy_tries)
     #plot_multiple_chains(chain_nr, chain_stability)
-    
-    # Mehmet's hill climb
-    ThreeD = False
-    greedy = True
-    greedy_chain_generations = 10
-    pull_times_per_chain = 1000
-    amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
-    best_stability = 0
-    best_chain_list = []
-    
-    for i in range(0, greedy_chain_generations):
-        # generate_chain(amino, Greedymove=True, optimalization_tries bij het greedy genereren, 3D=True/2D=False)
-        k = generate_chain(amino, greedy, optimalization_tries, ThreeD)
-        
-        if k:
-            # set bonds and stability
-            k.set_stability_and_bonds()
-            print(f"Generated chain nr {i}: Stability {k.stability}")
-
-            # pulling this chain
-            k.random_pull(pull_times_per_chain)
-            
-            print(f"After pulling this chain: Stability {k.stability}\n")
-            
-            if k.stability < best_stability:
-                best_k = k
-                best_chain_list.append(k)
-                best_stability = k.stability
-                print(f"That was a record chain.\n")    
-                
-    print(f"Plotting best chain")
-    best_chain_list[-1].plot_chain()       
-    #main()

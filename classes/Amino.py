@@ -1,4 +1,4 @@
-class Atom3D:
+class Amino3D:
     # object for an atom in the amino chain
     def __init__(self, x, y, z):
         # nth atom in the chain
@@ -9,7 +9,7 @@ class Atom3D:
         self.y = y
         self.z = z
 
-        # atom type (default P)
+        # amino type (default P)
         self.type = "P"
 
         # the fold that this atom makes to the next atom (default 0)
@@ -25,7 +25,7 @@ class Atom3D:
     def __str__(self):
         return f"{self.type}"
 
-class Atom2D:
+class Amino2D:
     # object for an atom in the amino chain
     def __init__(self, x, y):
         # nth atom in the chain
@@ -35,7 +35,7 @@ class Atom2D:
         self.x = x
         self.y = y
 
-        # atom type (default P)
+        # amino type (default P)
         self.type = "P"
 
         # the fold that this atom makes to the next atom (default 0)
@@ -43,9 +43,6 @@ class Atom2D:
 
         # default color (P)
         self.color = 'blue'
-
-        # All neighbours of a single node
-        self.neighbours = []
 
     # print the type if printing the object
     def __str__(self):
