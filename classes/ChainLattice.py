@@ -1,6 +1,6 @@
 import random
 import math
-from classes.Amino import Amino2D, Amino3D
+from classes.Amino import Amino
 import numpy as np
 import itertools
 import mpl_toolkits.mplot3d.axes3d as p3
@@ -10,10 +10,7 @@ import copy
 import matplotlib.pyplot as plt
 
 class ChainLattice:
-    def __init__(self, protein, ThreeD):
-        # 2D or 3D
-        self.ThreeD = ThreeD
-
+    def __init__(self, protein):
         # for stuck aminos
         self.overlap_counter = 0
         self.state_stuck = False
@@ -22,35 +19,24 @@ class ChainLattice:
         self.protein = protein
 
         # create amino object for initial amino at (0,0) with first string char as type
-        if self.ThreeD:
-            self.first_amino = Amino3D(0, 0, 0)
-        else:
-            self.first_amino = Amino2D(0, 0)
-
+        self.first_amino = Amino(0, 0, 0)
         self.first_amino.type = self.protein[0]
 
         # whole chain array of amino aminos with initial amino as start
         self.state = {0: self.first_amino}
 
-
         # available moves
-        if self.ThreeD:
-            self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
-                        [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
-            self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
-                                    [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
-                                    [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
-        else:
-            self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-            self.diagonal_moves = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
+        self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
+                    [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
+                    
+        # diagonal moves for chain pulling
+        self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
+                                [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
+                                [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
 
-        if self.ThreeD:
-            # folding code corresponding to move index
-            self.fold_code_to_index = {"1":0, "2":1, "3":2, "-1":3, "-2":4, "-3":5}
-            self.index_to_fold_code = {0:"1", 1:"2", 2:"3", 3:"-1", 4:"-2", 5:"-3"}
-        else:
-            self.index_to_fold_code = {0:"1", 1:"2", 2:"-1", 3:"-2"}
-            self.fold_code_to_index = {"1":0, "2":1, "-1":2, "-2":3}
+        # folding code corresponding to move index
+        self.fold_code_to_index = {"1":0, "2":1, "3":2, "-1":3, "-2":4, "-3":5}
+        self.index_to_fold_code = {0:"1", 1:"2", 2:"3", 3:"-1", 4:"-2", 5:"-3"}
 
 
         # different types of bonds between aminos (consists of coordinates between aminos)
@@ -79,15 +65,10 @@ class ChainLattice:
         last_amino = self.state[len(self.state) - 1]
 
         # last amino coords + random move
-        if self.ThreeD:
-            new_x = last_amino.x + self.moves[random_move_index][0]
-            new_y = last_amino.y + self.moves[random_move_index][1]
-            new_z = last_amino.z + self.moves[random_move_index][2]
-            new_coords = [new_x, new_y, new_z]
-        else:
-            new_x = last_amino.x + self.moves[random_move_index][0]
-            new_y = last_amino.y + self.moves[random_move_index][1]
-            new_coords = [new_x, new_y]
+        new_x = last_amino.x + self.moves[random_move_index][0]
+        new_y = last_amino.y + self.moves[random_move_index][1]
+        new_z = last_amino.z + self.moves[random_move_index][2]
+        new_coords = [new_x, new_y, new_z]
 
         # if the new amino overlaps its own state; try new move.
         if self.check_amino_overlap(new_coords):
@@ -100,14 +81,9 @@ class ChainLattice:
     def check_amino_overlap(self, new_coords):
         # check if this amino overlaps the state (new amino overlaps any other amino)
         for amino_key, amino in self.state.items():
-            if self.ThreeD:
-                if [amino.x, amino.y, amino.z] == [new_coords[0], new_coords[1], new_coords[2]]:
-                    self.overlap_counter += 1
-                    return True
-            else:
-                if [amino.x, amino.y] == [new_coords[0], new_coords[1]]:
-                    self.overlap_counter += 1
-                    return True
+            if [amino.x, amino.y, amino.z] == [new_coords[0], new_coords[1], new_coords[2]]:
+                self.overlap_counter += 1
+                return True
 
         # reset overlap_counter if new amino is added
         self.overlap_counter = 0
@@ -116,10 +92,7 @@ class ChainLattice:
     ####################################### creating a next amino object based on the last amino and fold code to get to new coords
     def create_amino_object(self, new_coords, last_amino, fold_code):
         # make amino object
-        if self.ThreeD:
-            new_amino = Amino3D(new_coords[0], new_coords[1], new_coords[2])
-        else:
-            new_amino = Amino2D(new_coords[0], new_coords[1])
+        new_amino = Amino(new_coords[0], new_coords[1], new_coords[2])
 
         # set aminonumber
         new_amino.n = last_amino.n + 1
@@ -146,81 +119,45 @@ class ChainLattice:
 
         # compare amino with each other amino in state
         for amino, compare_amino in itertools.combinations(bondable_aminos, 2):
-            if self.ThreeD:
-                # if theyre not neighbor aminos
-                if (abs(compare_amino.n - amino.n) > 1):
-                    dist = math.sqrt(
-                        (amino.x - compare_amino.x)**2
-                        + (amino.y - compare_amino.y)**2
-                        + (amino.z - compare_amino.z)**2
-                    )
+            # if theyre not neighbor aminos
+            if (abs(compare_amino.n - amino.n) > 1):
+                dist = math.sqrt(
+                    (amino.x - compare_amino.x)**2
+                    + (amino.y - compare_amino.y)**2
+                    + (amino.z - compare_amino.z)**2
+                )
 
-                    # if distance is 1 nontheless => bond depending on amino types
-                    if dist <= 1:
-                        if amino.type == "H" and compare_amino.type == "H":
-                            stability -= 1
+                # if distance is 1 nontheless => bond depending on amino types
+                if dist <= 1:
+                    if amino.type == "H" and compare_amino.type == "H":
+                        stability -= 1
 
-                            if not only_stability:
-                                hh_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y],
-                                    [amino.z, compare_amino.z]]
-                                )
+                        if not only_stability:
+                            hh_bonds.append(
+                                [[amino.x, compare_amino.x],
+                                [amino.y, compare_amino.y],
+                                [amino.z, compare_amino.z]]
+                            )
 
-                        if (amino.type == "H" and compare_amino.type == "C") or (amino.type == "C" and compare_amino.type == "H"):
-                            stability -= 1
+                    if (amino.type == "H" and compare_amino.type == "C") or (amino.type == "C" and compare_amino.type == "H"):
+                        stability -= 1
 
-                            if not only_stability:
-                                ch_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y],
-                                    [amino.z, compare_amino.z]]
-                                )
+                        if not only_stability:
+                            ch_bonds.append(
+                                [[amino.x, compare_amino.x],
+                                [amino.y, compare_amino.y],
+                                [amino.z, compare_amino.z]]
+                            )
 
-                        if amino.type == "C" and compare_amino.type == "C":
-                            stability -= 5
+                    if amino.type == "C" and compare_amino.type == "C":
+                        stability -= 5
 
-                            if not only_stability:
-                                cc_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y],
-                                    [amino.z, compare_amino.z]]
-                                )
-            else:
-                # Otherwise 2D
-                if (abs(compare_amino.n - amino.n) > 1):
-                    dist = math.sqrt(
-                        (amino.x - compare_amino.x)**2
-                        + (amino.y - compare_amino.y)**2
-                    )
-
-                    # if distance is 1 nontheless => bond depending on amino types
-                    if dist <= 1:
-                        if amino.type == "H" and compare_amino.type == "H":
-                            stability -= 1
-
-                            if not only_stability:
-                                hh_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y]])
-
-                        if (amino.type == "H" and compare_amino.type == "C") or (amino.type == "C" and compare_amino.type == "H"):
-                            stability -= 1
-
-                            if not only_stability:
-                                ch_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y]]
-                                    )
-
-                        if amino.type == "C" and compare_amino.type == "C":
-                            stability -= 5
-
-                            if not only_stability:
-                                cc_bonds.append(
-                                    [[amino.x, compare_amino.x],
-                                    [amino.y, compare_amino.y]]
-                                )
+                        if not only_stability:
+                            cc_bonds.append(
+                                [[amino.x, compare_amino.x],
+                                [amino.y, compare_amino.y],
+                                [amino.z, compare_amino.z]]
+                            )
 
         if only_stability == True:
             return stability
@@ -234,7 +171,6 @@ class ChainLattice:
         self.hh_bonds = hh_bonds
         self.ch_bonds = ch_bonds
         self.cc_bonds = cc_bonds
-
         return
 
 

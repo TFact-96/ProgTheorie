@@ -3,7 +3,7 @@ from algorithms.chaingeneration.chaingenerate import generate_chain
 from visualisation.data import get_chain_data
 
 ###################################### Generates multiple random/greedy chains and puts their stability vs chain nr in a list
-def multiple_chains(protein, iterations, use_greedy, greedy_tries, ThreeD):
+def multiple_chains(protein, iterations, use_greedy, greedy_tries):
     chain_stability = []
     chain_nr = []
 
@@ -11,7 +11,7 @@ def multiple_chains(protein, iterations, use_greedy, greedy_tries, ThreeD):
 
     # try n iterations for best stability
     for i in range(iterations):
-        Chain = generate_chain(protein, use_greedy, greedy_tries, ThreeD)
+        Chain = generate_chain(protein, use_greedy, greedy_tries)
 
         # only count non-stuck chains (aka Chain is not None)
         if Chain:

@@ -28,7 +28,7 @@ def write_chain_to_csv(move_data):
     print(f"File saved to {filename}.csv in the /data folder.")
 
 ###################################### Generate chain from existing CSV
-def get_chain_from_file(file, ThreeD):
+def get_chain_from_file(file):
     protein = []
     fold_codes = []
     moves = []
@@ -51,7 +51,7 @@ def get_chain_from_file(file, ThreeD):
             line_count += 1
 
     # make Chain object with this amino
-    Chain = ChainLattice("".join(protein), ThreeD)
+    Chain = ChainLattice("".join(protein))
 
     # get all move coordinates from the fold codes
     for fold in fold_codes:
@@ -62,13 +62,9 @@ def get_chain_from_file(file, ThreeD):
     for i in range(len(moves)):
         new_x += moves[i][0]
         new_y += moves[i][1]
-        if ThreeD:
-            new_z += moves[i][2]
-
-        if ThreeD:
-            new_coords = [new_x, new_y, new_z]
-        else:
-            new_coords = [new_x, new_y]
+        new_z += moves[i][2]
+        
+        new_coords = [new_x, new_y, new_z]
 
         last_amino = Chain.state[i]
         fold_code = fold_codes[i]
@@ -79,7 +75,7 @@ def get_chain_from_file(file, ThreeD):
     return Chain
 
 ###################################### Preparing lists for plotting amino chain
-def get_plot_data(Chain, ThreeD):
+def get_plot_data(Chain):
     # prepare for plotting
     x = []
     y = []
@@ -93,9 +89,7 @@ def get_plot_data(Chain, ThreeD):
     for amino_key, amino in Chain.state.items():
         x.append(amino.x)
         y.append(amino.y)
-
-        if ThreeD:
-            z.append(amino.z)
+        z.append(amino.z)
 
         # set amino colors
         if amino.type == "H":
@@ -105,7 +99,4 @@ def get_plot_data(Chain, ThreeD):
 
         color.append(amino.color)
 
-    if ThreeD:
-        return x, y, z, color
-    else:
-        return x, y, color
+    return x, y, z, color

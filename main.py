@@ -12,13 +12,10 @@ greedy_tries = 20
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def plotting_and_data_handler(Chain, ThreeD):
+def plotting_and_data_handler(Chain):
     plot = input("\nDo you want to plot the chain? (y/n): ")
     if (plot == "y"):
-        if ThreeD:
-            plot_chain3D(Chain)
-        else:
-            plot_chain2D(Chain)
+        plot_chain3D(Chain)
 
     save_data = input("Do you want to save the amino moves of the chain into a .csv file? (Warning: only saves the non-pulled version of the chain) (y/n): ")
     if (save_data == "y"):
@@ -44,26 +41,15 @@ def get_user_input_for_generating_chain():
 
 def main():
     clear_terminal()
-
-    # 3D or 2D protein chains
-    str_threeD = input("Do you want to use 3D or 2D? (y = 3D / n = 2D): ")
-
-    if str_threeD == "y":
-        ThreeD = True
-    else:
-        ThreeD = False
-
     ################### Loading existing chain data or generating own?
     from_csv = input("Plot an existing protein chain from a .csv file, or generate a new one? (y = load / n = generate): ")
 
     if (from_csv == "y"):
         file = input("Give the filename from the data folder (without .csv extension): ")
-        Chain = get_chain_from_file(file, ThreeD)
+        Chain = get_chain_from_file(file)
+        
         if Chain:
-            if ThreeD:
-                plot_chain3D(Chain)
-            else:
-                plot_chain2D(Chain)
+            plot_chain3D(Chain)
 
         prompt_rerun()
 
@@ -76,11 +62,11 @@ def main():
     if str_hillclimb == "n":
         # Random generation
         if str_greedy == "n":
-            Chain = generate_chain(protein, False, greedy_tries, ThreeD)
+            Chain = generate_chain(protein, False, greedy_tries)
 
         # Optimized (greedymoves) generation
         if str_greedy == "y":
-            Chain = generate_chain(protein, True, greedy_tries, ThreeD)
+            Chain = generate_chain(protein, True, greedy_tries)
 
     # Using Mehmet's hillclimb ChainPulling algorithm after generating chains
     if str_hillclimb == "y":
@@ -88,16 +74,16 @@ def main():
         pull_times_per_chain = int(input("How many random pulls should be executed within each chain?: "))
 
         if str_greedy == "n":
-            pulled_random_chains_list = chain_pulling(protein, False, greedy_tries, chain_generations, pull_times_per_chain, ThreeD)
+            pulled_random_chains_list = chain_pulling(protein, False, greedy_tries, chain_generations, pull_times_per_chain)
             # just getting the best Chain
             Chain = pulled_random_chains_list[-1]
         else:
-            pulled_greedy_chains_list = chain_pulling(protein, True, greedy_tries, chain_generations, pull_times_per_chain, ThreeD)
+            pulled_greedy_chains_list = chain_pulling(protein, True, greedy_tries, chain_generations, pull_times_per_chain)
             Chain = pulled_greedy_chains_list[-1]
 
     # Handling plotting and data of chain
     if Chain:
-        plotting_and_data_handler(Chain, ThreeD)
+        plotting_and_data_handler(Chain)
 
     prompt_rerun()
 

@@ -2,8 +2,8 @@ from algorithms.optimizingalgorithms.greedymoves import generate_amino_greedy_mo
 from classes.ChainLattice import ChainLattice
 
 ###################################### Generating all aminos one by one onto the lattice
-def generate_chain(protein, use_greedy, greedy_tries, ThreeD):
-    Chain = ChainLattice(protein, ThreeD)
+def generate_chain(protein, use_greedy, greedy_tries):
+    Chain = ChainLattice(protein)
 
     # while amount of aminos already generated is smaller than the whole protein
     while len(Chain.state) < len(Chain.protein) and not Chain.state_stuck:
