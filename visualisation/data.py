@@ -10,6 +10,7 @@ def clear_terminal():
 ###################################### Returns resulting stability of whole chain and a tuple list of (amino, fold_code)
 def get_chain_data(Chain):
     move_data = [(amino.type, amino.fold_code) for amino_key, amino in Chain.state.items()]
+    print(move_data)
     return Chain.stability, move_data
 
 ##################################### Write move_data to a csv file with datestamp in name
@@ -18,12 +19,12 @@ def write_chain_to_csv(move_data):
     filename = "AminoChain" + f"(S={move_data[0]})-" + timestr
 
     with open(f"data/{filename}.csv", mode='w') as chain:
-        amino = csv.writer(chain, delimiter=',')
+        line = csv.writer(chain, delimiter=',')
 
-        amino.writerow(['amino', 'fold_code'])
+        line.writerow(['amino', 'fold_code'])
 
         for amino in move_data[1]:
-            amino.writerow(amino)
+            line.writerow(amino)
 
     print(f"File saved to {filename}.csv in the /data folder.")
 
