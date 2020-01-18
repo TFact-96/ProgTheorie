@@ -2,5 +2,6 @@ import itertools
 import numpy as np
 import random
 
-for x in range(1):
-    print(x)
+
+if 2 + 2 == 4:
+    print("hallo")
