@@ -32,20 +32,29 @@ class Node:
         return f"{self.type}"
 
 
+class Grid:
+    def __init__(self):
+        self.grid = {}
+
+    # Create n x n grid
+    def create_grid(self, n):
+
+        for y in range(-n, n + 1):
+            for x in range(-n, n + 1):
+                self.grid[f"{x, y}"] = False
+
+    def add_point(self, x, y):
+        self.grid[f"{x, y}"] = True
+
+    def __repr__(self):
+        return f"{self.grid}"
+
+
 class NodeChain:
     def __init__(self, amino):
 
-        self.stability = 0
-        self.old_stability = 0
         self.amino = amino
-        self.chain = self.create_chain()
-
         self.best_chain = []
-        self.best_hh_bonds = []
-
-        # available moves
-        self.moves = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-
         self.diagonal_moves = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
 
     def link_neighbours(self, chain):
@@ -291,7 +300,7 @@ class NodeChain:
             print(list_[1])
 
 
-k = NodeChain("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
+k = NodeChain("HPHPPHHPHPPHPHHPPHPH")
 k.random_pull(100)
 k.find_best_c()
 
