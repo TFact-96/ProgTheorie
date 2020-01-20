@@ -48,13 +48,15 @@ class ChainLattice:
         self.stability = 0
         self.old_stability = 0
 
+        # for Mehmet's hillclimb
+        self.best_chain = []
+        self.best_hh_bonds = []
+        self.best_ch_bonds = []
+        self.best_cc_bonds = []
+
+
     ###################################### Returns next amino object with non-self-overlapping coords. Returns none if stuck.
     def generate_amino_random_move(self):
-        # if more than 100 random moves are tried (see check_overlap()); almost 100% chance that state is stuck; Exit program
-        if self.overlap_counter > 100:
-            self.state_stuck = True
-            return
-
         # get random move of new amino added to state
         random_move_index = np.random.randint(len(self.moves))
 
@@ -68,7 +70,7 @@ class ChainLattice:
         new_x = last_amino.x + self.moves[random_move_index][0]
         new_y = last_amino.y + self.moves[random_move_index][1]
         new_z = last_amino.z + self.moves[random_move_index][2]
-        new_coords = [new_x, new_y, new_z]
+        new_coords = [new_x, new_y, new_z]            
 
         # if the new amino overlaps its own state; try new move.
         if self.check_amino_overlap(new_coords):
@@ -82,13 +84,23 @@ class ChainLattice:
         # check if this amino overlaps the state (new amino overlaps any other amino)
         for amino_key, amino in self.state.items():
             if [amino.x, amino.y, amino.z] == [new_coords[0], new_coords[1], new_coords[2]]:
-                self.overlap_counter += 1
                 return True
 
-        # reset overlap_counter if new amino is added
-        self.overlap_counter = 0
         return False
 
+    ####################################### Check if chain is stuck
+    def chain_stuck(self, x, y, z):
+        if (
+            (not self.check_amino_overlap([x + 1, y, z]))
+            and (not self.check_amino_overlap([x - 1, y, z]))
+            and (not self.check_amino_overlap([x, y + 1, z]))
+            and (not self.check_amino_overlap([x, y - 1, z]))
+            and (not self.check_amino_overlap([x, y, z + 1]))
+            and (not self.check_amino_overlap([x, y, z - 1]))
+        ):
+            return True
+
+        return False
     ####################################### creating a next amino object based on the last amino and fold code to get to new coords
     def create_amino_object(self, new_coords, last_amino, fold_code):
         # make amino object
@@ -174,23 +186,27 @@ class ChainLattice:
         return
 
 
-    ############################################## MEHMET'S HILL CLIMB, only 2D
+    ############################################## MEHMET'S PULL-NODE ALGORITHM
     # checks if a point has a amino or not
-    def check_point(self, array):
-        for index, aminos in self.state.items():
-            if str(array) == str(np.array([aminos.x, aminos.y, aminos.z])):
+    def check_point(self, array, chain):
+        for index, nodes in chain.items():
+            if str(array) == str(np.array([nodes.x, nodes.y, nodes.z])):
                 return False
         return True
+            
+    def create_vectors(self, node, chain):
+        node_i_coords = np.array([node.x, node.y, node.z])
+        node_i1 = chain[int(node.n) + 1]
+        node_i1_coords = np.array([node_i1.x, node_i1.y, node_i1.z])
+        vector1 = node_i1_coords - node_i_coords
 
-    def pull_move(self, amino):
+        return node_i_coords, node_i1, node_i1_coords, vector1
 
-        amino_i_coords = np.array([amino.x, amino.y, amino.z])
-        amino_i1 = self.state[int(amino.n) + 1]
-        amino_i1_coords = np.array([amino_i1.x, amino_i1.y, amino_i1.z])
-        vector1 = amino_i1_coords - amino_i_coords
+    def pull_move(self, node, chain):
 
-        state_copy = copy.deepcopy(self.state)
-        self.old_stability = copy.deepcopy(self.stability)
+        node_i_coords, node_i1, node_i1_coords, vector1 = self.create_vectors(
+            node, chain
+        )
 
         checker = {
             "[-1, 1, 0]": [True, [-1, 1, 0]],
@@ -205,56 +221,45 @@ class ChainLattice:
             "[1, 1, 0]": [True, [1, 1, 0]],
             "[1, 0, 1]": [True, [1, 0, 1]],
             "[1, 0, -1]": [True, [1, 0, -1]],
-        }    
-            
+        }
+
+        viable_moves = []
+
         for d_move in self.diagonal_moves:
-            if not self.check_point(amino_i_coords + np.array(d_move)):
+            if not self.check_point(node_i_coords + np.array(d_move), chain):
                 checker[str(d_move)][0] = False
 
-        for d_check, d_bool in checker.items():
-            L = amino_i_coords + np.array(d_bool[1])
+        for checker_key, d_bool in checker.items():
+            if d_bool[0] == True:
+                viable_moves.append(d_bool[1])
+
+        if viable_moves != []:
+            random_move = random.choice(viable_moves)
+
+            L = node_i_coords + np.array(random_move)
             C = L - vector1
 
             # checks pull move requirements
-            if (
-                (d_bool[0] == True)
-                and (np.linalg.norm(L - amino_i1_coords) == 1.0)
-                and (self.check_point(C))
+            if (np.linalg.norm(L - node_i1_coords) == 1.0) and (
+                self.check_point(C, chain)
             ):
-                # residue of state follows in footsteps
-                for index in range(int(amino.n - 1)):
+                # residue of chain follows in footsteps
+                for index in range(int(node.n - 1)):
 
-                    residue_amino = self.state[index]
-                    residue_amino_next = self.state[index + 2]
+                    residue_node = chain[index]
+                    residue_node_next = chain[index + 2]
 
-                    residue_amino.x = residue_amino_next.x
-                    residue_amino.y = residue_amino_next.y
-                    residue_amino.z = residue_amino_next.z
+                    residue_node.x = residue_node_next.x
+                    residue_node.y = residue_node_next.y
+                    residue_node.z = residue_node_next.z
 
-                # amino moves to L
-                amino.x = L[0]
-                amino.y = L[1]
-                amino.z = L[2]
+                # node moves to L
+                node.x = L[0]
+                node.y = L[1]
+                node.z = L[2]
 
-                # Previous amino moves to C
-                previous_amino = self.state[int(amino.n) - 1]
-                previous_amino.x = C[0]
-                previous_amino.y = C[1]
-                previous_amino.z = C[2]
-                break
-
-        # calculate self.stability, calculate all bonds and put coords in cc/ch/hh_bonds list. All with current self.state
-        self.set_stability_and_bonds()
-
-        if self.stability > self.old_stability:
-            self.state = state_copy
-            # reset stability and bonds
-            self.set_stability_and_bonds()
-
-        elif self.stability < self.old_stability:
-            print(f"Pull on amino {amino.n} made better stability: {self.stability}")
-
-    def random_pull(self, pull_times_per_chain):
-        for x in range(pull_times_per_chain):
-            d = random.randint(1, len(self.state) - 2)
-            self.pull_move(self.state[d])
+                # Previous node moves to C
+                previous_node = chain[int(node.n) - 1]
+                previous_node.x = C[0]
+                previous_node.y = C[1]
+                previous_node.z = C[2]

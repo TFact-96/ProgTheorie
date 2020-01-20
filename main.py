@@ -2,6 +2,7 @@ from classes.ChainLattice import ChainLattice
 from algorithms.chaingeneration.chaingenerate import generate_chain
 from algorithms.chaingeneration.multiplechains import multiple_chains
 from algorithms.optimizingalgorithms.chainpulling import chain_pulling
+from algorithms.optimizingalgorithms.evochainpull import find_best_pulled_chain, find_best_c
 from algorithms.upperbound import calc_upperbound
 from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
 from visualisation.plot3D import plot_chain3D, plot_multiple_chains
@@ -104,7 +105,8 @@ def prompt_rerun():
     exit(0)
 
 if __name__ == "__main__":
-    main()
+    #main()
+    find_best_pulled_chain("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP", 100, True)
 
     # statistics plotting for quantifying quality of algorithm
     #protein = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"

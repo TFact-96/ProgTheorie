@@ -22,14 +22,6 @@ def plot_chain3D(Chain):
             zorder=-1
         )
 
-        # Plot how much a bond reduces stability
-        #plt.text(
-            # (hh_bond[0][0] + hh_bond[0][1]) / 2,
-            # (hh_bond[1][0] + hh_bond[1][1]) / 2,
-            # (hh_bond[2][0] + hh_bond[2][1]) / 2,
-            # "-1"
-        # )
-
     for ch_bond in Chain.ch_bonds:
         ax.plot3D(
             ch_bond[0], ch_bond[1], ch_bond[2],

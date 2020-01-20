@@ -13,13 +13,11 @@ def multiple_chains(protein, iterations, use_greedy, greedy_tries):
     for i in range(iterations):
         Chain = generate_chain(protein, use_greedy, greedy_tries)
 
-        # only count non-stuck chains (aka Chain is not None)
-        if Chain:
-            # calculate stability and set bonds in bond list
-            Chain.set_stability_and_bonds()
-            stability, moves = get_chain_data(Chain)
-            chain_nr.append(i)
-            chain_stability.append(stability)
+        # calculate stability and set bonds in bond list
+        Chain.set_stability_and_bonds()
+        stability, moves = get_chain_data(Chain)
+        chain_nr.append(i)
+        chain_stability.append(stability)
 
 
     return chain_nr, chain_stability
