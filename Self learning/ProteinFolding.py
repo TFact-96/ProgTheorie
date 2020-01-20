@@ -85,7 +85,7 @@ try:
             proteinSequence = window.FindElement('Protein Sequence').Get()
             protein = Environment.Protein(proteinSequence)
             # Initialize utilityTable
-            agent = Agents.PassiveTDAgent()
+            agent = Agents.QLearningAgent()
             showProtein(protein.state, protein.getStability())
         elif event in ('Run PTDA'):
             while not agent.Terminate():

@@ -29,7 +29,9 @@ class PassiveTDAgent:
                     actionUtilities['R'] = (self.utilityTable[self.previousState + 'R'])
                 except:
                     actionUtilities['R'] = 0
+
                 bestUtility = min(actionUtilities)
+
                 if actionUtilities[bestUtility] < self.utilityTable[self.previousState]:
                     unchanged = False
         return policy
@@ -59,3 +61,46 @@ class PassiveTDAgent:
     def Terminate(self):
         self.trials += 1
         return self.trials > 100
+
+
+class QLearningAgent:
+    def __init__(self, discountFactor=1):
+        self.QTable = {}
+        self.frequencyTable = {}
+        self.previousState = ''
+        self.previousAction = ''
+        self.previousReward = 0
+        self.discountFactor = discountFactor
+        self.trials = 0
+        self.Ne = 10
+
+    def PerceiveAndAct(self, action, reward):
+        # Check if we have a new state
+        if stateAfterAction not in self.QTable.keys():
+            self.QTable[stateAfterAction] = currentReward
+            self.frequencyTable[stateAfterAction] = 0
+
+        if self.previousState != '':
+            self.frequencyTable[self.previousState] += 1
+            self.QTable[self.previousState] += self.StepSize() * (
+                    self.previousReward + self.discountFactor * self.QTable[stateAfterAction] -
+                    self.QTable[self.previousState])
+
+        action = agent.PerceiveAndAct(protein.actions)
+        reward = protein.ProcessAction(action)
+        agent.ProcessReward(reward, protein.getCompactState())
+
+        self.previousState = stateAfterAction
+        self.previousReward = currentReward
+
+        return action
+
+    def exploration(self, ):
+
+
+
+    def Terminate(self):
+        self.trials += 1
+        return self.trials > 100
+
+
