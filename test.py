@@ -6,4 +6,7 @@ import matplotlib.pyplot as plt
 import random
 
 
-print(f"{2 + 1, 3 + 1}")
+a = {1: 2, 3: 3, 7: 4}
+
+print(min(a.keys()))
+

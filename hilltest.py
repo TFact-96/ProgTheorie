@@ -35,6 +35,7 @@ class Node:
 class Grid:
     def __init__(self):
         self.grid = {}
+        self.grid_chain = []
 
     # Create n x n grid
     def create_grid(self, n):
@@ -55,6 +56,16 @@ class Grid:
 
         else:
             self.grid[f"{x, y}"][0] = True
+            self.grid_chain.append(f"{x, y}")
+
+    def clear_point(self, x, y):
+
+        if self.grid[f"{x, y}"][2] > 0:
+            self.grid[f"{x, y}"][2] -= 1
+
+        else:
+            self.grid[f"{x, y}"][0] = False
+            self.grid_chain.remove(f"{x, y}")
 
     def overlap(self, x, y):
         if self.grid[f"{x, y}"][0]:
@@ -73,14 +84,6 @@ class Grid:
             return True
 
         return False
-
-    def clear_point(self, x, y):
-
-        if self.grid[f"{x, y}"][2] > 0:
-            self.grid[f"{x, y}"][2] -= 1
-
-        else:
-            self.grid[f"{x, y}"][0] = False
 
     def check_diagonals(self, x, y):
         available_moves = []
@@ -117,7 +120,7 @@ class NodeChain:
 
         # Create grid
         grid = Grid()
-        grid.create_grid(15)
+        grid.create_grid(36)
 
         first_node = Node(0, 0)
         first_node.type = self.amino[0]
@@ -169,7 +172,7 @@ class NodeChain:
             ):
                 return L, C, True
 
-        return L, C, False
+        return 0, 0, False
 
     def pull_move(self, node, chain, grid):
 
@@ -217,58 +220,95 @@ class NodeChain:
 
         return chain, grid
 
-    def test_move(self):
+    def update_neighbours(self, chain):
+        temp_stability = 0
+        hh_bonds = []
 
-        beforepullx = []
-        beforepully = []
-        afterpullx = []
-        afterpully = []
+        i = 0
+        for a, b in itertools.combinations(list(chain.items()), 2):
+            i += 1
+            print(i)
+            node_1_index = a[0]
+            node_2_index = b[0]
+            node_1 = a[1]
+            node_2 = b[1]
 
-        beforepullxg = []
-        beforepullyg = []
-        afterpullxg = []
-        afterpullyg = []
+            # Deduct coordinates to create vector and check vector length
+            if (
+                np.linalg.norm(
+                    np.array([node_1.x, node_1.y]) - np.array([node_2.x, node_2.y])
+                )
+                == 1.0
+            ) and (abs(node_1_index - node_2_index) != 1):
 
-        self.chain, grid = self.create_chain()
+                node_1.neighbours.append(node_2)
+                temp_stability -= 1
 
-        for a, b in self.chain.items():
-            beforepullx.append(b.x)
-            beforepully.append(b.y)
+        stability = temp_stability
+        return stability, hh_bonds
 
-        for a, b in grid.grid.items():
+    def reset_neighbours(self, chain):
 
-            if b[0]:
-                beforepullxg.append(b[1][0])
-                beforepullyg.append(b[1][1])
+        self.hh_bonds = []
+        for node_key, node in chain.items():
+            node.neighbours = []
 
-        for index in range(1, 14):
-            self.chain, grid = self.pull_move(self.chain[index], self.chain, grid)
+    def hill_climber(self, max_iteration):
+        # Current protein chain
+        self.current_hilltop, grid = self.create_chain()
+        self.current_stability, self.current_hh = self.update_neighbours(
+            self.current_hilltop
+        )
 
-        for a, b in self.chain.items():
-            afterpullx.append(b.x)
-            afterpully.append(b.y)
+        # Save as best chain
+        self.best_c = self.current_hilltop
+        self.best_stab_c = self.current_stability
+        self.hh_bonds = self.current_hh
+        self.best_chain.append([self.best_c, self.best_stab_c, self.hh_bonds])
 
-        for a, b in grid.grid.items():
-            if b[0]:
-                afterpullxg.append(b[1][0])
-                afterpullyg.append(b[1][1])
+        for iteration in range(max_iteration):
+            best_c_found = False
+            print(iteration)
 
-        print(grid)
-        plt.subplot(2, 2, 1)
-        plt.plot(beforepullx, beforepully, "ro-")
+            for it in range(10):
+                for index in range(1, len(self.current_hilltop) - 1):
+                    self.pull_move(
+                        self.current_hilltop[index], self.current_hilltop, grid
+                    )
+                    self.reset_neighbours(self.current_hilltop)
+                    temp_stability, temp_hh = self.update_neighbours(
+                        self.current_hilltop
+                    )
 
-        plt.subplot(2, 2, 2)
-        plt.plot(afterpullx, afterpully, "bo-")
+                    if temp_stability < self.best_stab_c:
+                        self.best_c = self.current_hilltop
+                        self.best_stab_c = temp_stability
+                        self.hh_bonds = temp_hh
+                        best_c_found = True
 
-        plt.subplot(2, 2, 3)
-        plt.plot(beforepullxg, beforepullyg, "ro")
+            if best_c_found:
+                self.current_hilltop = self.best_c
+                self.current_stability = self.best_stab_c
+                self.current_hh = self.hh_bonds
+                best_c_found = False
 
-        plt.subplot(2, 2, 4)
-        plt.plot(afterpullxg, afterpullyg, "bo")
+            else:
+                self.best_chain.append([self.best_c, self.best_stab_c, self.hh_bonds])
+                self.current_hilltop, grid = self.create_chain()
+                self.current_stability, self.current_hh = self.update_neighbours(
+                    self.current_hilltop
+                )
 
-        plt.show()
+                self.best_c = self.current_hilltop
+                self.best_stab_c = self.current_stability
+                self.hh_bonds = self.current_hh
+
+    def find_best_c(self):
+        for list_ in self.best_chain:
+            print(list_[1])
 
 
-k = NodeChain("HPHPPHPHPHPHPHP")
-k.test_move()
+k = NodeChain("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
+k.hill_climber(100)
+k.find_best_c()
 
