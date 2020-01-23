@@ -218,7 +218,8 @@ class Grid:
     def check_requirements(
         self, available_moves, vector1, node_i_coords, node_i1_coords, grid
     ):
-
+        viable_moves = []
+        found = False
         for move in available_moves:
             L = node_i_coords + np.array(move)
             C = L - vector1
@@ -228,9 +229,15 @@ class Grid:
                 and (not self.overlap(C[0], C[1], grid))
                 and (np.linalg.norm(L - node_i1_coords) == 1.0)
             ):
-                return L, C, True
+                viable_moves.append([L, C])
+                found = True
 
-        return 0, 0, False
+        if not found:
+            return 0, 0, False
+
+        else:
+            random_choice = random.choice(viable_moves)
+            return random_choice[0], random_choice[1], True
 
     def pull_move(self, node, grid, grid_chain):
 
@@ -318,28 +325,6 @@ class Grid:
                 best_stab_c = current_stability
                 best_grid = grid
 
-    def plot_chain(self):
-        x = []
-        y = []
-        index = 0
-        for key, l in self.best_c.items():
-            x.append(l[1][0])
-            y.append(l[1][1])
-
-        for hh_bond in self.hh_bonds:
-            plt.plot(hh_bond[0], hh_bond[1], "y--")
-
-        plt.plot(x, y, "ro-")
-        for x_p, y_p in zip(x, y):
-
-            if self.amino[index] == "H":
-                plt.plot(x_p, y_p, "bo-")
-            else:
-                plt.plot(x_p, y_p, "ro-")
-            index += 1
-
-        plt.show()
-
     def find_best_c(self):
         best_chain_key = min(self.best_chain.keys())
         best_chain_double = self.best_chain[best_chain_key]
@@ -372,6 +357,6 @@ class Grid:
 
 
 k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(30)
+k.hill_climber(200)
 k.find_best_c()
 
