@@ -357,6 +357,6 @@ class Grid:
 
 
 k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(200)
+k.hill_climber(1000)
 k.find_best_c()
 
