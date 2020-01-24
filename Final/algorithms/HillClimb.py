@@ -1,7 +1,7 @@
 import copy
 from visualisation.plot3D import plot3D
 
-def hill_climber(max_iteration, grid_class):
+def hill_climber(amount_of_resets, whole_chain_pull_amount, grid_class):
     
     # Current protein chain
     current_hilltop, grid = grid_class.create_chain()        
@@ -17,12 +17,15 @@ def hill_climber(max_iteration, grid_class):
     stability_over_time = []
     
     # try iteration amount of random chains
-    for iteration in range(max_iteration):
+    for iteration in range(amount_of_resets):
         best_c_found = False
         print(f"try: {iteration}")
 
         # amount the >whole< chain should be pulled
-        for it in range(100):
+        for it in range(whole_chain_pull_amount):
+            # keep track of all stability improvements for plotting statistics
+            stability_over_time.append(best_stab_c)
+
             print(f"pulling whole chain iteration: {it}")
             
             # try to pull each node
@@ -34,7 +37,6 @@ def hill_climber(max_iteration, grid_class):
 
                 temp_stability = grid_class.update_neighbours(temp_grid, temp_chain)[0]
                 
-                
                 # if stability is better after pull, save this as best chain
                 if temp_stability < best_stab_c:
                     print("pullmove made better stab!")
@@ -43,9 +45,6 @@ def hill_climber(max_iteration, grid_class):
                     best_stab_c = temp_stability
                     best_c_found = True
                     
-                    # keep track of all stability improvements for plotting statistics
-                    stability_over_time.append(temp_stability)
-
         
         # save best chain and its stability
         if best_c_found:
