@@ -25,7 +25,7 @@ def hill_climber(amount_of_resets, whole_chain_pull_amount, grid_class):
         for it in range(whole_chain_pull_amount):
             # keep track of all stability improvements for plotting statistics
             stability_over_time.append(best_stab_c)
-
+            
             print(f"pulling whole chain iteration: {it}")
             
             # try to pull each node
@@ -45,15 +45,16 @@ def hill_climber(amount_of_resets, whole_chain_pull_amount, grid_class):
                     best_stab_c = temp_stability
                     best_c_found = True
                     
-        
-        # save best chain and its stability
+
+
+        # if better chain is found with these pulls, go on with this one
         if best_c_found:
             current_hilltop = copy.deepcopy(best_c)
             current_stability = best_stab_c
             grid = copy.deepcopy(best_grid)
             best_c_found = False
 
-        # if no stability change after this amount of pulls, must be local maximum. Save in best_chain list
+        # if no stability change after this amount of chainlength pulls, must be local maximum. Save in best_chain list
         # and reset the chain.
         else:
             grid_class.best_chain[best_stab_c] = [best_c, best_grid]
