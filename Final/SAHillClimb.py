@@ -117,8 +117,8 @@ class Grid:
             and (abs(grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1)
             and (grid[f"{x, y, z + 1}"].nodes[0].type == "H")
         ):
-            if [[x, x], [y, y], [z + 1, z]] and [[x, x], [y, y], [z + 1, z]] not in hh_bonds:
-                hh_bonds.append([[x, x], [y, y], [z + 1, z]])
+            if [[x, x], [y, y], [z + 1, z]] and [[x, x], [y, y], [z, z + 1]] not in hh_bonds:
+                hh_bonds.append([[x, x], [y, y], [z, z + 1]])
 
         if (
             grid[f"{x - 1, y, z}"].filled
@@ -141,8 +141,8 @@ class Grid:
             and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1)
             and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")
         ):
-            if [[x, x], [y, y], [z - 1, z]] and [[x, x], [y, y], [z - 1, z]] not in hh_bonds:
-                hh_bonds.append([[x, x], [y, y], [z - 1, z]])
+            if [[x, x], [y, y], [z - 1, z]] and [[x, x], [y, y], [z, z - 1]] not in hh_bonds:
+                hh_bonds.append([[x, x], [y, y], [z, z - 1]])
 
     def update_neighbours(self, grid, grid_chain):
         hh_bonds = []
