@@ -2,13 +2,7 @@ import numpy as np
 import math
 import copy
 import random
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
-from mpl_toolkits.mplot3d import Axes3D
 from upperbound import calc_upperbound
-import matplotlib.animation as animation
-from matplotlib import style
 import itertools
 
 
@@ -104,18 +98,12 @@ class Grid:
             if [[x, x + 1], [y, y], [z, z]] and [[x + 1, x], [y, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x + 1], [y, y], [z, z]])
 
-        if (
-            grid[f"{x, y + 1, z}"].filled
-            and (abs(grid[f"{x, y + 1, z}"].nodes[0].n - n) > 1)
-            and (grid[f"{x, y + 1, z}"].nodes[0].type == "H")
+        if (grid[f"{x, y + 1, z}"].filled and (abs(grid[f"{x, y + 1, z}"].nodes[0].n - n) > 1) and (grid[f"{x, y + 1, z}"].nodes[0].type == "H")
         ):
             if [[x, x], [y, y + 1], [z, z]] and [[x, x], [y + 1, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y + 1], [z, z]])
 
-        if (
-            grid[f"{x, y, z + 1}"].filled
-            and (abs(grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1)
-            and (grid[f"{x, y, z + 1}"].nodes[0].type == "H")
+        if (grid[f"{x, y, z + 1}"].filled and (abs(grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1) and (grid[f"{x, y, z + 1}"].nodes[0].type == "H")
         ):
             if [[x, x], [y, y], [z + 1, z]] and [[x, x], [y, y], [z, z + 1]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y], [z, z + 1]])
@@ -136,11 +124,7 @@ class Grid:
             if [[x, x], [y, y - 1], [z, z]] and [[x, x], [y - 1, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y - 1], [z, z]])
 
-        if (
-            grid[f"{x, y, z - 1}"].filled
-            and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1)
-            and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")
-        ):
+        if (grid[f"{x, y, z - 1}"].filled and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1) and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")):
             if [[x, x], [y, y], [z - 1, z]] and [[x, x], [y, y], [z, z - 1]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y], [z, z - 1]])
 
@@ -343,163 +327,3 @@ class Grid:
             self.transfer_point(previous_node, C[0], C[1], C[2], grid, grid_chain)
 
         return grid, grid_chain
-
-    def hill_climber(self, max_iteration):
-        
-        # Current protein chain
-        current_hilltop, grid = self.create_chain()        
-        current_stability = self.update_neighbours(grid, current_hilltop)[0]
-        
-        # Save as best chain
-        best_c = current_hilltop
-        best_stab_c = current_stability
-        best_grid = grid
-        self.best_chain[best_stab_c] = [best_c, best_grid]
-
-        for iteration in range(max_iteration):
-            best_c_found = False
-            print(f"try: {iteration}")
-
-            for it in range(100):
-                print(f"pulling whole chain iteration: {it}")
-                for index in range(1, len(current_hilltop) - 1):
-                    print(f"pullmove on node: {index}")
-                    temp_grid, temp_chain = self.pull_move(
-                        grid[current_hilltop[index][0]].nodes[0], grid, current_hilltop,
-                    )
-
-                    temp_stability = self.update_neighbours(temp_grid, temp_chain)[0]
-
-                    if temp_stability < best_stab_c and temp_stability < self.pivot_upperbound:
-                        print("pullmove made better stab!")
-                        best_c = copy.deepcopy(temp_chain)
-                        best_grid = copy.deepcopy(temp_grid)
-                        best_stab_c = temp_stability
-                        best_c_found = True
-
-            if best_c_found:
-                current_hilltop = copy.deepcopy(best_c)
-                current_stability = best_stab_c
-                grid = copy.deepcopy(best_grid)
-                best_c_found = False
-
-            else:
-                self.best_chain[best_stab_c] = [best_c, best_grid]
-
-                current_hilltop, grid = self.create_chain()
-                current_stability = self.update_neighbours(grid, current_hilltop)[0]
-
-                best_c = current_hilltop
-                best_stab_c = current_stability
-                best_grid = grid
-
-    def find_best_c(self):
-        best_chain_key = min(self.best_chain.keys())
-        best_chain_double = self.best_chain[best_chain_key]
-
-        best_chain = best_chain_double[0]
-        best_grid = best_chain_double[1]
-
-        best_stability, best_hh = self.update_neighbours(best_grid, best_chain)
-        print(best_stability)
-        
-        # prepare for plotting
-        x = []
-        y = []
-        z = []
-        color = []
-
-        # get coords and node colors of chain
-        for key, value in best_chain.items():
-            node = best_grid[value[0]].nodes[0]
-
-            x.append(node.x)
-            y.append(node.y)
-            z.append(node.z)
-
-            # set amino colors
-            if node.type == "H":
-                color.append('red')
-                
-            elif node.type == "C":
-                color.append('yellow')
-            
-            else:
-                color.append('blue')
-
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-
-        # plot the bond lines
-        for hh_bond in best_hh:
-            ax.plot3D(
-                hh_bond[0], hh_bond[1], hh_bond[2],
-                "--",
-                markersize=1,
-                color='red',
-                zorder=-1
-            )
-
-        # plot text at start and ending atom
-        ax.text(
-             x[0], y[0], z[0] + 0.1,
-             "Start"
-        )
-
-        ax.text(
-             x[-1], y[-1], z[-1] + 0.1,
-             "Finish"
-        )
-
-        # plot the chain itself
-        ax.plot3D(
-            x, y, z,
-            "-",
-            linewidth=3,
-            color='black',
-            zorder=0,
-        )
-
-        ax.scatter3D(
-            x, y, z,
-            color=color,
-            edgecolor='black',
-            s=100,
-            depthshade=False
-        )
-
-        custom_legend = [
-                            Line2D([0], [0], color='black', lw=2, label="Protein chain"),
-                            Line2D([0], [0], marker='o', color='black', label='H-amino',
-                                   markerfacecolor='red', markersize=8),
-                            Line2D([0], [0], marker='o', color='black', label='P-amino',
-                                   markerfacecolor='blue', markersize=8),
-                            Line2D([0], [0], marker='o', color='black', label='C-amino',
-                                   markerfacecolor='yellow', markersize=8),
-                            Line2D([0], [0], linestyle="--", color='red', lw=1, label="H-H (Stability -1)"),
-                            Line2D([0], [0], linestyle="--", color='orange', lw=1, label="H-C (Stability -1)"),
-                            Line2D([0], [0], linestyle="--", color='yellow', lw=1, label="C-C (Stability -5)"),
-
-                        ]
-
-        # Hide grid lines
-        ax.grid(False)
-
-        # Hide axes ticks
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_zticks([])
-        # plt axis and grid off
-        plt.axis('off')
-        plt.grid(b=None)
-
-        ax.legend(handles=custom_legend)
-        ax.set_title(f"Protein chain (Stability: {best_stability})")
-        plt.show()                
-
-
-
-k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(1)
-k.find_best_c()
