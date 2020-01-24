@@ -2,7 +2,7 @@ import numpy as np
 import math
 import copy
 import random
-from upperbound import calc_upperbound
+from algorithms.upperbound import calc_upperbound
 import itertools
 
 

@@ -1,5 +1,5 @@
 import copy
-from plot3D import plot3D
+from visualisation.plot3D import plot3D
 
 def hill_climber(max_iteration, grid_class):
     
@@ -13,12 +13,16 @@ def hill_climber(max_iteration, grid_class):
     best_grid = grid
     grid_class.best_chain[best_stab_c] = [best_c, best_grid]
 
+    # try iteration amount of random chains
     for iteration in range(max_iteration):
         best_c_found = False
         print(f"try: {iteration}")
 
-        for it in range(10):
+        # amount the >whole< chain should be pulled
+        for it in range(100):
             print(f"pulling whole chain iteration: {it}")
+            
+            # try to pull each node
             for index in range(1, len(current_hilltop) - 1):
                 print(f"pullmove on node: {index}")
                 temp_grid, temp_chain = grid_class.pull_move(
@@ -26,20 +30,23 @@ def hill_climber(max_iteration, grid_class):
                 )
 
                 temp_stability = grid_class.update_neighbours(temp_grid, temp_chain)[0]
-
+                
+                # if stability is better after pull, save this as best chain
                 if temp_stability < best_stab_c and temp_stability < grid_class.pivot_upperbound:
                     print("pullmove made better stab!")
                     best_c = copy.deepcopy(temp_chain)
                     best_grid = copy.deepcopy(temp_grid)
                     best_stab_c = temp_stability
                     best_c_found = True
-
+        
+        # go further with this chain if a better stability was found after 'it'-amount of iterations
         if best_c_found:
             current_hilltop = copy.deepcopy(best_c)
             current_stability = best_stab_c
             grid = copy.deepcopy(best_grid)
             best_c_found = False
 
+        # if no stability change after this amount, must be local maximum. Save in best_chain list
         else:
             grid_class.best_chain[best_stab_c] = [best_c, best_grid]
 

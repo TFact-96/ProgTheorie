@@ -1,9 +1,12 @@
-from GridClass import Grid
-from HillClimb import hill_climber, find_best_c
+from çlasses.GridClass import Grid
+from algorithms.HillClimb import hill_climber, find_best_c
 
 def main():
     grid_class = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-    hill_climber(1, grid_class)
+    
+    # first number = amount of resets you want to do
+    # it makes it a Resetting Hillclimbing Algorithm
+    hill_climber(10, grid_class)
     find_best_c(grid_class)
     return
     
