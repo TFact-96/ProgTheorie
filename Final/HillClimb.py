@@ -87,5 +87,5 @@ def find_best_c(grid_class):
         else:
             color.append('blue')
             
-    plot3D(x, y, z, color)
+    plot3D(x, y, z, best_hh, best_stability, color)
 

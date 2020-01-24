@@ -3,7 +3,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from mpl_toolkits.mplot3d import Axes3D
 
-def plot3D(x, y, z, color):
+def plot3D(x, y, z, best_hh, best_stability, color):
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
