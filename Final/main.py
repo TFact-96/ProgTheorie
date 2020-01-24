@@ -1,5 +1,6 @@
 from classes.GridClass import Grid
 from algorithms.HillClimb import hill_climber, plot_best_c
+from visualisation.DataPlots import hill_climb_plot
 
 def main():
     # Grid class with node-pulling algorithm built in.
@@ -11,6 +12,9 @@ def main():
     # to find the global maxima.
     # first argument = amount of resets you want to do.
     grid_class, stability_over_time = hill_climber(10, grid_class)
+    
+    # plot stability over time for hillclimb statistics
+    hill_climb_plot(stability_over_time)
     
     # 3D plot of the best chain of the hill_climber
     plot_best_c(grid_class)
