@@ -11,8 +11,8 @@ def main():
     # The more resets, the more it discovers local maximas, the higher the chance
     # to find the global maxima.
     # first argument = amount of reset checks you want to do
-    # second argument = amount of times a whole chain should be pulled
-    grid_class, stability_over_time = hill_climber(10, 100, grid_class)
+    # second argument = amount of times a whole chain should be pulled before the next check
+    grid_class, stability_over_time = hill_climber(20, 50, grid_class)
     
     # plot stability over time for hillclimb statistics
     hill_climb_plot(stability_over_time)
