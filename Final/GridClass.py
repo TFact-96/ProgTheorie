@@ -98,12 +98,18 @@ class Grid:
             if [[x, x + 1], [y, y], [z, z]] and [[x + 1, x], [y, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x + 1], [y, y], [z, z]])
 
-        if (grid[f"{x, y + 1, z}"].filled and (abs(grid[f"{x, y + 1, z}"].nodes[0].n - n) > 1) and (grid[f"{x, y + 1, z}"].nodes[0].type == "H")
+        if (
+            grid[f"{x, y + 1, z}"].filled 
+            and (abs(grid[f"{x, y + 1, z}"].nodes[0].n - n) > 1) 
+            and (grid[f"{x, y + 1, z}"].nodes[0].type == "H")
         ):
             if [[x, x], [y, y + 1], [z, z]] and [[x, x], [y + 1, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y + 1], [z, z]])
 
-        if (grid[f"{x, y, z + 1}"].filled and (abs(grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1) and (grid[f"{x, y, z + 1}"].nodes[0].type == "H")
+        if (
+            grid[f"{x, y, z + 1}"].filled 
+            and (abs(grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1) 
+            and (grid[f"{x, y, z + 1}"].nodes[0].type == "H")
         ):
             if [[x, x], [y, y], [z + 1, z]] and [[x, x], [y, y], [z, z + 1]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y], [z, z + 1]])
@@ -124,7 +130,11 @@ class Grid:
             if [[x, x], [y, y - 1], [z, z]] and [[x, x], [y - 1, y], [z, z]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y - 1], [z, z]])
 
-        if (grid[f"{x, y, z - 1}"].filled and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1) and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")):
+        if (
+            grid[f"{x, y, z - 1}"].filled 
+            and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1) 
+            and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")
+        ):
             if [[x, x], [y, y], [z - 1, z]] and [[x, x], [y, y], [z, z - 1]] not in hh_bonds:
                 hh_bonds.append([[x, x], [y, y], [z, z - 1]])
 
@@ -227,7 +237,8 @@ class Grid:
         grid_chain = {}
 
         # Create grid
-        grid = self.create_grid(36)
+        # too big?
+        grid = self.create_grid(len(self.amino))
         first_node = Node(0, 0, 0)
         first_node.type = self.amino[0]
         self.add_point(first_node, index, grid, grid_chain)

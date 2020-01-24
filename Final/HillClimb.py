@@ -17,7 +17,7 @@ def hill_climber(max_iteration, grid_class):
         best_c_found = False
         print(f"try: {iteration}")
 
-        for it in range(100):
+        for it in range(10):
             print(f"pulling whole chain iteration: {it}")
             for index in range(1, len(current_hilltop) - 1):
                 print(f"pullmove on node: {index}")
@@ -55,6 +55,7 @@ def hill_climber(max_iteration, grid_class):
 
 def find_best_c(grid_class):
     best_chain_key = min(grid_class.best_chain.keys())
+    print(grid_class.best_chain)
     best_chain_double = grid_class.best_chain[best_chain_key]
 
     best_chain = best_chain_double[0]
