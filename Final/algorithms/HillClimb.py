@@ -12,7 +12,10 @@ def hill_climber(max_iteration, grid_class):
     best_stab_c = current_stability
     best_grid = grid
     grid_class.best_chain[best_stab_c] = [best_c, best_grid]
-
+    
+    # for statistic plotting
+    stability_over_time = []
+    
     # try iteration amount of random chains
     for iteration in range(max_iteration):
         best_c_found = False
@@ -38,6 +41,7 @@ def hill_climber(max_iteration, grid_class):
                     best_grid = copy.deepcopy(temp_grid)
                     best_stab_c = temp_stability
                     best_c_found = True
+                    stability_over_time.append(best_stab_c)
         
         # go further with this chain if a better stability was found after 'it'-amount of iterations
         if best_c_found:
@@ -57,10 +61,10 @@ def hill_climber(max_iteration, grid_class):
             best_stab_c = current_stability
             best_grid = grid
     
-    return grid_class
+    return grid_class, stability_over_time
 
 
-def find_best_c(grid_class):
+def plot_best_c(grid_class):
     best_chain_key = min(grid_class.best_chain.keys())
     best_chain_double = grid_class.best_chain[best_chain_key]
 
@@ -68,7 +72,6 @@ def find_best_c(grid_class):
     best_grid = best_chain_double[1]
 
     best_stability, best_hh = grid_class.update_neighbours(best_grid, best_chain)
-    print(best_stability)
     
     # prepare for plotting
     x = []
