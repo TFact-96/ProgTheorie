@@ -1,7 +1,7 @@
 import copy
 from visualisation.plot3D import plot3D
 
-def hill_climber(amount_of_resets, whole_chain_pull_amount, grid_class):
+def hill_climber(amount_of_reset_checks, whole_chain_pull_amount, grid_class):
     
     # Current protein chain
     current_hilltop, grid = grid_class.create_chain()        
@@ -16,8 +16,8 @@ def hill_climber(amount_of_resets, whole_chain_pull_amount, grid_class):
     # for statistic plotting
     stability_over_time = []
     
-    # try iteration amount of random chains
-    for iteration in range(amount_of_resets):
+    # try iteration amount of reset checks
+    for iteration in range(amount_of_reset_checks):
         best_c_found = False
         print(f"try: {iteration}")
 

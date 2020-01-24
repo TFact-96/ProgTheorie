@@ -10,7 +10,7 @@ def main():
     # This makes it a Restart Hillclimbing Algorithm.
     # The more resets, the more it discovers local maximas, the higher the chance
     # to find the global maxima.
-    # first argument = amount of resets you want to do (doesnt reset if still is a chance for improvement)
+    # first argument = amount of reset checks you want to do
     # second argument = amount of times a whole chain should be pulled
     grid_class, stability_over_time = hill_climber(10, 100, grid_class)
     
