@@ -238,7 +238,7 @@ class Grid:
 
         # Create grid
         # too big?
-        grid = self.create_grid(len(self.amino))
+        grid = self.create_grid(int(len(self.amino) / 2))
         first_node = Node(0, 0, 0)
         first_node.type = self.amino[0]
         self.add_point(first_node, index, grid, grid_chain)

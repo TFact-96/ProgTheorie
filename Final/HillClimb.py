@@ -55,7 +55,6 @@ def hill_climber(max_iteration, grid_class):
 
 def find_best_c(grid_class):
     best_chain_key = min(grid_class.best_chain.keys())
-    print(grid_class.best_chain)
     best_chain_double = grid_class.best_chain[best_chain_key]
 
     best_chain = best_chain_double[0]
