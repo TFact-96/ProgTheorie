@@ -70,7 +70,7 @@ class Grid:
                                 [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
                                 [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
 
-        self.pivot_upperbound = calc_upperbound(amino)
+        self.pivot_upperbound = int(calc_upperbound(amino))
         
     # Create n x n grid
     def create_grid(self, n):
@@ -358,13 +358,12 @@ class Grid:
 
         for iteration in range(max_iteration):
             best_c_found = False
-            print(iteration)
-            print(self.pivot_upperbound)
+            print(f"try: {iteration}")
 
             for it in range(100):
-                print(f"second: {it}")
+                print(f"pulling whole chain iteration: {it}")
                 for index in range(1, len(current_hilltop) - 1):
-                    print(f"deepest: {index}")
+                    print(f"pullmove on node: {index}")
                     temp_grid, temp_chain = self.pull_move(
                         grid[current_hilltop[index][0]].nodes[0], grid, current_hilltop,
                     )
