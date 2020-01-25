@@ -1,49 +1,70 @@
 import copy
 import random
 import numpy as np
+from classes.Grid import Grid
 
-def simulated_annealing(grid_class, iterations, temperature):
+def simulated_annealing(
+        amino, iterations, start_temperature, use_linear_temp,
+        use_exp_temp, linear_temp_coeff, exp_temp_coeff
+    ):
+    
     # make a random protein chain
-    grid_chain, grid = grid_class.create_chain()        
-    stability = grid_class.update_neighbours(grid, grid_chain)[0]
+    grid_class = Grid(amino)
+    grid_class.create_chain()        
+    grid_class.update_neighbours()
     
-    # set as best chain as initialization
-    current_chain = grid_chain
-    current_grid = grid
-    
-    # make stability positive for acceptation chance formula to work
-    current_stability = abs(stability)
-    
+    # current stability
+    current_stability = grid_class.stability
+
     # for statistic plotting
     stability_over_time = []
+        
+    # set temperature
+    temperature = start_temperature
     
     # commence the simulated annealing
     for iteration in range(iterations):
-        
         # keep track of stability for every iteration
         stability_over_time.append(current_stability)
-
+        
+        # keep old state
+        old_state = copy.deepcopy(grid_class)
+        
         # make pullmove on random node
-        random_node_index = np.random.randint(len(grid_class.amino))
-        temp_grid, temp_chain = grid_class.pull_move(
-            grid[grid_chain[random_node_index][0]].nodes[0], grid, current_chain,
+        random_node_index = np.random.randint(1, len(grid_class.grid_chain) - 1)
+        grid_class.pull_move(
+            grid_class.grid[grid_class.grid_chain[random_node_index][0]].nodes[0],
         )
 
         # calculate new stability
-        new_stability = abs(grid_class.update_neighbours(temp_grid, temp_chain)[0])
+        grid_class.update_neighbours()
+        new_stability = grid_class.stability
         
         # dart shot
-        accept_chance = 2**((current_stability - new_stability) / temperature)
+        accept_line = 2**((current_stability - new_stability) / temperature)    
         random_shot = random.random()
         
-        # accept this pullmove if random number is below the accept chance 
-        if random_shot < accept_chance:
-            current_chain = temp_chain
-            current_grid = grid
-            current_stability = new_stability
+        # undo pullmove
+        if random_shot > accept_line:
+            grid_class = copy.deepcopy(old_state)
+        else:
+            current_stability = copy.deepcopy(new_stability)
 
         # lower temperature
-        temperature = 1000 * (0.977**iteration)
-        #temperature = 1000 - (0.5 * iteration)
+        if use_linear_temp:
+            temperature = start_temperature - (linear_temp_coeff * iteration)
+            
+            if temperature <= 0.001:
+                temperature = 0.001
+                
+            print(temperature)
+        if use_exp_temp:
+            temperature = start_temperature * (exp_temp_coeff**iteration)
+            print(temperature)
     
-    return grid_class, stability_over_time
+    print(current_stability)
+    # put the chain into the best_chain dict
+    best_chains = {}
+    best_chains[best_stability] = grid_class
+    
+    return best_chains, stability_over_time

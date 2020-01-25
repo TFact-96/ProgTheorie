@@ -1,63 +1,59 @@
 import copy
+from classes.Grid import Grid
 
-def hill_climber(whole_chain_pull_amount, amount_of_reset_checks, grid_class):
+def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
+    best_chains = {}
     
     # Make a protein chain
-    current_hilltop, grid = grid_class.create_chain()        
-    current_stability = grid_class.update_neighbours(grid, current_hilltop)[0]
+    grid_class = Grid(amino)
+    grid_class.create_chain()        
+    grid_class.update_neighbours()
+    best_stability = grid_class.stability
     
     # Save as best chain (initialize)
-    best_c = current_hilltop
-    best_stab_c = current_stability
-    best_grid = grid
-    grid_class.best_chain[best_stab_c] = [best_c, best_grid]
+    best_chains[best_stability] = grid_class
     
     # for statistic plotting
     stability_over_time = []
     
     # try iteration amount of reset checks
     for iteration in range(amount_of_reset_checks):
-        best_c_found = False
+        better_stability_found = False
         print(f"try: {iteration}")
 
         # amount the >whole< chain should be pulled
         for it in range(whole_chain_pull_amount):
             # keep track of all stability improvements for plotting statistics
-            stability_over_time.append(best_stab_c)
+            stability_over_time.append(best_stability)
                         
             # try to pull each node
-            for index in range(1, len(current_hilltop) - 1):
+            for index in range(1, len(grid_class.grid_chain) - 1):
 
-                temp_grid, temp_chain = grid_class.pull_move(
-                    grid[current_hilltop[index][0]].nodes[0], grid, current_hilltop,
+                grid_class.pull_move(
+                    grid_class.grid[grid_class.grid_chain[index][0]].nodes[0]
                 )
 
-                temp_stability = grid_class.update_neighbours(temp_grid, temp_chain)[0]
-                
+                grid_class.update_neighbours()
+                temp_stability = grid_class.stability
+
                 # if stability is better after pull, save this as best chain
-                if temp_stability < best_stab_c:
-                    best_c = copy.deepcopy(temp_chain)
-                    best_grid = copy.deepcopy(temp_grid)
-                    best_stab_c = temp_stability
-                    best_c_found = True
+                if temp_stability < best_stability:
+                    best_stability = temp_stability
+                    better_stability_found = True
                     
         # if better chain is found with these pulls, go on with this one
-        if best_c_found:
-            current_hilltop = copy.deepcopy(best_c)
-            current_stability = best_stab_c
-            grid = copy.deepcopy(best_grid)
-            best_c_found = False
+        if better_stability_found:
+            better_stability_found = False
 
         # if no stability change after this amount of chainlength pulls, must be local maximum. Save in best_chain list
         # and reset the chain.
         else:
-            grid_class.best_chain[best_stab_c] = [best_c, best_grid]
-
-            current_hilltop, grid = grid_class.create_chain()
-            current_stability = grid_class.update_neighbours(grid, current_hilltop)[0]
-
-            best_c = current_hilltop
-            best_stab_c = current_stability
-            best_grid = grid
-    
-    return grid_class, stability_over_time
+            best_chains[best_stability] = grid_class
+            
+            # reset chain and set best stability
+            grid_class = Grid(amino)
+            grid_class.create_chain()
+            grid_class.update_neighbours()
+            best_stability = grid_class.stability
+            
+    return best_chains, stability_over_time

@@ -9,3 +9,13 @@ def data_plot_hillclimb(stability_over_time, amino):
     plt.legend()
     plt.show()
     return
+    
+def data_plot_annealing(stability_over_time, amino):
+    min_stability = min(stability_over_time)    
+    plt.plot(stability_over_time, label=f"Min stability: {min_stability}")
+    plt.xlabel("Nodepull iterations")
+    plt.ylabel("Stability")
+    plt.title(f"Simulated annealing, Amino: {amino}")
+    plt.legend()
+    plt.show()
+    return
