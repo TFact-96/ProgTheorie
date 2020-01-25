@@ -54,14 +54,14 @@ def simulated_annealing(
         # lower temperature
         if use_linear_temp:
             temperature = start_temperature - (linear_temp_coeff * iteration)
-            
-            if temperature <= 0.001:
-                temperature = 0.001
-                
             print(temperature)
         if use_exp_temp:
             temperature = start_temperature * (exp_temp_coeff**iteration)
             print(temperature)
+
+        # overflow fix
+        if temperature <= 0.001:
+            temperature = 0.001
     
     print(current_stability)
     # put the chain into the best_chain dict
