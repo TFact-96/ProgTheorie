@@ -1,13 +1,12 @@
 import copy
-from visualisation.plot3D import plot3D
 
-def hill_climber(amount_of_reset_checks, whole_chain_pull_amount, grid_class):
+def hill_climber(whole_chain_pull_amount, amount_of_reset_checks, grid_class):
     
-    # Current protein chain
+    # Make a protein chain
     current_hilltop, grid = grid_class.create_chain()        
     current_stability = grid_class.update_neighbours(grid, current_hilltop)[0]
     
-    # Save as best chain
+    # Save as best chain (initialize)
     best_c = current_hilltop
     best_stab_c = current_stability
     best_grid = grid
@@ -42,8 +41,6 @@ def hill_climber(amount_of_reset_checks, whole_chain_pull_amount, grid_class):
                     best_stab_c = temp_stability
                     best_c_found = True
                     
-
-
         # if better chain is found with these pulls, go on with this one
         if best_c_found:
             current_hilltop = copy.deepcopy(best_c)
@@ -64,40 +61,3 @@ def hill_climber(amount_of_reset_checks, whole_chain_pull_amount, grid_class):
             best_grid = grid
     
     return grid_class, stability_over_time
-
-
-def plot_best_c(grid_class):
-    best_chain_key = min(grid_class.best_chain.keys())
-    best_chain_double = grid_class.best_chain[best_chain_key]
-
-    best_chain = best_chain_double[0]
-    best_grid = best_chain_double[1]
-
-    best_stability, best_hh = grid_class.update_neighbours(best_grid, best_chain)
-    
-    # prepare for plotting
-    x = []
-    y = []
-    z = []
-    color = []
-
-    # get coords and node colors of chain
-    for key, value in best_chain.items():
-        node = best_grid[value[0]].nodes[0]
-
-        x.append(node.x)
-        y.append(node.y)
-        z.append(node.z)
-
-        # set amino colors
-        if node.type == "H":
-            color.append('red')
-            
-        elif node.type == "C":
-            color.append('yellow')
-        
-        else:
-            color.append('blue')
-            
-    plot3D(x, y, z, best_hh, best_stability, color)
-

@@ -3,13 +3,13 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from mpl_toolkits.mplot3d import Axes3D
 
-def plot3D(x, y, z, best_hh, best_stability, color):
+def Plot3D(x, y, z, hh_bonds, stability, color):
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # plot the bond lines
-    for hh_bond in best_hh:
+    for hh_bond in hh_bonds:
         ax.plot3D(
             hh_bond[0], hh_bond[1], hh_bond[2],
             "--",
@@ -72,5 +72,5 @@ def plot3D(x, y, z, best_hh, best_stability, color):
     plt.grid(b=None)
 
     ax.legend(handles=custom_legend)
-    ax.set_title(f"Protein chain (Stability: {best_stability})")
+    ax.set_title(f"Protein chain (Stability: {stability})")
     plt.show()                

@@ -1,53 +1,8 @@
 import numpy as np
-import math
-import copy
 import random
-from algorithms.upperbound import calc_upperbound
-import itertools
-
-
-class Node:
-    # object for an node in the amino chain
-    def __init__(self, x, y, z):
-
-        # coords
-        self.x = x
-        self.y = y
-        self.z = z
-        self.n = 0
-
-        # atom type (default P)
-        self.type = "P"
-
-        # the fold that this atom makes to the next atom (default 0)
-        self.fold_code = 0
-
-        # All neighbours of a single node
-        self.neighbours = []
-
-    # print the type if printing the object
-    def __repr__(self):
-        return f"{self.type}"
-
-
-class Grid_point:
-    def __init__(self, filled, coords):
-        self.filled = filled
-        self.coords = coords
-        self.nodes = []
-
-    def add_node(self, node):
-        self.nodes.append(node)
-        self.filled = True
-
-    def remove_node(self, node):
-        self.nodes.remove(node)
-        if self.nodes == []:
-            self.filled = False
-
-    def __repr__(self):
-        return f"{self.nodes}"
-
+from algorithms.CalcUpperbound import calc_upperbound
+from classes.GridPoint import GridPoint
+from classes.Node import Node
 
 class Grid:
     def __init__(self, amino):
@@ -64,6 +19,7 @@ class Grid:
                                 [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
                                 [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
 
+        # estimate of lowest possible stability
         self.pivot_upperbound = int(calc_upperbound(amino))
         
     # Create n x n grid
@@ -72,7 +28,7 @@ class Grid:
         for z in range(-n, n + 1):
             for y in range(-n, n + 1):
                 for x in range(-n, n + 1):
-                    grid[f"{x, y, z}"] = Grid_point(False, [x, y, z])
+                    grid[f"{x, y, z}"] = GridPoint(False, [x, y, z])
 
         return grid
 
@@ -131,7 +87,7 @@ class Grid:
                 hh_bonds.append([[x, x], [y, y - 1], [z, z]])
 
         if (
-            grid[f"{x, y, z - 1}"].filled 
+            grid[f"{x, y, z - 1}"].filled
             and (abs(grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1) 
             and (grid[f"{x, y, z - 1}"].nodes[0].type == "H")
         ):
