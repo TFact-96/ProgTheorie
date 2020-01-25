@@ -52,7 +52,8 @@ def showProtein(protein, stability):
 sg.change_look_and_feel('Default1')  # Add a touch of color
 frame_passive_td_agent = [
     [
-        sg.Button('Run until converged', key='Run PTDA'), sg.Button('Run next trial', key='Run PTDA one trial')
+        sg.Button('Run until converged', key='Run PTDA'), sg.Button('Run next trial', key='Run PTDA one trial'),
+        sg.Button('Show Result', key='Show')
     ], [
         sg.Button('Reset', key='Reset PTDA')
     ]
@@ -75,6 +76,8 @@ window = sg.Window('Protein Folding', layout)  # Create window
 protein = None
 proteinSequence = ''
 agent = None
+reward = 0 #initial value
+moves = ['S', 'L', 'R']
 ################ Main ################################################################
 try:
     while True:
@@ -88,14 +91,25 @@ try:
             agent = Agents.QLearningAgent()
             showProtein(protein.state, protein.getStability())
         elif event in ('Run PTDA'):
-            while not agent.Terminate():
-                while len(protein.actions) > 0:
-                    action = agent.PerceiveAndAct(protein.actions)
-                    reward = protein.ProcessAction(action)
-                    agent.ProcessReward(reward, protein.getCompactState())
-                # Reset environment
+            proteinSequence = window.FindElement('Protein Sequence').Get()
+            protein = Environment.Protein(proteinSequence)
+            # Initialize utilityTable
+            agent = Agents.QLearningAgent()
+            showProtein(protein.state, protein.getStability())
+
+            while not agent.terminate():
+                while True:
+                    action = agent.PerceiveAndAct(protein, reward, moves)
+                    reward, moves = protein.ProcessAction(action)
+                    if len(moves) == 0:
+                        action = agent.PerceiveAndAct(protein, reward, moves)
+                        break
+
+                # Reset environment and agent
                 protein = Environment.Protein(proteinSequence)
-            print(f"Utility: {agent.utilityTable}")
+                agent.reset()
+                moves = ['S', 'L', 'R']
+            print(f"QTable: {agent.QTable}")
             print(f"Frequency: {agent.frequencyTable}")
         elif event in ('Run PTDA one trial'):
             while len(protein.actions) > 0:
@@ -108,6 +122,9 @@ try:
             protein = Environment.Protein(proteinSequence)
         elif event in ('Reset PTDA'):
             agent = Agents.PassiveTDAgent()
+        elif event in ('Show'):
+            best_movement = max(agent.QTable, key=agent.QTable.get)
+            print(f"The best sequence is: {best_movement}")
 except Exception:
     print(traceback.format_exc())
 window.close()

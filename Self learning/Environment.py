@@ -52,13 +52,13 @@ class Protein:  # The state of the protein
         # Checking around amino acid of action for new bonds
         if nextAminioType == 'H':
             if self.stateField[p_x][p_y - 1] == 'H' and not direction == 'North':
-                reward -= 1
+                reward += 1
             if self.stateField[p_x][p_y + 1] == 'H' and not direction == 'South':
-                reward -= 1
+                reward += 1
             if self.stateField[p_x - 1][p_y] == 'H' and not direction == 'East':
-                reward -= 1
+                reward += 1
             if self.stateField[p_x + 1][p_y] == 'H' and not direction == 'West':
-                reward -= 1
+                reward += 1
         elif nextAminioType == 'C':
             if self.stateField[p_x][p_y - 1] == 'C' and not direction == 'North':
                 reward -= 5
@@ -125,13 +125,13 @@ class Protein:  # The state of the protein
                 reward = self.CalculateReward(p_x, p_y + 1, 'North')
 
             justPlacedAminoAcid = self.nextAminoFold
-            if justPlacedAminoAcid != len(self.state) - 2:
+            if justPlacedAminoAcid < len(self.state) - 2:
                 for action in self.rewardAction:
                     action = 1  # If this action is an overlap, you'll see it being 1,
                     # all will be overwritten by CalculateReward, except overlaps
 
                 if self.direction % 4 == 0:  # Next east
-                    p_x -= 1
+                    p_x += 1
                     if self.CheckFreeSpot(p_x + 1, p_y):
                         self.actions.append('S')
                     if self.CheckFreeSpot(p_x, p_y + 1):
@@ -139,7 +139,7 @@ class Protein:  # The state of the protein
                     if self.CheckFreeSpot(p_x, p_y - 1):
                         self.actions.append('R')
                 elif self.direction % 2 == 0:  # Next west
-                    p_x += 1
+                    p_x -= 1
                     if self.CheckFreeSpot(p_x - 1, p_y):
                         self.actions.append('S')
                     if self.CheckFreeSpot(p_x, p_y - 1):
@@ -182,4 +182,4 @@ class Protein:  # The state of the protein
                     self.state[i].pos[1] = self.state[i - 1].pos[1] + 1
             print(f"Amino {self.nextAminoFold + 1} next actions: {self.actions}")
         self.stability += reward
-        return reward
+        return reward, self.actions

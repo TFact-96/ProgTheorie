@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 class PassiveTDAgent:
@@ -45,8 +46,8 @@ class PassiveTDAgent:
         if self.previousState != '':
             self.frequencyTable[self.previousState] += 1
             self.utilityTable[self.previousState] += self.StepSize() * (
-                        self.previousReward + self.discountFactor * self.utilityTable[stateAfterAction] -
-                        self.utilityTable[self.previousState])
+                    self.previousReward + self.discountFactor * self.utilityTable[stateAfterAction] -
+                    self.utilityTable[self.previousState])
 
         self.previousState = stateAfterAction
         self.previousReward = currentReward
@@ -71,36 +72,92 @@ class QLearningAgent:
         self.previousAction = ''
         self.previousReward = 0
         self.discountFactor = discountFactor
+        self.stepReward = -0.25
         self.trials = 0
         self.Ne = 10
+        self.exp = 0
 
-    def PerceiveAndAct(self, action, reward):
+    def PerceiveAndAct(self, protein, currentReward, moves):
+        highest = {}
+        PossibleActions = moves
+        stateAfterAction = protein.getCompactState()
+        episode_reward = currentReward
+
         # Check if we have a new state
         if stateAfterAction not in self.QTable.keys():
-            self.QTable[stateAfterAction] = currentReward
+            self.QTable[stateAfterAction] = 0
             self.frequencyTable[stateAfterAction] = 0
 
+        if len(moves) == 0:
+            self.frequencyTable[stateAfterAction] += 1
+            self.QTable[stateAfterAction] = episode_reward
+            return False
+
         if self.previousState != '':
-            self.frequencyTable[self.previousState] += 1
-            self.QTable[self.previousState] += self.StepSize() * (
-                    self.previousReward + self.discountFactor * self.QTable[stateAfterAction] -
+            self.frequencyTable[stateAfterAction] += 1
+            self.QTable[self.previousState] += self.StepSize() * (self.frequencyTable[self.previousState]) * (
+                    episode_reward + self.discountFactor * self.QTable[stateAfterAction] -
                     self.QTable[self.previousState])
 
-        action = agent.PerceiveAndAct(protein.actions)
-        reward = protein.ProcessAction(action)
-        agent.ProcessReward(reward, protein.getCompactState())
+        for choice in PossibleActions:
+            try:
+                q_val = self.QTable[stateAfterAction + choice]
+                new_state = stateAfterAction + choice
+            except KeyError as e:
+                new_state = str(e)
+                q_val = 0
+            try:
+                freq = self.frequencyTable[stateAfterAction + choice]
+            except KeyError:
+                freq = 0
+                
+            explor = self.exploration(new_state, q_val, freq)
+            highest[choice] = self.exp + explor
+
+        action = min(highest, key=highest.get)
 
         self.previousState = stateAfterAction
         self.previousReward = currentReward
 
         return action
 
-    def exploration(self, ):
+    def exploration(self, new_state, q, freq):
+        if freq < self.Ne:
+            if len(new_state) < 5:
+                return random.random()
+            elif len(new_state) == 5:
+                return 1
+            else:
+                return 2
+        else:
+            return q
 
+    def epsilon_greedy_policy(self, Q, state, actions, epsilon=0.05):
+        '''
+        Create a policy in which epsilon dictates how likely it will
+        take a random action.
 
+        :param Q: links state -> action value (dictionary)
+        :param state: state character is in (int)
+        :param actions: actions that can be taken (list)
+        :param epsilon: chance it will take a random move (float)
+        :return: probability of each action to be taken (list)
+        '''
+        probs = np.ones(len(actions)) * epsilon / len(actions)
+        best_action = np.argmax(Q[state])
+        probs[best_action] += 1.0 - epsilon
 
-    def Terminate(self):
+        return probs
+
+    def reset(self):
+        self.previousState = ''
+        self.previousAction = ''
+        self.previousReward = 0
+        self.exp = 0
+
+    def StepSize(self):
+        return 60 / (59 + self.frequencyTable[self.previousState])
+
+    def terminate(self):
         self.trials += 1
-        return self.trials > 100
-
-
+        return self.trials > 500
