@@ -47,6 +47,7 @@ def simulated_annealing(
         # undo pullmove
         if random_shot > accept_line:
             grid_class = copy.deepcopy(old_state)
+        # otherwise accept the move
         else:
             current_stability = copy.deepcopy(new_stability)
 
@@ -65,6 +66,6 @@ def simulated_annealing(
     print(current_stability)
     # put the chain into the best_chain dict
     best_chains = {}
-    best_chains[best_stability] = grid_class
+    best_chains[current_stability] = grid_class
     
     return best_chains, stability_over_time

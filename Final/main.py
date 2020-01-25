@@ -4,13 +4,13 @@ from algorithms.SimAnnealing import simulated_annealing
 from visualisation.DataPlots import data_plot_hillclimb, data_plot_annealing
 from visualisation.PlotBestChain import plot_best_chain
 
-annealing = False
-hill_climb = True
+annealing = True
+hill_climb = False
 amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
 
 def main():
     if annealing:
-        best_chains, stability_over_time = simulated_annealing(amino, 1000, 2, False,
+        best_chains, stability_over_time = simulated_annealing(amino, 10, 2, False,
                 True, 0.001, 0.997)
 
 

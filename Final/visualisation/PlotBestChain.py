@@ -2,9 +2,7 @@ from visualisation.Plot3D import Plot3D
 
 def plot_best_chain(best_chains):
     best_chain_key = min(best_chains.keys())
-    print(best_chain_key)
-    best_grid_class = best_chains[best_chain_key]
-    best_grid_class.update_neighbours()
+    best_chain_class = best_chains[best_chain_key]
     
     # prepare for plotting
     x = []
@@ -13,8 +11,8 @@ def plot_best_chain(best_chains):
     color = []
 
     # get coords and node colors of chain
-    for key, value in best_grid_class.grid_chain.items():
-        node = best_grid_class.grid[value[0]].nodes[0]
+    for key, value in best_chain_class.grid_chain.items():
+        node = best_chain_class.grid[value[0]].nodes[0]
 
         x.append(node.x)
         y.append(node.y)
@@ -30,4 +28,4 @@ def plot_best_chain(best_chains):
         else:
             color.append('blue')
             
-    Plot3D(x, y, z, best_grid_class.hh_bonds, best_grid_class.stability, color)
+    Plot3D(x, y, z, best_chain_class.hh_bonds, best_chain_class.stability, color)
