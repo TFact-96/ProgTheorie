@@ -11,9 +11,6 @@ def simulated_annealing(
     # make a random protein chain
     current_state = random_chain(amino)
 
-    # current stability
-    current_stability = copy.copy(current_state.stability)
-
     # for statistic plotting
     stability_over_time = []
 
@@ -23,26 +20,23 @@ def simulated_annealing(
     # commence the simulated annealing
     for iteration in range(iterations):
 
-        # cmd output
-        print(f"Iteration: {iteration}")
-
         # keep track of stability for every iteration
-        stability_over_time.append(current_stability)
+        stability_over_time.append(current_state.stability)
 
-        # remember old state (only filled gridpoints)
+        # remember old state (only filled gridpoints and the chain list)
         current_state.make_filled_gridpoints()
         old_filled_gridpoints = copy.deepcopy(current_state.filled_gridpoints)
         old_chain = copy.deepcopy(current_state.grid_chain)
-        old_stability = copy.copy(current_state.stability)
+        old_stability = copy.deepcopy(current_state.stability)
 
-        # make pullmove on random node
+        # perform pullmoves on the whole chain
         random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
 
         # get node object
         node_coords = current_state.grid_chain[random_node_index][0]
         node = current_state.grid[node_coords].nodes[0]
 
-        # perform a pullmove on this node
+        # perform a pullmove on this node and update stability and bonds
         current_state.pull_move(node)
 
         # calculate new stability
@@ -50,7 +44,7 @@ def simulated_annealing(
         new_stability = copy.deepcopy(current_state.stability)
 
         # dart shot
-        accept_value = 2**((abs(current_stability) - abs(new_stability)) / temperature)
+        accept_value = 2**((old_stability - new_stability) / temperature)
         random_shot = random.random()
 
         # undo move if random shot is above accept value
@@ -59,7 +53,7 @@ def simulated_annealing(
             current_state.filled_gridpoints = copy.deepcopy(old_filled_gridpoints)
             current_state.grid_chain = copy.deepcopy(old_chain)
             current_state.merge_filled_gridpoints_back()
-            current_stability = copy.deepcopy(old_stability)
+            current_state.update_neighbours()
 
         # lower temperature
         if use_linear_temp:
@@ -72,9 +66,5 @@ def simulated_annealing(
         if temperature <= 0.001:
             temperature = 0.001
 
-    current_state.update_neighbours()
-    # put the chain into the best_chain dict for plotting compatibility
-    best_chain = {}
-    best_chain[current_stability] = current_state
-
-    return best_chain, stability_over_time
+    # return the last iteration
+    return current_state, stability_over_time
