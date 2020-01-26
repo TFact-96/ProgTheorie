@@ -49,7 +49,7 @@ def restart_hill_climb_flow(amino):
     local_minima_chains, stability_over_time = hill_climber(amino, chain_pull_amt, reset_checks)
     
     # plot stability over time for hillclimb statistics
-    data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")
+    data_plot_request = input("Restart Hillclimb: Do you want to plot the stability over time? (y/n): ")
     
     if data_plot_request == "y":
         data_plot_hillclimb(stability_over_time, amino)
