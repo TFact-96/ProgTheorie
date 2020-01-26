@@ -30,7 +30,7 @@ def simulated_annealing(
         stability_over_time.append(current_stability)
         
         # keep old state
-        old_state = copy.copy(current_state)
+        old_state = copy.deepcopy(current_state)
         
         # make pullmove on random node
         random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
@@ -52,8 +52,8 @@ def simulated_annealing(
         
         # undo move if random shot is above accept value
         if random_shot > accept_value:
-            current_state = copy.copy(old_state)
-            current_stability = copy.copy(old_state.stability)            
+            current_state = copy.deepcopy(old_state)
+            current_stability = copy.deepcopy(old_state.stability)            
 
         # lower temperature
         if use_linear_temp:
