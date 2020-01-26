@@ -4,15 +4,63 @@ from algorithms.SimAnnealing import simulated_annealing
 from algorithms.Random import random_chain
 from visualisation.DataPlots import data_plot_hillclimb, data_plot_annealing
 from visualisation.PlotBestChain import plot_best_chain
-from visualisation.Plot3D import Plot3D
 
-make_random_chain = False
-restart_hill_climb = True
-sim_annealing = False
-amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
+def get_initial_user_input():
+    amino = input("Enter desired protein chain: ")
+    make_random_chain = input("Do you want to just make a random chain? (y/n): ")
+    restart_hill_climb = input("Do you want to use the Restart Hill Climbing algorithm? (y/n): ")
+    sim_annealing = input("Do you want to use the Simulated Annealing Hill Climb algorithm? (y/n): ")
+    
+    return amino, make_random_chain, restart_hill_climb, sim_annealing
+
+def plot_chain_request(chains):
+    plot_request = input("Do you want to plot the chain? (y/n): ")
+    if plot_request == "y":
+        plot_best_chain(best_chain)
+
+def annealing_flow(amino):
+    start_temp = int(input("Sim Annealing: Enter the start temperature: "))
+    iteration_amount = int(input("Sim Annealing: How many random pullmove iterations?: "))
+    exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
+    
+    if exponential == "y":
+        coeff = float(input("Sim Annealing:Enter desired exponential decrease coefficient: "))
+        
+        best_chain, stability_over_time = simulated_annealing(amino, iteration_amount, start_temp, False,
+                True, 0, coeff)
+    else:
+        coeff = float(input("Sim Annealing: Enter desired linear decrease coefficient: "))
+        
+        best_chain, stability_over_time = simulated_annealing(amino, iteration_amount, start_temp, True,
+                False, coeff, 0)    
+
+    # plot stability over time for hillclimb statistics
+    data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")
+    
+    if data_plot_request == "y":
+        data_plot_annealing(stability_over_time, amino)
+    
+    plot_chain_request(best_chain)
+
+def restart_hill_climb_flow(amino):
+    reset_checks = int(input("Restart Hillclimb: Enter the amount of chain restart checks: "))        
+    chain_pull_amt = int(input("Restart Hillclimb: Enter the amount of times the whole chain should be pulled per reset check: "))
+    
+    local_minima_chains, stability_over_time = hill_climber(amino, chain_pull_amt, reset_checks)
+    
+    # plot stability over time for hillclimb statistics
+    data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")
+    
+    if data_plot_request == "y":
+        data_plot_hillclimb(stability_over_time, amino)
+    
+    plot_chain_request(local_minima_chains)
+
 
 def main():
-    if make_random_chain:
+    amino, make_random_chain, restart_hill_climb, sim_annealing = get_initial_user_input()
+    
+    if make_random_chain == "y":
         # for plotting compatibility
         chains = {}
         
@@ -22,36 +70,14 @@ def main():
         # for plotting compatibility
         chain[grid.stability] = grid
 
-        plot_best_chain(chain)
+        plot_chain_request(chain)
         
-    if sim_annealing:
-        best_chains, stability_over_time = simulated_annealing(amino, 500, 2, False,
-                True, 0.001, 0.997)
-
-
-        # plot stability over time for hillclimb statistics
-        data_plot_annealing(stability_over_time, amino)
-        
-        # 3D plot of the best chain of the hill_climber
-        plot_best_chain(best_chains)
+    if sim_annealing == "y":
+        annealing_flow(amino)
             
-    if restart_hill_climb:
-        # Grid class with node-pulling algorithm built in.
-        grid_class = Grid(amino)
+    if restart_hill_climb == "y":
+        restart_hill_climb_flow(amino)
         
-        # hill_climber finds a local maximum, and resets to a new random chain when it finds it.
-        # This makes it a Restart Hillclimbing Algorithm.
-        # The more resets, the more it discovers local maximas, the higher the chance
-        # to find the global maxima.
-        # first argument = amount of times a whole chain should be pulled before the next check
-        # second argument = amount of reset checks you want to do after pulling the chain n times
-        best_chains, stability_over_time = hill_climber(amino, 10, 20)
-        
-        # plot stability over time for hillclimb statistics
-        data_plot_hillclimb(stability_over_time, amino)
-        
-        # 3D plot of the best chain of the hill_climber
-        plot_best_chain(best_chains)
     return
     
 if __name__ == "__main__":
