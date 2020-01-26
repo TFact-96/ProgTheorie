@@ -20,10 +20,11 @@ def plot_chain_request(chains):
 
 # Simulated Annealing
 def annealing_flow(amino):
-    # best start temp around 2 and decrease rate 0.995
-    repeat_amount = int(input("Sim Annealing: Bruteforce iteration amount of whole annealing: "))
+    # best start temp around 2 and decrease rate for exponential 0.995
+    # for linear: decrease rate start_temp / iterations
+    repeat_amount = int(input("Sim Annealing: Amount of annealings: "))
     iteration_amount = int(input("Sim Annealing: How many random pullmove iterations per annealing run?: "))
-    start_temp = int(input("Sim Annealing: Enter the start temperature: "))
+    start_temp = float(input("Sim Annealing: Enter the start temperature: "))
     exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
     coeff = float(input("Sim Annealing: Enter desired temperature decrease coefficient: "))
 
@@ -55,9 +56,10 @@ def annealing_repeat(amino, repeat_amount, iteration_amount, start_temp, coeff, 
         # save new best run if found
         if new_chain.stability < best_stability:
             best_chain, best_stability_over_time = new_chain, stability_over_time
+            best_stability = new_chain.stability
 
     print(f"Best chain: {best_chain.stability}")
-    
+
     # for plotting compatibility
     best_chains = {}
     best_chains[best_chain.stability] = best_chain
