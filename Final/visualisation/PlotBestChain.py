@@ -28,4 +28,4 @@ def plot_best_chain(best_chains):
         else:
             color.append('blue')
             
-    Plot3D(x, y, z, best_chain_class.hh_bonds, best_chain_class.stability, color)
+    Plot3D(x, y, z, best_chain_class.hh_bonds, best_chain_class.ch_bonds, best_chain_class.cc_bonds, best_chain_class.stability, color)

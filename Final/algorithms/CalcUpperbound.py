@@ -42,4 +42,4 @@ def calc_upperbound(protein):
         # Then rest C and H makes a bond: S= -1. Total:
         min_stability = - 1 - ((5*(c_count - 1) + (h_count - 1)) / 2) # no unbound rest aminos
         
-    return min_stability
+    return int(min_stability)

@@ -17,7 +17,7 @@ class Grid:
         self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
                                 [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
                                 [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
-
+                                
         # estimate of lowest possible stability
         self.pivot_upperbound = int(calc_upperbound(amino))
         
@@ -29,6 +29,8 @@ class Grid:
         
         # bonds
         self.hh_bonds = []
+        self.ch_bonds = []
+        self.cc_bonds = []
         
         # stability of the chain
         self.stability = 0
@@ -53,62 +55,55 @@ class Grid:
 
         if node.type == "P":
             return False
-
-        if (
-            self.grid[f"{x + 1, y, z}"].filled
-            and (abs(self.grid[f"{x + 1, y, z}"].nodes[0].n - n) > 1)
-            and (self.grid[f"{x + 1, y, z}"].nodes[0].type == "H")
-        ):
-            if [[x, x + 1], [y, y], [z, z]] and [[x + 1, x], [y, y], [z, z]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x + 1], [y, y], [z, z]])
-
-        if (
-            self.grid[f"{x, y + 1, z}"].filled 
-            and (abs(self.grid[f"{x, y + 1, z}"].nodes[0].n - n) > 1) 
-            and (self.grid[f"{x, y + 1, z}"].nodes[0].type == "H")
-        ):
-            if [[x, x], [y, y + 1], [z, z]] and [[x, x], [y + 1, y], [z, z]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x], [y, y + 1], [z, z]])
-
-        if (
-            self.grid[f"{x, y, z + 1}"].filled 
-            and (abs(self.grid[f"{x, y, z + 1}"].nodes[0].n - n) > 1) 
-            and (self.grid[f"{x, y, z + 1}"].nodes[0].type == "H")
-        ):
-            if [[x, x], [y, y], [z + 1, z]] and [[x, x], [y, y], [z, z + 1]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x], [y, y], [z, z + 1]])
-
-        if (
-            self.grid[f"{x - 1, y, z}"].filled
-            and (abs(self.grid[f"{x - 1, y, z}"].nodes[0].n - n) > 1)
-            and (self.grid[f"{x - 1, y, z}"].nodes[0].type == "H")
-        ):
-            if [[x, x - 1], [y, y], [z, z]] and [[x - 1, x], [y, y], [z, z]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x - 1], [y, y], [z, z]])
-
-        if (
-            self.grid[f"{x, y - 1, z}"].filled
-            and (abs(self.grid[f"{x, y - 1, z}"].nodes[0].n - n) > 1)
-            and (self.grid[f"{x, y - 1, z}"].nodes[0].type == "H")
-        ):
-            if [[x, x], [y, y - 1], [z, z]] and [[x, x], [y - 1, y], [z, z]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x], [y, y - 1], [z, z]])
-
-        if (
-            self.grid[f"{x, y, z - 1}"].filled
-            and (abs(self.grid[f"{x, y, z - 1}"].nodes[0].n - n) > 1) 
-            and (self.grid[f"{x, y, z - 1}"].nodes[0].type == "H")
-        ):
-            if [[x, x], [y, y], [z - 1, z]] and [[x, x], [y, y], [z, z - 1]] not in self.hh_bonds:
-                self.hh_bonds.append([[x, x], [y, y], [z, z - 1]])
+        
+        for move in self.moves:
+            # coords of neighbor
+            x2, y2, z2 = x + move[0], y + move[1], z + move[2]
+            
+            # neighbor node in grid
+            neighbor_grid = self.grid[f"{x2, y2, z2}"]
+            
+            # if neighbor exists and not next to eachother in chain
+            if neighbor_grid.filled and (abs(neighbor_grid.nodes[0].n - n) > 1):
+                
+                # get the node from the grid
+                neighbor_node = neighbor_grid.nodes[0]
+                
+                # create bond lines between the nodes
+                bond_line = [[x, x2], [y, y2], [z, z2]]
+                inverse_bond_line = [[x2, x], [y2, y], [z2, z]]
+                
+                # H-H bonds
+                if node.type == "H" and (neighbor_node.type == "H"):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.hh_bonds:
+                        self.hh_bonds.append(bond_line)
+                
+                # H-C bonds
+                if (
+                    (node.type == "H" and neighbor_node.type == "C")
+                    or (node.type == "C" and neighbor_node.type == "H")
+                ):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.ch_bonds:
+                        self.ch_bonds.append(bond_line)
+                        
+                # C-C bonds
+                if node.type == "C" and (neighbor_node.type == "C"):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.cc_bonds:
+                        self.cc_bonds.append(bond_line)
 
     def update_neighbours(self):
+        # reset bonds
         self.hh_bonds = []
+        self.ch_bonds = []
+        self.cc_bonds = []
 
         for key, value in self.grid_chain.items():
             self.add_neighbours(self.grid[value[0]].nodes[0])
         
-        self.stability = -len(self.hh_bonds)
+        self.stability = - (len(self.hh_bonds) + len(self.ch_bonds) + len(self.cc_bonds))
         
     def add_point(self, node, n):
         x = node.x
@@ -138,62 +133,26 @@ class Grid:
         return False
 
     def chain_stuck(self, x, y, z):
+        overlap_counter = 0
+        
+        for neighbor_coords in self.moves:
+            if (
+                self.overlap(x + neighbor_coords[0], y + neighbor_coords[1], z + neighbor_coords[2])
+            ):
+                overlap_counter += 1
 
-        if (
-            self.overlap(x + 1, y, z)
-            and self.overlap(x - 1, y, z)
-            and self.overlap(x, y + 1, z)
-            and self.overlap(x, y - 1, z)
-            and self.overlap(x, y, z + 1)
-            and self.overlap(x, y, z - 1)
-        ):
+        if overlap_counter == len(self.moves):
             return True
-
+            
         return False
 
     def check_diagonals(self, x, y, z):
         # diagonal moves for chain pulling
-        #self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
-        #                        [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
-        #                        [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
-
         available_moves = []
-
-        if not self.grid[f"{x + 1, y + 1, z}"].filled:
-            available_moves.append([1, 1, 0])
-
-        if not self.grid[f"{x + 1, y - 1, z}"].filled:
-            available_moves.append([1, -1, 0])
-
-        if not self.grid[f"{x - 1, y + 1 , z}"].filled:
-            available_moves.append([-1, 1, 0])
-
-        if not self.grid[f"{x - 1, y - 1, z}"].filled:
-            available_moves.append([-1, -1, 0])
-
-        if not self.grid[f"{x, y + 1, z + 1}"].filled:
-            available_moves.append([0, 1, 1])
-
-        if not self.grid[f"{x, y + 1, z - 1}"].filled:
-            available_moves.append([0, 1, -1])
-
-        if not self.grid[f"{x, y - 1, z + 1}"].filled:
-            available_moves.append([0, -1, 1])
-
-        if not self.grid[f"{x, y - 1, z - 1}"].filled:
-            available_moves.append([0, -1, -1])
-
-        if not self.grid[f"{x + 1, y, z + 1}"].filled:
-            available_moves.append([1, 0, 1])
-
-        if not self.grid[f"{x + 1, y, z - 1}"].filled:
-            available_moves.append([1, 0, -1])
-
-        if not self.grid[f"{x - 1, y, z + 1}"].filled:
-            available_moves.append([-1, 0, 1])
-
-        if not self.grid[f"{x - 1, y, z - 1}"].filled:
-            available_moves.append([-1, 0, -1])
+        
+        for move in self.diagonal_moves:
+            if not self.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:
+                available_moves.append(move)
 
         return available_moves
 

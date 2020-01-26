@@ -1,50 +1,57 @@
 import copy
 from classes.Grid import Grid
-    
+from algorithms.CalcUpperbound import calc_upperbound
+from algorithms.Random import random_chain
+
 def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
-    best_chains = {}
+    local_minimum_chains = {}
     stability_over_time = []
+    chain_nr = 1
     
-    grid_class = Grid(amino)
-    # Current protein chain
-    grid_class.create_chain()
-    grid_class.update_neighbours()
-    current_stability = grid_class.stability
-
-    # Save as best chain
-    best_stab_c = current_stability
-    best_chains[best_stab_c] = grid_class
-
+    # set minimal stability the chain has to get
+    naive_upperbound = calc_upperbound(amino)
+    
+    # create initial random chain
+    temp_chain = random_chain(amino)
+    
+    # Save as initial local minimum
+    best_stability = copy.copy(temp_chain.stability)
+    best_current_chain = temp_chain
+    
     for iteration in range(amount_of_reset_checks):
-        best_c_found = False
-        print(f"try: {iteration}")
+        better_stab_found = False
         
         for it in range(whole_chain_pull_amount):
-            stability_over_time.append(current_stability)
+            stability_over_time.append(best_stability)
 
-            for index in range(1, len(grid_class.grid_chain) - 1):
-                grid_class.pull_move(
-                    grid_class.grid[grid_class.grid_chain[index][0]].nodes[0]
+            for index in range(1, len(temp_chain.grid_chain) - 1):
+                temp_chain.pull_move(
+                    temp_chain.grid[temp_chain.grid_chain[index][0]].nodes[0]
                 )
-                grid_class.update_neighbours()
-                temp_stability = grid_class.stability
+                temp_chain.update_neighbours()
                 
-                if temp_stability < best_stab_c:
-                    best_chain_class = copy.deepcopy(grid_class)
-                    best_stab_c = best_chain_class.stability
-                    best_c_found = True
+                if (temp_chain.stability < best_stability) and (temp_chain.stability < naive_upperbound):
+                    best_current_chain = copy.deepcopy(temp_chain)
+                    best_stability = copy.copy(temp_chain.stability)
+                    better_stab_found = True
 
-        if best_c_found:
-            current_hilltop = copy.deepcopy(best_chain_class)
-            current_stability = best_stab_c
-            best_c_found = False
+        print(f"Chain {chain_nr}: Pulled {whole_chain_pull_amount} times. Stability: {best_stability}")
 
-        else:
-            best_chains[best_stab_c] = best_chain_class
+        # if it didnt find any upgrades after the amount of pulls of the whole chain, must be local minimum
+        if not better_stab_found:
+            # terminal info
+            print(f"No stability change after {whole_chain_pull_amount} pulls. Saving chain {chain_nr} as local minima...\n")
             
-            current_hilltop.create_chain()
-            current_hilltop.update_neighbours()
-            current_stability = current_hilltop.stability
-            best_stab_c = current_stability
-
-    return best_chains, stability_over_time
+            
+            # append to local minima list
+            local_minimum_chains[best_current_chain.stability] = best_current_chain
+            
+            # reset to new chain
+            temp_chain = random_chain(amino)
+            chain_nr += 1
+            
+            # set this as best
+            best_stability = temp_chain.stability
+            best_current_chain = temp_chain
+    
+    return local_minimum_chains, stability_over_time

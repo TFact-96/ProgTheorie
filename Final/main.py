@@ -1,16 +1,31 @@
 from classes.Grid import Grid
 from algorithms.HillClimb import hill_climber
 from algorithms.SimAnnealing import simulated_annealing
+from algorithms.Random import random_chain
 from visualisation.DataPlots import data_plot_hillclimb, data_plot_annealing
 from visualisation.PlotBestChain import plot_best_chain
+from visualisation.Plot3D import Plot3D
 
-annealing = True
-hill_climb = False
+make_random_chain = False
+restart_hill_climb = True
+sim_annealing = False
 amino = "PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP"
 
 def main():
-    if annealing:
-        best_chains, stability_over_time = simulated_annealing(amino, 10, 2, False,
+    if make_random_chain:
+        # for plotting compatibility
+        chains = {}
+        
+        # make random chain
+        grid = random_chain(amino)
+        
+        # for plotting compatibility
+        chain[grid.stability] = grid
+
+        plot_best_chain(chain)
+        
+    if sim_annealing:
+        best_chains, stability_over_time = simulated_annealing(amino, 500, 2, False,
                 True, 0.001, 0.997)
 
 
@@ -20,7 +35,7 @@ def main():
         # 3D plot of the best chain of the hill_climber
         plot_best_chain(best_chains)
             
-    if hill_climb:
+    if restart_hill_climb:
         # Grid class with node-pulling algorithm built in.
         grid_class = Grid(amino)
         

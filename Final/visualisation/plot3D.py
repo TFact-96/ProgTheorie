@@ -3,18 +3,36 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from mpl_toolkits.mplot3d import Axes3D
 
-def Plot3D(x, y, z, hh_bonds, stability, color):
+def Plot3D(x, y, z, hh_bonds, ch_bonds, cc_bonds, stability, color):
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # plot the bond lines
-    for hh_bond in hh_bonds:
+    for bond in hh_bonds:
         ax.plot3D(
-            hh_bond[0], hh_bond[1], hh_bond[2],
+            bond[0], bond[1], bond[2],
             "--",
             markersize=1,
             color='red',
+            zorder=-1
+        )
+
+    for bond in ch_bonds:
+        ax.plot3D(
+            bond[0], bond[1], bond[2],
+            "--",
+            markersize=1,
+            color='orange',
+            zorder=-1
+        )
+
+    for bond in cc_bonds:
+        ax.plot3D(
+            bond[0], bond[1], bond[2],
+            "--",
+            markersize=1,
+            color='yellow',
             zorder=-1
         )
 
