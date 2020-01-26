@@ -16,7 +16,7 @@ def get_initial_user_input():
 def plot_chain_request(chains):
     plot_request = input("Do you want to plot the chain? (y/n): ")
     if plot_request == "y":
-        plot_best_chain(best_chain)
+        plot_best_chain(chains)
 
 def annealing_flow(amino):
     start_temp = int(input("Sim Annealing: Enter the start temperature: "))
