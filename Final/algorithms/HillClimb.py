@@ -38,7 +38,7 @@ def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
             temp_chain.update_neighbours()
                 
             # update best current chain if the stability is better
-            if (temp_chain.stability < best_stability):
+            if (temp_chain.stability < best_stability) and (temp_chain.stability < naive_upperbound):
                 best_current_chain = copy.deepcopy(temp_chain)
                 best_stability = copy.copy(temp_chain.stability)
                 better_stab_found = True
