@@ -1,6 +1,7 @@
 from visualisation.Plot3D import Plot3D
 
 def plot_best_chain(best_chains):
+    # choose best chain out of the dict of chains
     best_chain_key = min(best_chains.keys())
     best_chain_class = best_chains[best_chain_key]
     

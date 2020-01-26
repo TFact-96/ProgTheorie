@@ -17,10 +17,7 @@ class Grid:
         self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
                                 [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
                                 [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
-                                
-        # estimate of lowest possible stability
-        self.pivot_upperbound = int(calc_upperbound(amino))
-        
+                                        
         # gridpoints where chain can be in
         self.grid = {}
         
@@ -103,7 +100,7 @@ class Grid:
         for key, value in self.grid_chain.items():
             self.add_neighbours(self.grid[value[0]].nodes[0])
         
-        self.stability = - (len(self.hh_bonds) + len(self.ch_bonds) + len(self.cc_bonds))
+        self.stability = - (len(self.hh_bonds) + len(self.ch_bonds) + (5 * len(self.cc_bonds)))
         
     def add_point(self, node, n):
         x = node.x
