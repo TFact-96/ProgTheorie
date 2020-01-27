@@ -422,10 +422,10 @@ class Grid:
             best_c_found = False
             print(iteration)
 
-            for iteration2 in range(10):
+            for iteration2 in range(200):
                 counter = 0
 
-                while counter < 1000:
+                while counter < 50:
                     counter += 1
                     index = random.randint(1, len(self.amino) - 2)
 
@@ -438,7 +438,6 @@ class Grid:
                     if temp_stability < best_stab_c:
 
                         if temp_stability < -12:
-                            print("saved1", f"temp: {temp_stability}")
                             best_c = copy.deepcopy(temp_chain)
                             best_grid = copy.deepcopy(temp_grid)
                         best_stab_c = temp_stability
@@ -447,14 +446,12 @@ class Grid:
                 if best_c_found:
 
                     if best_stab_c < -12:
-                        print("saved2", f"best: {best_stab_c}")
                         current_hilltop = copy.deepcopy(best_c)
                         grid = copy.deepcopy(best_grid)
                     current_stability = best_stab_c
                     best_c_found = False
 
                 else:
-                    print(f"best stab:{best_stab_c}")
                     self.best_chain[best_stab_c] = [best_c, best_grid]
 
                     current_hilltop, grid = self.create_chain()
@@ -473,7 +470,6 @@ class Grid:
         best_grid = best_chain_double[1]
 
         best_stability, best_hh = self.update_neighbours(best_grid, best_chain)
-        print(self.best_chain.keys())
         print(best_stability)
         x = []
         y = []
@@ -503,6 +499,6 @@ class Grid:
 
 
 k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(1)
+k.hill_climber(20)
 k.find_best_c()
 
