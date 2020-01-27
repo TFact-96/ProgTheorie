@@ -170,17 +170,24 @@ class QLearningAgent:
                 print(f"Trial counter: {self.trials}\r", end='')
             return False
 
-    def export_q_values(self, sequence):
-        with open(f'memory/{sequence}.csv', 'w') as f:
+    def export_values(self, sequence):
+        with open(f'q_table/{sequence}.csv', 'w') as f:
             for key in self.QTable.keys():
                 f.write("%s,%s\n" % (key, self.QTable[key]))
+        with open(f'freq/{sequence}.csv', 'w') as f:
+            for key in self.frequencyTable.keys():
+                f.write("%s,%s\n" % (key, self.frequencyTable[key]))
         return True
 
-    def import_q_values(self, sequence):
+    def import_values(self, sequence):
         try:
-            with open(f'memory/{sequence}.csv', 'r') as infile:
+            with open(f'q_table/{sequence}.csv', 'r') as infile:
                 reader = csv.reader(infile)
                 self.QTable = {rows[0]:float(rows[1]) for rows in reader}
+
+            with open(f'freq/{sequence}.csv', 'r') as infile:
+                reader = csv.reader(infile)
+                self.frequencyTable = {rows[0]:int(rows[1]) for rows in reader}
             return True
         except OSError:
             return False

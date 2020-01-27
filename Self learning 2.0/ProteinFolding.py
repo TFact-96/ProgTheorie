@@ -9,6 +9,37 @@ import numpy as np
 import Environment
 import Agents
 
+video = False
+
+
+def animate(protein, stability):
+
+    fig, ax = plt.subplots(figsize=(14, 7))
+
+    x, y = [], []
+
+    for amino in protein:
+        x.append(amino.pos[0])
+        y.append(amino.pos[1])
+        # Draw each amino acid
+        plt.scatter(amino.pos[0], amino.pos[1], color=amino.colour, zorder=2)
+    plt.plot(x, y, "-", linewidth=3, color='black', zorder=1)
+
+    ax.grid(which='major', color='#CCCCCC', linestyle='--')
+
+    # Change major ticks to show every 20.
+    ax.xaxis.set_major_locator(MultipleLocator(1))
+    ax.yaxis.set_major_locator(MultipleLocator(1))
+
+    plt.title(f"Amino acid chain (Stability: {stability})")
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.grid(True)
+
+    plt.draw()
+    plt.pause(0.05)
+    plt.clf()
+
 
 def showProtein(protein, stability, progress=None):
     if progress is None:
@@ -20,8 +51,7 @@ def showProtein(protein, stability, progress=None):
     ax.grid(which='major', color='#CCCCCC', linestyle='--')
     ax.grid(which='minor', color='#CCCCCC', linestyle=':')
 
-    x = []
-    y = []
+    x, y = [], []
 
     if len(progress) > 0: plt.subplot(1, 2, 1)
     for amino in protein:
@@ -34,8 +64,8 @@ def showProtein(protein, stability, progress=None):
     # Plot the chain line between amino acids
     plt.title(f"Amino acid chain (Stability: {stability})")
     plt.grid(True)
-    plt.ylabel('y-as')
-    plt.xlabel('x-as')
+    plt.ylabel('y')
+    plt.xlabel('x')
 
     # Set axis ranges; by default this will put major ticks every 25.
     #    proteinLength = len(protein)
@@ -94,7 +124,7 @@ try:
         event, values = window.read()
         if event in (None, 'Exit'):  # if user closes window or clicks cancel
             break
-        elif event in ('OK'):
+        elif event in 'OK':
             proteinSequence = window.FindElement('Protein Sequence').Get()
             protein = Environment.Protein(proteinSequence)
             # Initialize utilityTable
@@ -106,16 +136,18 @@ try:
             protein = Environment.Protein(proteinSequence)
             # Create agent
             agent = Agents.QLearningAgent()
-            if agent.import_q_values(proteinSequence):
+            if agent.import_values(proteinSequence):
                 print("Imported Q values")
             else:
                 print("New Sequence")
-            #            showProtein(protein.state, protein.getStability())
+            # showProtein(protein.state, protein.getStability())
             while not agent.terminate():
                 while True:
                     action = agent.PerceiveAndAct(protein, reward, protein.actions)
                     if action is None: break
                     reward = protein.ProcessAction(action)
+                    if video:
+                        animate(protein.state, protein.getStability())
                 # Create new environment and reset agent
                 stabilityProgress.append(protein.getStability())
                 protein = Environment.Protein(proteinSequence)
@@ -125,10 +157,10 @@ try:
                 if action is None:
                     break
                 reward = protein.ProcessAction(action)
-                agent.export_q_values(proteinSequence)
+                agent.export_values(proteinSequence)
             showProtein(protein.state, protein.getStability(), stabilityProgress)
 
-        elif event in ('Run PTDA one trial'):
+        elif event in 'Run PTDA one trial':
             proteinSequence = window.FindElement('Protein Sequence').Get()
             # Create environment and reset agent
             protein = Environment.Protein(proteinSequence)
@@ -138,16 +170,16 @@ try:
                 i += 1
                 action = agent.PerceiveAndAct(protein, reward, protein.actions)
                 print(f"{i}. Actions for state {protein.getCompactState()}: {protein.actions} => {action}")
-                if action == None: break
+                if action is None: break
                 reward = protein.ProcessAction(action)
             print(f"States visited: {agent.QTable}")
             print(f"Frequency: {agent.frequencyTable}")
             showProtein(protein.state, protein.getStability())
             # Reset environment
             protein = Environment.Protein(proteinSequence)
-        elif event in ('Reset PTDA'):
+        elif event in 'Reset PTDA':
             agent = Agents.PassiveTDAgent()
-        elif event in ('Show'):
+        elif event in 'Show':
             best_movement = max(agent.QTable, key=agent.QTable.get)
             print(f"The best sequence is: {best_movement}")
 except Exception:
