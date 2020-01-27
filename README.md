@@ -42,7 +42,7 @@ Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D
 6. The process repeats back to 2, until `iteration` amount of times.
 
 #### Choosing the Temperature and Coefficient
-- The `StartTemp` (between 0 and inf) and `c` (between 0 and 1) are arbitrarily chosen. It differs per chain and configuration, but usually it's good to start at a temperature around 2 and a coefficient `c` chosen such that after the `iteration` amount the Temperature will be extremely low (around 0.001). This can easily be solved by plugging in 0.001 as `Temperature`, `iteration` as amount of iterations, and 2 as `StartTemp`, then solving for `c`.<br>
+- The `StartTemp` (between 0 and inf) and `c` (between 0 and 1 for exponential, 0 to inf for linear) are arbitrarily chosen. It differs per chain and configuration, but usually it's good to start at a temperature around 2 and a coefficient `c` chosen such that after the `iteration` amount the Temperature will be extremely low (around 0.001). This can easily be solved by plugging in 0.001 as `Temperature`, `iteration` as amount of iterations, and 2 as `StartTemp`, then solving for `c`.<br>
 - It's easy to see that the lower the temperature, the higher the chance is that a better newScore will be accepted. Also a worse newScore would be rejected (plug numbers in with low temp and see for yourself). So at the beginning (`Temp > 1`), the program will still accept bad moves (jump out of local minimum), but at the end (`Temp << 1`) only better scores are accepted (reach for global minimum). Which is why we want to choose the coefficient `c` like explained earlier.
 
 #### Bruteforcing
