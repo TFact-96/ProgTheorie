@@ -8,7 +8,7 @@ def check_diagonals(grid_object, x, y, z):
     available_moves = []
 
     for move in grid_object.diagonal_moves:
-        # if gridpoint exists (not at the boundary of the grid)        
+        # cant overflow the grid       
         if f"{x + move[0], y + move[1], z + move[2]}" in grid_object.grid:
             # if its not filled
             if not grid_object.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:

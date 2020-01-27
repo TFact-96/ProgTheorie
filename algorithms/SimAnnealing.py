@@ -6,7 +6,7 @@ from algorithms.PullMove import pull_move
 from classes.Grid import Grid
 
 def simulated_annealing(
-        protein, iterations, start_temperature, use_linear_temp,
+        protein, iterations, amount_of_pulls_per_iteration, start_temperature, use_linear_temp,
         use_exp_temp, linear_temp_coeff, exp_temp_coeff
     ):
 
@@ -32,15 +32,16 @@ def simulated_annealing(
         old_chain = copy.deepcopy(current_state.grid_chain)
         old_stability = copy.deepcopy(current_state.stability)
 
-        # choose a random node index
-        random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
+        for _ in range(amount_of_pulls_per_iteration):
+            # choose a random node index
+            random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
 
-        # get node object
-        node_coords = current_state.grid_chain[random_node_index][0]
-        node = current_state.grid[node_coords].nodes[0]
+            # get node object
+            node_coords = current_state.grid_chain[random_node_index][0]
+            node = current_state.grid[node_coords].nodes[0]
 
-        # perform a pullmove on this node and update stability and bonds
-        pull_move(current_state, node)
+            # perform a pullmove on this node and update stability and bonds
+            pull_move(current_state, node)
 
         # calculate new stability
         current_state.update_all_bonds()
@@ -57,6 +58,11 @@ def simulated_annealing(
             current_state.grid_chain = copy.deepcopy(old_chain)
             current_state.set_grid_from_filled_gridpoints()
             current_state.update_all_bonds()
+            
+            print(f"Iteration {iteration}: Undo {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}")
+        else:
+            print(f"Iteration {iteration}: Accepted {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}")
+
 
         # lower temperature
         if use_linear_temp:
@@ -66,14 +72,14 @@ def simulated_annealing(
             temperature = start_temperature * (exp_temp_coeff**iteration)
 
         # overflow fix
-        if temperature <= 0.001:
-            temperature = 0.001
+        if temperature <= 0.01:
+            temperature = 0.01
 
     # return the last iteration
     return current_state.stability, current_state.grid, current_state.grid_chain, stability_over_time
 
 # simple bruteforce repeating for the best simulated annealing run
-def annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential):
+def annealing_bruteforce(protein, repeat_amount, iteration_amount, amount_of_pulls_per_iteration, start_temp, coeff, exponential):
     best_stability = 0
     
     # amount of annealing runs
@@ -81,11 +87,11 @@ def annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, c
         
         # exponential temp decrease or linear temp decrease, then run the sim annealing.
         if exponential == "n":
-            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
-                    False, coeff, 0)
+            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, amount_of_pulls_per_iteration, 
+                                                                                        start_temp, True, False, coeff, 0)
         else:
-            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
-                    True, 0, coeff)
+            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, amount_of_pulls_per_iteration, 
+                                                                                        start_temp, False, True, 0, coeff)
 
         print(f"Iteration {iteration}: Stability = {stability}")
 

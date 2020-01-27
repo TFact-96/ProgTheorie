@@ -17,13 +17,14 @@ def annealing_flow(protein):
     # best start temp around 2 and decrease rate for exponential 0.995
     # for linear: decrease rate start_temp / iterations
     repeat_amount = int(input("Sim Annealing: Amount of bruteforce annealing runs: "))
-    iteration_amount = int(input("Sim Annealing: How many random pullmove iterations per annealing run?: "))
+    iteration_amount = int(input("Sim Annealing: How many iterations per annealing run?: "))
+    amount_of_pulls_per_iteration = int(input("Sim Annealing: How many random pullmoves per iteration?: "))
     start_temp = float(input("Sim Annealing: Enter the start temperature: "))
     exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
     coeff = float(input("Sim Annealing: Enter desired temperature decrease coefficient: "))
 
     # run the annealing
-    best_chain, stability_over_time = annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential)
+    best_chain, stability_over_time = annealing_bruteforce(protein, repeat_amount, iteration_amount, amount_of_pulls_per_iteration, start_temp, coeff, exponential)
 
     # plot stability over time for hillclimb statistics
     data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")

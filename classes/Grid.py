@@ -24,7 +24,7 @@ class Grid:
 
         # gridpoints where chain can be in
         self.grid = {}
-
+                
         # only filled gridpoints for quicker deepcopying
         self.filled_gridpoints = {}
 
@@ -54,7 +54,7 @@ class Grid:
     # Clear all filled points from the grid
     def clear_grid(self):
         for key, value in self.grid.items():
-            if self.grid[key].filled:
+            if value.filled:
                 self.grid[key].filled = False
                 self.grid[key].nodes = []
 
@@ -90,8 +90,9 @@ class Grid:
             # coords of neighbor
             x2, y2, z2 = x + move[0], y + move[1], z + move[2]
 
-            # neighbor node in grid
+            # cant overflow the grid
             if f"{x2, y2, z2}" in self.grid:
+
                 neighbor_grid = self.grid[f"{x2, y2, z2}"]
 
                 # if neighbor exists and not next to eachother in chain

@@ -60,13 +60,13 @@ def hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pu
 
         print(f"Random chain {chain_nr}: Nodes pulled: {amt_stab_change_checks * amt_pulls_per_stab_change_check}. Stability: {best_stability}")
 
-        # if it didnt find any upgrades after the amount of pulls of the whole chain, could be local minimum
+        # if it didnt find any upgrades after the amount of random pulls of the whole chain, could be local minimum
         if not better_stab_found:
             # terminal info
             print(f"No stability change after {amt_stab_change_checks} checks. Saving chain {chain_nr} as local minima...\n")
 
             # append to local minima list
-            local_minimum_chains[copy.copy(grid_object.stability)] = [copy.deepcopy(best_current_grid), copy.deepcopy(best_current_chain)]
+            local_minimum_chains[copy.copy(best_stability)] = [copy.deepcopy(best_current_grid), copy.deepcopy(best_current_chain)]
 
             # reset to new chain
             grid_object = random_chain(grid_object)
@@ -74,5 +74,7 @@ def hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pu
 
             # set this as best
             best_stability = copy.deepcopy(grid_object.stability)
+            best_current_grid = copy.deepcopy(grid_object.filled_gridpoints)
+            best_current_chain = copy.deepcopy(grid_object.grid_chain)
 
     return local_minimum_chains, stability_over_time
