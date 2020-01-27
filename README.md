@@ -10,7 +10,7 @@
 `RHC` = Perform a Restart Hill Climb on the protein string.<br>
 `SA` = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 - The random moves with both the Restart Hill Climb and the Simulated Annealing are Pull Moves on nodes, explained below.<br>
-- Further instructions appear when you run the program.<br>
+- Further instructions appear when you run the program for each optimalization algorithm.<br>
 
 ## Algorithms
 
