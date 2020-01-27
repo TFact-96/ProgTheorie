@@ -9,7 +9,7 @@
 R = Generate a random configuration of the protein string.<br>
 RHC = Perform a Restart Hill Climb on the protein string.<br>
 SA = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
-- The random moves with both the Restart Hill Climb and the Simulated Annealing are Pull Moves on nodes.<br>
+- The random moves with both the Restart Hill Climb and the Simulated Annealing are Pull Moves on nodes, explained below.<br>
 - Further instructions appear when you run the program.<br>
 
 ## Algorithms
@@ -28,11 +28,11 @@ SA = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 ### (Bruteforce) Simulated Annealing algorithm<br>
 - To be seen in the file `algorithms/SimAnnealing.py`
 - This algorithm uses the simulated annealing technique of finding a global minimum (best stability).<br>
-1. It first creates a random chain
+1. It first creates a random chain.
 2. It deepcopies the old (this) chain and the old score (stability).
 3. It does a pullmove on a random node in this chain, then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
 ![AcceptEquation](https://latex.codecogs.com/gif.latex?accept%20%3D%202%5E%7B%28oldScore%20-%20newScore%29%20/%20temperature%7D)<br>
-4. It generates a random value between 0 and 1, if that random shot is above the `accept` value, it reverts to the old state.
+4. It generates a random value between 0 and 1, if that random shot is above the `accept` value, it reverts to the old state. Otherwise, it goes on with the new state.
 5. After this process it lowers the temperature by either of these formulas, chosen at the beginning:<br><br>
 Exponential: ![ExpEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20%5Cast%20c%5E%7Biteration%7D)<br><br>
 Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20-%20iteration%20*%20c)<br><br>
