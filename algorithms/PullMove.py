@@ -19,9 +19,9 @@ def check_diagonals(grid_object, x, y, z):
 # Returns coords of i, i+1 (or i-1) and the vector between these coords
 def create_vectors(grid_object, node):
     node_i_coords = [node.x, node.y, node.z]
-
+    
     # if node at left end of chain, use i+1 to fold into the middle
-    if node.n < int((len(grid_object.protein) / 2)):
+    if node.n < (len(grid_object.protein) / 2):
         node_i1 = grid_object.grid_chain[int(node.n) + 1]
         
     # right end of chain use i-1 to fold into the middle
@@ -71,7 +71,7 @@ def pull_move(grid_object, node):
 
     if check:
         # For left side of chain folding towards the middle
-        if node.n < int((len(grid_object.protein) / 2)):
+        if node.n < (len(grid_object.protein) / 2):
             # residue of chain follows in footsteps
             for index in range(int(node.n - 1)):
 

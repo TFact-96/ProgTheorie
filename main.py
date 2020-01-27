@@ -35,10 +35,11 @@ def annealing_flow(protein):
 
 # Restart Hill Climb Algorithm
 def restart_hill_climb_flow(protein):
-    reset_checks = int(input("Restart Hillclimb: Enter the amount of chain restart checks: "))
-    chain_pull_amt = int(input("Restart Hillclimb: Enter the amount of times the whole chain should be pulled per reset check: "))
+    amount_of_reset_checks = int(input("Restart Hillclimb: Enter the amount of chain restart checks: "))
+    amt_stab_change_checks = int(input("Restart Hillclimb: How many stability change checks before checking if chain should restart?: "))
+    amt_pulls_per_stab_change_check = int(input("Restart Hillclimb: Enter the amount of nodepulls performed per stability change check: "))
 
-    local_minima_chains, stability_over_time = hill_climber(protein, chain_pull_amt, reset_checks)
+    local_minima_chains, stability_over_time = hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pulls_per_stab_change_check)
 
     # plot stability over time for hillclimb statistics
     data_plot_request = input("Restart Hillclimb: Do you want to plot the stability over time? (y/n): ")

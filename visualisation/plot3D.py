@@ -81,15 +81,15 @@ def Plot3D(x, y, z, hh_bonds, ch_bonds, cc_bonds, stability, color):
                     ]
 
     # Hide grid lines
-    ax.grid(False)
+    #ax.grid(False)
 
     # Hide axes ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_zticks([])
+    #ax.set_xticks([])
+    #ax.set_yticks([])
+    #ax.set_zticks([])
     # plt axis and grid off
-    plt.axis('off')
-    plt.grid(b=None)
+    #plt.axis('off')
+    #plt.grid(b=None)
 
     ax.legend(handles=custom_legend)
     ax.set_title(f"Protein chain (Stability: {stability})")
