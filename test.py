@@ -3,10 +3,24 @@ import numpy as np
 import random
 import timeit
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 import random
 
 
-a = {1: 2, 3: 3, 7: 4}
+a = 0
+b = 10
+switcher = False
 
-print(min(a.keys()))
+while b > 5:
+
+    if switcher == False:
+        a += 1
+        index = a
+        switcher = True
+    elif switcher == True:
+        b -= 1
+        index = b
+        switcher = False
+
+    print(index)
 

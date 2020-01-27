@@ -280,6 +280,9 @@ class Grid:
         return grid, grid_chain
 
     def hill_climber(self, max_iteration):
+
+        self.stability = []
+
         # Current protein chain
         current_hilltop, grid = self.create_chain()
         current_stability = self.update_neighbours(grid, current_hilltop)[0]
@@ -290,11 +293,15 @@ class Grid:
         best_grid = grid
         self.best_chain[best_stab_c] = [best_c, best_grid]
 
+        pulls = 0
+
         for iteration in range(max_iteration):
             best_c_found = False
             print(iteration)
 
-            for it in range(100):
+            for it in range(500):
+
+                self.stability.append(best_stab_c)
                 for index in range(1, len(current_hilltop) - 1):
 
                     temp_grid, temp_chain = self.pull_move(
@@ -304,23 +311,23 @@ class Grid:
                     temp_stability = self.update_neighbours(temp_grid, temp_chain)[0]
 
                     if temp_stability < best_stab_c:
-
-                        if temp_stability < -9:
+                        if temp_stability < -10:
                             best_c = copy.deepcopy(temp_chain)
                             best_grid = copy.deepcopy(temp_grid)
                         best_stab_c = temp_stability
                         best_c_found = True
 
             if best_c_found:
-                if best_stab_c < -9:
+
+                if best_stab_c < -10:
                     current_hilltop = copy.deepcopy(best_c)
                     grid = copy.deepcopy(best_grid)
+
                 current_stability = best_stab_c
                 best_c_found = False
 
             else:
                 self.best_chain[best_stab_c] = [best_c, best_grid]
-
                 current_hilltop, grid = self.create_chain()
                 current_stability = self.update_neighbours(grid, current_hilltop)[0]
 
@@ -356,10 +363,11 @@ class Grid:
         for hh_bond in best_hh:
             plt.plot(hh_bond[0], hh_bond[1], "y--")
 
+        # plt.plot(self.stability)
+
         plt.show()
 
 
 k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(100)
+k.hill_climber(20)
 k.find_best_c()
-
