@@ -8,7 +8,7 @@
 - Format for running: `python main.py [protein_string] [optimalization_type]`<br>
 - `protein_string`: A combination of C's, H's and P's. The desired protein chain. Example: `PPCHHPPCHPPPPCHHHHCHHPPHHPPPPHHPPHPP`<br>
 - `optimalization_type`:<br>
-`R` = Generate a random configuration of the protein string.<br>
+`R` = Just generate a random configuration of the protein string.<br>
 `RHC` = Perform a Restart Hill Climb on the protein string.<br>
 `SA` = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 - Further instructions appear when you run the program for each optimalization algorithm, algorithms are explained below.<br>
