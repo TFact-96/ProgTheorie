@@ -32,8 +32,8 @@
 
 #### Algorithm
 1. It first creates a random chain.
-2. It deepcopies the old (this) chain and the old score (stability).
-3. It does a pullmove on a random node in this chain, then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
+2. It deepcopies the old (this) chain and the old score (this stability).
+3. It does a given amount of pullmoves on random nodes in this chain (amount is queried to the user when the program runs), then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
 ![AcceptEquation](https://latex.codecogs.com/gif.latex?accept%20%3D%202%5E%7B%28oldScore%20-%20newScore%29%20/%20temperature%7D)<br>
 4. It generates a random value between 0 and 1, if that random shot is above the `accept` value, it reverts to the old state. Otherwise, it goes on with the new state.
 5. After this process it lowers the temperature by either of these formulas, chosen at the beginning:<br><br>
