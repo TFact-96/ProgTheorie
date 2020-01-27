@@ -10,13 +10,13 @@
 `RHC` = Perform a Restart Hill Climb on the protein string.<br>
 `SA` = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 - Further instructions appear when you run the program for each optimalization algorithm, algorithms are explained below.<br>
+- At the end the user will be queried to plot a 3D plot of the chain with its bonds, and a stability per iteration plot if its `RHC` or `SA`.
 
 ## Algorithms
 
 ### Random Chain Generation<br>
 - To be seen in the file `algorithms/RandomChain.py`
 - The program starts with a N x N Grid, contained in the Grid class. First it places a Node object in the grid at (0, 0, 0), with the type as the first char in the protein string. Then for each char in the protein string, it calculates the next coordinate a random move away from the last Node's coordinates (could be 1 in z-direction, -1 in y, etc...). It then checks if the coordinates overlap with another Node, after which it just chooses another move. If all moves are overlapped, the chain is stuck and it just starts all over again. It does this until all Nodes from the protein string are placed in the Grid.
-- After generation, the user will be queried to 3D plot the chain with its bonds.
 
 ### Pull Moves on generated chains<br>
 - To be seen in the file `algorithms/PullMove.py`
@@ -29,7 +29,6 @@
 ### (Bruteforce) Simulated Annealing algorithm
 - To be seen in the file `algorithms/SimAnnealing.py`<br>
 - This algorithm uses the simulated annealing technique of finding a global minimum (best stability).<br>
-- At the end the user will be queried to plot the stability per iteration and a 3D plot of the chain with its bonds.
 
 #### Algorithm
 1. It first creates a random chain.
