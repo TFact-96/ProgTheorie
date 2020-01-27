@@ -1,35 +1,29 @@
 from classes.Grid import Grid
 from algorithms.RestartHillClimb import hill_climber
-from algorithms.SimAnnealing import simulated_annealing
+from algorithms.SimAnnealing import annealing_bruteforce
 from algorithms.RandomChain import random_chain
 from visualisation.DataPlots import data_plot_hillclimb, data_plot_annealing
 from visualisation.PlotBestChain import plot_best_chain
+import sys
 
-def get_initial_user_input():
-    protein = input("Enter desired protein chain: ")
-    make_random_chain = input("Do you want to just make a random chain? (y/n): ")
-    restart_hill_climb = input("Do you want to use the Restart Hill Climbing algorithm? (y/n): ")
-    sim_annealing = input("Do you want to use the Simulated Annealing Hill Climb algorithm? (y/n): ")
-
-    return protein, make_random_chain, restart_hill_climb, sim_annealing
-
+# Request user at the end if they want to 3D plot the best chain
 def plot_chain_request(chains):
     plot_request = input("Do you want to plot the chain? (y/n): ")
     if plot_request == "y":
         plot_best_chain(chains)
 
-# Simulated Annealing
+# Simulated Annealing Algorithm
 def annealing_flow(protein):
     # best start temp around 2 and decrease rate for exponential 0.995
     # for linear: decrease rate start_temp / iterations
-    repeat_amount = int(input("Sim Annealing: Amount of annealings: "))
+    repeat_amount = int(input("Sim Annealing: Amount of annealing runs: "))
     iteration_amount = int(input("Sim Annealing: How many random pullmove iterations per annealing run?: "))
     start_temp = float(input("Sim Annealing: Enter the start temperature: "))
     exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
     coeff = float(input("Sim Annealing: Enter desired temperature decrease coefficient: "))
 
     # run the annealing
-    best_chain, stability_over_time = annealing_repeat(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential)
+    best_chain, stability_over_time = annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential)
 
     # plot stability over time for hillclimb statistics
     data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")
@@ -39,34 +33,7 @@ def annealing_flow(protein):
 
     plot_chain_request(best_chain)
 
-# simple bruteforce repeating for the best simulated annealing run
-def annealing_repeat(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential):
-    best_stability = 0
-
-    for iteration in range(repeat_amount):
-        if exponential == "n":
-            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
-                    False, coeff, 0)
-        else:
-            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
-                    True, 0, coeff)
-
-        print(f"Iteration {iteration}: Stability = {new_chain.stability}")
-
-        # save new best run if found
-        if new_chain.stability < best_stability:
-            best_chain, best_stability_over_time = new_chain, stability_over_time
-            best_stability = new_chain.stability
-
-    print(f"Best chain: {best_chain.stability}")
-
-    # for plotting compatibility
-    best_chains = {}
-    best_chains[best_chain.stability] = best_chain
-
-    return best_chains, best_stability_over_time
-
-
+# Restart Hill Climb Algorithm
 def restart_hill_climb_flow(protein):
     reset_checks = int(input("Restart Hillclimb: Enter the amount of chain restart checks: "))
     chain_pull_amt = int(input("Restart Hillclimb: Enter the amount of times the whole chain should be pulled per reset check: "))
@@ -81,26 +48,36 @@ def restart_hill_climb_flow(protein):
 
     plot_chain_request(local_minima_chains)
 
-
+# Main userflow
 def main():
-    protein, make_random_chain, restart_hill_climb, sim_annealing = get_initial_user_input()
+    if len(sys.argv) != 3:
+        print("Please use the format: python main.py [protein_string] [optimalization_type]")
+        return
+    
+    optimalization_type = str(sys.argv[2])
+    protein = str(sys.argv[1])
+    
+    # testing if only H, P, C combinations exist in protein.
+    protein_test = [amino for amino in protein if (amino == "H" or amino == "P" or amino == "C")]
 
-    if make_random_chain == "y":
-        # for plotting compatibility
-        chains = {}
-
+    if len(protein_test) != len(protein):
+        print("Please only use H's, C's and P's for your protein.")
+        return
+    
+    if optimalization_type == "R":
         # make random chain
         grid = random_chain(protein)
 
         # for plotting compatibility
-        chain[grid.stability] = grid
+        chains = {}
+        chains[grid.stability] = grid
 
-        plot_chain_request(chain)
+        plot_chain_request(chains)
 
-    if sim_annealing == "y":
+    if optimalization_type == "SA":
         annealing_flow(protein)
 
-    if restart_hill_climb == "y":
+    if optimalization_type == "RHC":
         restart_hill_climb_flow(protein)
 
     return

@@ -135,9 +135,7 @@ class Grid:
             self.update_bonds_of_node(self.grid[value[0]].nodes[0])
 
         # stability is the amount of bonds times its individual weight
-        self.stability = (len(self.hh_bonds) * self.hh_weight)
-                        + (len(self.ch_bonds) * self.ch_weight)
-                        + (len(self.cc_bonds) * self.cc_weight)
+        self.stability = (len(self.hh_bonds) * self.hh_weight) + (len(self.ch_bonds) * self.ch_weight) + (len(self.cc_bonds) * self.cc_weight)
 
     # adding a node onto the grid
     def add_point(self, node, n):

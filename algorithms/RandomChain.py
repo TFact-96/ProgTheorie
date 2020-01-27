@@ -1,3 +1,4 @@
+import numpy as np
 from classes.Grid import Grid
 from classes.Node import Node
 
@@ -61,4 +62,4 @@ def random_chain(protein):
     # update bonds and set stability
     grid_object.update_all_bonds()
     
-    return grid
+    return grid_object

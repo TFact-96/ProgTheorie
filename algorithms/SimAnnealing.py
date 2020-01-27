@@ -1,6 +1,8 @@
 import copy
 import random
+import numpy as np
 from algorithms.RandomChain import random_chain
+from algorithms.PullMove import pull_move
 
 def simulated_annealing(
         protein, iterations, start_temperature, use_linear_temp,
@@ -67,3 +69,33 @@ def simulated_annealing(
 
     # return the last iteration
     return current_state, stability_over_time
+
+# simple bruteforce repeating for the best simulated annealing run
+def annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential):
+    best_stability = 0
+    
+    # amount of annealing runs
+    for iteration in range(repeat_amount):
+        
+        # exponential temp decrease or linear temp decrease, then run the sim annealing.
+        if exponential == "n":
+            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
+                    False, coeff, 0)
+        else:
+            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
+                    True, 0, coeff)
+
+        print(f"Iteration {iteration}: Stability = {new_chain.stability}")
+
+        # save new best run if found
+        if new_chain.stability < best_stability:
+            best_chain, best_stability_over_time = new_chain, stability_over_time
+            best_stability = new_chain.stability
+
+    print(f"Best chain: {best_chain.stability}")
+
+    # for plotting compatibility
+    best_chains = {}
+    best_chains[best_chain.stability] = best_chain
+
+    return best_chains, best_stability_over_time

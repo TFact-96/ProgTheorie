@@ -1,6 +1,7 @@
 import copy
 from algorithms.CalcUpperbound import calc_upperbound
 from algorithms.RandomChain import random_chain
+from algorithms.PullMove import pull_move
 
 def hill_climber(protein, whole_chain_pull_amount, amount_of_reset_checks):
     local_minimum_chains = {}

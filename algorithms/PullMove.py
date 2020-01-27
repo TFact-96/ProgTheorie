@@ -49,11 +49,11 @@ def check_requirements(grid_object, available_moves, vector1, node_i_coords, nod
 # pulling a node in the grid_object
 def pull_move(grid_object, node):
 
-    node_i_coords, node_i1_coords, vector1 = grid_object.create_vectors(grid_object, node)
+    node_i_coords, node_i1_coords, vector1 = create_vectors(grid_object, node)
 
-    available_moves = grid_object.check_diagonals(grid_object, node_i_coords[0], node_i_coords[1], node_i_coords[2])
+    available_moves = check_diagonals(grid_object, node_i_coords[0], node_i_coords[1], node_i_coords[2])
 
-    L, C, check = grid_object.check_requirements(
+    L, C, check = check_requirements(
         grid_object, available_moves, vector1, node_i_coords, node_i1_coords
     )
 
