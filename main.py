@@ -68,11 +68,12 @@ def main():
     
     if optimalization_type == "R":
         # make random chain
-        grid = random_chain(protein)
+        grid_object = Grid(protein)
+        grid_object = random_chain(grid_object)
 
         # for plotting compatibility
         chains = {}
-        chains[grid.stability] = grid
+        chains[grid_object.stability] = [grid_object.grid, grid_object.grid_chain]
 
         plot_chain_request(chains)
 
