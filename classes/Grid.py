@@ -54,8 +54,9 @@ class Grid:
     # Clear all filled points from the grid
     def clear_grid(self):
         for key, value in self.grid.items():
-            self.grid[key].filled = False
-            self.grid[key].nodes = []
+            if self.grid[key].filled:
+                self.grid[key].filled = False
+                self.grid[key].nodes = []
 
     # reducing deepcopy time by making dict of only the filled gridpoints
     def set_filled_gridpoints_from_grid(self):
@@ -90,38 +91,39 @@ class Grid:
             x2, y2, z2 = x + move[0], y + move[1], z + move[2]
 
             # neighbor node in grid
-            neighbor_grid = self.grid[f"{x2, y2, z2}"]
+            if f"{x2, y2, z2}" in self.grid:
+                neighbor_grid = self.grid[f"{x2, y2, z2}"]
 
-            # if neighbor exists and not next to eachother in chain
-            if neighbor_grid.filled and (abs(neighbor_grid.nodes[0].n - n) > 1):
+                # if neighbor exists and not next to eachother in chain
+                if neighbor_grid.filled and (abs(neighbor_grid.nodes[0].n - n) > 1):
 
-                # get the node from the grid
-                neighbor_node = neighbor_grid.nodes[0]
+                    # get the node from the grid
+                    neighbor_node = neighbor_grid.nodes[0]
 
-                # create bond lines between the nodes
-                bond_line = [[x, x2], [y, y2], [z, z2]]
-                inverse_bond_line = [[x2, x], [y2, y], [z2, z]]
+                    # create bond lines between the nodes
+                    bond_line = [[x, x2], [y, y2], [z, z2]]
+                    inverse_bond_line = [[x2, x], [y2, y], [z2, z]]
 
-                # H-H bonds
-                if node.type == "H" and (neighbor_node.type == "H"):
-                    # prevent double bond counting
-                    if bond_line and inverse_bond_line not in self.hh_bonds:
-                        self.hh_bonds.append(bond_line)
+                    # H-H bonds
+                    if node.type == "H" and (neighbor_node.type == "H"):
+                        # prevent double bond counting
+                        if bond_line and inverse_bond_line not in self.hh_bonds:
+                            self.hh_bonds.append(bond_line)
 
-                # H-C bonds
-                if (
-                    (node.type == "H" and neighbor_node.type == "C")
-                    or (node.type == "C" and neighbor_node.type == "H")
-                ):
-                    # prevent double bond counting
-                    if bond_line and inverse_bond_line not in self.ch_bonds:
-                        self.ch_bonds.append(bond_line)
+                    # H-C bonds
+                    if (
+                        (node.type == "H" and neighbor_node.type == "C")
+                        or (node.type == "C" and neighbor_node.type == "H")
+                    ):
+                        # prevent double bond counting
+                        if bond_line and inverse_bond_line not in self.ch_bonds:
+                            self.ch_bonds.append(bond_line)
 
-                # C-C bonds
-                if node.type == "C" and (neighbor_node.type == "C"):
-                    # prevent double bond counting
-                    if bond_line and inverse_bond_line not in self.cc_bonds:
-                        self.cc_bonds.append(bond_line)
+                    # C-C bonds
+                    if node.type == "C" and (neighbor_node.type == "C"):
+                        # prevent double bond counting
+                        if bond_line and inverse_bond_line not in self.cc_bonds:
+                            self.cc_bonds.append(bond_line)
 
     # updating bonds for all nodes and calculating stability with it
     def update_all_bonds(self):
@@ -164,7 +166,7 @@ class Grid:
     # True if given coordinates are already filled
     # --> overlap of nodes
     def overlap(self, x, y, z):
-        if self.grid[f"{x, y, z}"].filled:
+        if f"{x, y, z}" in self.grid and self.grid[f"{x, y, z}"].filled:
             return True
 
         return False

@@ -3,6 +3,7 @@ import random
 import numpy as np
 from algorithms.RandomChain import random_chain
 from algorithms.PullMove import pull_move
+from classes.Grid import Grid
 
 def simulated_annealing(
         protein, iterations, start_temperature, use_linear_temp,
@@ -10,7 +11,8 @@ def simulated_annealing(
     ):
 
     # make a grid object with a random chain configuration with this protein
-    current_state = random_chain(protein)
+    current_state = Grid(protein)
+    current_state = random_chain(current_state)
 
     # for statistic plotting
     stability_over_time = []
@@ -68,7 +70,7 @@ def simulated_annealing(
             temperature = 0.001
 
     # return the last iteration
-    return current_state, stability_over_time
+    return current_state.stability, current_state.grid, current_state.grid_chain, stability_over_time
 
 # simple bruteforce repeating for the best simulated annealing run
 def annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential):
@@ -79,23 +81,23 @@ def annealing_bruteforce(protein, repeat_amount, iteration_amount, start_temp, c
         
         # exponential temp decrease or linear temp decrease, then run the sim annealing.
         if exponential == "n":
-            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
+            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
                     False, coeff, 0)
         else:
-            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
+            stability, new_grid, new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
                     True, 0, coeff)
 
-        print(f"Iteration {iteration}: Stability = {new_chain.stability}")
+        print(f"Iteration {iteration}: Stability = {stability}")
 
         # save new best run if found
-        if new_chain.stability < best_stability:
-            best_chain, best_stability_over_time = new_chain, stability_over_time
-            best_stability = new_chain.stability
+        if stability < best_stability:
+            best_grid, best_chain, best_stability_over_time = new_grid, new_chain, stability_over_time
+            best_stability = stability
 
-    print(f"Best chain: {best_chain.stability}")
+    print(f"Best chain: {best_stability}")
 
     # for plotting compatibility
     best_chains = {}
-    best_chains[best_chain.stability] = best_chain
+    best_chains[best_stability] = [best_grid, best_chain]
 
     return best_chains, best_stability_over_time

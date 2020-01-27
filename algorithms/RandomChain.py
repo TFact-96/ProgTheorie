@@ -5,12 +5,19 @@ from classes.Node import Node
 # creates a protein chain starting at (0, 0, 0)
 # then filling in the grid with Nodes by doing a random move from last added
 # Node to the next one until it has length of whole protein string.
-def create_chain(grid_object):
+def random_chain(grid_object):
     # n'th Node
     index = 0
 
-    # Create grid of protein size
-    grid_object.create_grid(int(len(grid_object.protein)))
+    # if grid not created yet, create it.
+    if len(grid_object.grid) == 0:
+        grid_object.create_grid(int(len(grid_object.protein)))
+        
+    # otherwise reset the grid and chain
+    else:
+        grid_object.clear_grid()
+        grid_object.filled_gridpoints = {}
+        grid_object.grid_chain = {}
 
     # Create first Node and set type as first protein char
     first_node = Node(0, 0, 0)
@@ -48,18 +55,7 @@ def create_chain(grid_object):
             grid_object.clear_grid()
             grid_object.grid_chain = {}
             grid_object.add_point(first_node, index)
-
-# inputs an protein chain and 
-# returns a grid object filled with a randomly generated chain
-def random_chain(protein):
     
-    # create grid object
-    grid_object = Grid(protein)
-    
-    # generate a chain in this grid
-    create_chain(grid_object)
-    
-    # update bonds and set stability
     grid_object.update_all_bonds()
     
     return grid_object
