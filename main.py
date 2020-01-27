@@ -16,7 +16,7 @@ def plot_chain_request(chains):
 def annealing_flow(protein):
     # best start temp around 2 and decrease rate for exponential 0.995
     # for linear: decrease rate start_temp / iterations
-    repeat_amount = int(input("Sim Annealing: Amount of annealing runs: "))
+    repeat_amount = int(input("Sim Annealing: Amount of bruteforce annealing runs: "))
     iteration_amount = int(input("Sim Annealing: How many random pullmove iterations per annealing run?: "))
     start_temp = float(input("Sim Annealing: Enter the start temperature: "))
     exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
