@@ -20,10 +20,12 @@
 - After generation, the user will be queried to 3D plot the chain with its bonds.
 
 ### Pull Moves on generated chains<br>
-- TODO
+- To be seen in the file `algorithms/PullMove.py`
+- Todo
 
 ### Restart Hill Climbing algorithm<br>
-- TODO
+- To be seen in the file `algorithms/RestartHillClimb.py`
+- Todo
 
 ### (Bruteforce) Simulated Annealing algorithm<br>
 - To be seen in the file `algorithms/SimAnnealing.py`
