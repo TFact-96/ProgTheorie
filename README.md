@@ -27,9 +27,12 @@
 - To be seen in the file `algorithms/RestartHillClimb.py`
 - Todo
 
-### (Bruteforce) Simulated Annealing algorithm<br>
+### (Bruteforce) Simulated Annealing algorithm
 - To be seen in the file `algorithms/SimAnnealing.py`
 - This algorithm uses the simulated annealing technique of finding a global minimum (best stability).<br>
+- At the end the user will be queried to plot the stability per iteration and a 3D plot of the chain with its bonds.
+
+#### Algorithm
 1. It first creates a random chain.
 2. It deepcopies the old (this) chain and the old score (stability).
 3. It does a pullmove on a random node in this chain, then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
@@ -38,8 +41,11 @@
 5. After this process it lowers the temperature by either of these formulas, chosen at the beginning:<br><br>
 Exponential: ![ExpEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20%5Cast%20c%5E%7Biteration%7D)<br><br>
 Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20-%20iteration%20*%20c)<br><br>
-6. The process repeats back to 2, until `iteration` amount of times.<br>
+6. The process repeats back to 2, until `iteration` amount of times.
+
+#### Choosing the Temperature and Coefficient
 - The `StartTemp` (between 0 and inf) and `c` (between 0 and 1) are arbitrarily chosen. It differs per chain and configuration, but usually it's good to start at a temperature around 2 and a coefficient `c` chosen such that after the `iteration` amount the Temperature will be extremely low (around 0.001). This can easily be solved by plugging in 0.001 as `Temperature`, `iteration` as amount of iterations, and 2 as `StartTemp`, then solving for `c`<br> 
 It's easy to see that the lower the temperature, the higher the chance is that a better newScore will be accepted. Also a worse newScore would be rejected (plug numbers in with low temp and see for yourself). So at the beginning (`Temp > 1`), the program will still accept bad moves (jump out of local minimum), but at the end (`Temp << 1`) only better scores are accepted (reach for global minimum). Which is why we want to choose the coefficient `c` like explained earlier.
+
+#### Bruteforcing
 - There is also function to bruteforce the Sim. Annealing. It's contained in the same file, and if SA is chosen as the argument in the program, it will ask immediately how many Sim. Annealings should be bruteforced. After the bruteforce only the best result is saved, so more bruteforcing is always better, but at the cost of computing time.
-- At the end the user will be queried to plot the stability per iteration and a 3D plot of the chain.
