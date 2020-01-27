@@ -1,5 +1,5 @@
 # In 3D, each amino can maximally bond 3 times with others. This one calculates that each amino can only bond once with another amino.
-# So kind of naive upperbound calculator
+# So kind of naive upperbound calculator in that way.
 
 def calc_upperbound(protein):
     c_count = len([amino for amino in protein if amino == "C"])

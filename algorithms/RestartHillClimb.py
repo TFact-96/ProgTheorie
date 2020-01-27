@@ -1,22 +1,22 @@
 import copy
 from algorithms.CalcUpperbound import calc_upperbound
-from algorithms.Random import random_chain
+from algorithms.RandomChain import random_chain
 
-def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
+def hill_climber(protein, whole_chain_pull_amount, amount_of_reset_checks):
     local_minimum_chains = {}
     stability_over_time = []
     chain_nr = 1
 
     # set minimal stability the chain has to get
-    naive_upperbound = calc_upperbound(amino)
+    naive_upperbound = calc_upperbound(protein)
 
-    # create initial random chain
-    temp_chain = random_chain(amino)
+    # create initial grid object with random chain in it
+    temp_chain = random_chain(protein)
 
     # Save as initial local minimum
     best_stability = copy.copy(temp_chain.stability)
 
-    # how many checks if the chain is a local minima
+    # how many checks if the chain is a local minimum
     for iteration in range(amount_of_reset_checks):
         better_stab_found = False
 
@@ -31,16 +31,16 @@ def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
                 node = temp_chain.grid[node_coords].nodes[0]
 
                 # perform a pullmove on this node and update stability and bonds
-                temp_chain.pull_move(node)
+                pull_move(temp_chain, node)
 
             # update new bonds and stability of this chain
-            temp_chain.update_neighbours()
+            temp_chain.update_all_bonds()
 
             # update best current chain if the stability is better
             if (temp_chain.stability < best_stability):
 
                 # only copy the filled gridpoints (the chain) for lower computing time
-                temp_chain.make_filled_gridpoints()
+                temp_chain.set_filled_gridpoints_from_grid()
                 best_current_grid = copy.deepcopy(temp_chain.filled_gridpoints)
                 best_current_chain = copy.deepcopy(temp_chain.grid_chain)
                 best_stability = copy.copy(temp_chain.stability)
@@ -58,16 +58,16 @@ def hill_climber(amino, whole_chain_pull_amount, amount_of_reset_checks):
             temp_chain.grid_chain = best_current_chain
 
             # merge into its grid
-            temp_chain.merge_filled_gridpoints_back()
+            temp_chain.set_grid_from_filled_gridpoints()
 
-            # set bonds and stsability
-            temp_chain.update_neighbours()
+            # set bonds and stability
+            temp_chain.update_all_bonds()
 
             # append to local minima list
             local_minimum_chains[temp_chain.stability] = temp_chain
 
             # reset to new chain
-            temp_chain = random_chain(amino)
+            temp_chain = random_chain(protein)
             chain_nr += 1
 
             # set this as best

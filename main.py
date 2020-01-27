@@ -1,116 +1,109 @@
-from classes.ChainLattice import ChainLattice
-from algorithms.chaingeneration.chaingenerate import generate_chain
-from algorithms.chaingeneration.multiplechains import multiple_chains
-from algorithms.optimizingalgorithms.chainpulling import chain_pulling
-from algorithms.optimizingalgorithms.evochainpull import find_best_pulled_chain, find_best_c
-from algorithms.upperbound import calc_upperbound
-from visualisation.data import get_chain_data, get_plot_data, get_chain_from_file, write_chain_to_csv
-from visualisation.plot3D import plot_chain3D, plot_multiple_chains
-import os
+from classes.Grid import Grid
+from algorithms.RestartHillClimb import hill_climber
+from algorithms.SimAnnealing import simulated_annealing
+from algorithms.RandomChain import random_chain
+from visualisation.DataPlots import data_plot_hillclimb, data_plot_annealing
+from visualisation.PlotBestChain import plot_best_chain
 
-# Get this shitty greedy_tries out. It slows down the program by a significant deal.
-greedy_tries = 20
+def get_initial_user_input():
+    protein = input("Enter desired protein chain: ")
+    make_random_chain = input("Do you want to just make a random chain? (y/n): ")
+    restart_hill_climb = input("Do you want to use the Restart Hill Climbing algorithm? (y/n): ")
+    sim_annealing = input("Do you want to use the Simulated Annealing Hill Climb algorithm? (y/n): ")
 
-def clear_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    return protein, make_random_chain, restart_hill_climb, sim_annealing
 
-def plotting_and_data_handler(Chain):
-    plot = input("\nDo you want to plot the chain? (y/n): ")
-    if (plot == "y"):
-        plot_chain3D(Chain)
+def plot_chain_request(chains):
+    plot_request = input("Do you want to plot the chain? (y/n): ")
+    if plot_request == "y":
+        plot_best_chain(chains)
 
-    save_data = input("Do you want to save the amino moves of the chain into a .csv file? (Warning: only saves the non-pulled version of the chain) (y/n): ")
-    if (save_data == "y"):
-        write_chain_to_csv(get_chain_data(Chain))
+# Simulated Annealing
+def annealing_flow(protein):
+    # best start temp around 2 and decrease rate for exponential 0.995
+    # for linear: decrease rate start_temp / iterations
+    repeat_amount = int(input("Sim Annealing: Amount of annealings: "))
+    iteration_amount = int(input("Sim Annealing: How many random pullmove iterations per annealing run?: "))
+    start_temp = float(input("Sim Annealing: Enter the start temperature: "))
+    exponential = input("Sim Annealing: Linear or exponential temperature decrease over iterations? (y = exponential / n = linear): ")
+    coeff = float(input("Sim Annealing: Enter desired temperature decrease coefficient: "))
 
-def get_user_input_for_generating_chain():
-    protein = input("Enter desired protein-chain (C's, H's and P's): ")
+    # run the annealing
+    best_chain, stability_over_time = annealing_repeat(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential)
 
-    for amino in protein:
-        if amino != "H" and amino != "C" and amino != "P":
-            print("Only C, H and P aminos allowed.")
-            exit(0)
-    
-    # calculate upperbound
-    if protein:
-        min_stability = calc_upperbound(protein)
-        print(f"The naive minimal stability of this protein is {min_stability}\n")
-        
-    str_greedy = input("Random chain generation or greedy-move algorithm chain generation? (y = greedy / n = random): ")
+    # plot stability over time for hillclimb statistics
+    data_plot_request = input("Sim Annealing: Do you want to plot the stability over time? (y/n): ")
 
-    str_hillclimb = input("Chain-pulling for better stability (Hill Climb Algorithm) after generation of the chain? (y/n): ")
+    if data_plot_request == "y":
+        data_plot_annealing(stability_over_time, protein)
 
-    if (str_greedy != "y" and str_greedy != "n") or (str_hillclimb != "y" and str_hillclimb != "n"):
-        print("Only answer with y or n please.")
-        exit(0)
+    plot_chain_request(best_chain)
 
-    return protein, str_greedy, str_hillclimb
+# simple bruteforce repeating for the best simulated annealing run
+def annealing_repeat(protein, repeat_amount, iteration_amount, start_temp, coeff, exponential):
+    best_stability = 0
+
+    for iteration in range(repeat_amount):
+        if exponential == "n":
+            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, True,
+                    False, coeff, 0)
+        else:
+            new_chain, stability_over_time = simulated_annealing(protein, iteration_amount, start_temp, False,
+                    True, 0, coeff)
+
+        print(f"Iteration {iteration}: Stability = {new_chain.stability}")
+
+        # save new best run if found
+        if new_chain.stability < best_stability:
+            best_chain, best_stability_over_time = new_chain, stability_over_time
+            best_stability = new_chain.stability
+
+    print(f"Best chain: {best_chain.stability}")
+
+    # for plotting compatibility
+    best_chains = {}
+    best_chains[best_chain.stability] = best_chain
+
+    return best_chains, best_stability_over_time
+
+
+def restart_hill_climb_flow(protein):
+    reset_checks = int(input("Restart Hillclimb: Enter the amount of chain restart checks: "))
+    chain_pull_amt = int(input("Restart Hillclimb: Enter the amount of times the whole chain should be pulled per reset check: "))
+
+    local_minima_chains, stability_over_time = hill_climber(protein, chain_pull_amt, reset_checks)
+
+    # plot stability over time for hillclimb statistics
+    data_plot_request = input("Restart Hillclimb: Do you want to plot the stability over time? (y/n): ")
+
+    if data_plot_request == "y":
+        data_plot_hillclimb(stability_over_time, protein)
+
+    plot_chain_request(local_minima_chains)
+
 
 def main():
-    clear_terminal()
-    ################### Loading existing chain data or generating own?
-    from_csv = input("Plot an existing protein chain from a .csv file, or generate a new one? (y = load / n = generate): ")
+    protein, make_random_chain, restart_hill_climb, sim_annealing = get_initial_user_input()
 
-    if (from_csv == "y"):
-        file = input("Give the filename from the data folder (without .csv extension): ")
-        Chain = get_chain_from_file(file)
-        
-        if Chain:
-            plot_chain3D(Chain)
+    if make_random_chain == "y":
+        # for plotting compatibility
+        chains = {}
 
-        prompt_rerun()
+        # make random chain
+        grid = random_chain(protein)
 
-    ################### Get chain data input for generation
-    protein, str_greedy, str_hillclimb = get_user_input_for_generating_chain()
+        # for plotting compatibility
+        chain[grid.stability] = grid
 
-    ################### Chain generation
+        plot_chain_request(chain)
 
-    # if no chain pulling
-    if str_hillclimb == "n":
-        # Random generation
-        if str_greedy == "n":
-            Chain = generate_chain(protein, False, greedy_tries)
+    if sim_annealing == "y":
+        annealing_flow(protein)
 
-        # Optimized (greedymoves) generation
-        if str_greedy == "y":
-            Chain = generate_chain(protein, True, greedy_tries)
+    if restart_hill_climb == "y":
+        restart_hill_climb_flow(protein)
 
-    # Using Mehmet's hillclimb ChainPulling algorithm after generating chains
-    if str_hillclimb == "y":
-        chain_generations = int(input("How many chains should be generated to pull?: "))
-        pull_times_per_chain = int(input("How many random pulls should be executed within each chain?: "))
-
-        if str_greedy == "n":
-            pulled_random_chains_list = chain_pulling(protein, False, greedy_tries, chain_generations, pull_times_per_chain)
-            # just getting the best Chain
-            Chain = pulled_random_chains_list[-1]
-        else:
-            pulled_greedy_chains_list = chain_pulling(protein, True, greedy_tries, chain_generations, pull_times_per_chain)
-            Chain = pulled_greedy_chains_list[-1]
-
-    # Handling plotting and data of chain
-    if Chain:
-        plotting_and_data_handler(Chain)
-
-    prompt_rerun()
-
-def prompt_rerun():
-    rerun = 0
-    while rerun != "y" and rerun != "n":
-        rerun = input("Do you want to try another protein chain? (y/n):")
-
-    if rerun == "y":
-        main()
-
-    exit(0)
+    return
 
 if __name__ == "__main__":
-    #main()
-    find_best_pulled_chain("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP", 100, True)
-
-    # statistics plotting for quantifying quality of algorithm
-    #protein = "HCPHPHPHCHHHHPCCPPHPPPHPPPPCPPPHPPPHPHHHHCHPHPHPHH"
-    #iterations = 500
-    #use_optimize_algorithm = True
-    #chain_nr, chain_stability = multiple_chains(protein, iterations, use_optimize_algorithm, greedy_tries)
-    #plot_multiple_chains(chain_nr, chain_stability)
+    main()

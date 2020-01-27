@@ -1,5 +1,5 @@
+# Object for an Amino in the Protein Chain (Node in the Grid)
 class Node:
-    # object for an node in the amino chain
     def __init__(self, x, y, z):
 
         # coords
@@ -8,14 +8,8 @@ class Node:
         self.z = z
         self.n = 0
 
-        # atom type (default P)
+        # amino type (default P)
         self.type = "P"
-
-        # the fold that this atom makes to the next atom (default 0)
-        self.fold_code = 0
-
-        # All neighbours of a single node
-        self.neighbours = []
 
     # print the type if printing the object
     def __repr__(self):

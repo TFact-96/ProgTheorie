@@ -1,3 +1,4 @@
+# Properties of a point on the Grid. It contains coords, and can be filled with a Node (Amino) object.
 class GridPoint:
     def __init__(self, filled, coords):
         self.filled = filled

@@ -1,39 +1,36 @@
+import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from visualisation.data import get_plot_data
-import numpy as np
 
-###################################### Plotting the chain
-def plot_chain3D(Chain):
-    x, y, z, color = get_plot_data(Chain)
-
+# 3D plots a protein chain
+def Plot3D(x, y, z, hh_bonds, ch_bonds, cc_bonds, stability, color):
+    
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # plot the bond lines
-    for hh_bond in Chain.hh_bonds:
+    for bond in hh_bonds:
         ax.plot3D(
-            hh_bond[0], hh_bond[1], hh_bond[2],
+            bond[0], bond[1], bond[2],
             "--",
             markersize=1,
             color='red',
             zorder=-1
         )
 
-    for ch_bond in Chain.ch_bonds:
+    for bond in ch_bonds:
         ax.plot3D(
-            ch_bond[0], ch_bond[1], ch_bond[2],
+            bond[0], bond[1], bond[2],
             "--",
             markersize=1,
             color='orange',
             zorder=-1
         )
 
-    for cc_bond in Chain.cc_bonds:
+    for bond in cc_bonds:
         ax.plot3D(
-            cc_bond[0], cc_bond[1], cc_bond[2],
+            bond[0], bond[1], bond[2],
             "--",
             markersize=1,
             color='yellow',
@@ -68,6 +65,7 @@ def plot_chain3D(Chain):
         depthshade=False
     )
 
+    # Legend explaining node colors and bondline colors
     custom_legend = [
                         Line2D([0], [0], color='black', lw=2, label="Protein chain"),
                         Line2D([0], [0], marker='o', color='black', label='H-amino',
@@ -94,31 +92,5 @@ def plot_chain3D(Chain):
     plt.grid(b=None)
 
     ax.legend(handles=custom_legend)
-    ax.set_title(f"Protein chain (Stability: {Chain.stability})")
-    plt.show()
-
-def plot_multiple_chains(chain_nr, chain_data):
-    x = chain_nr
-    y = chain_data
-
-    average = np.average(chain_data)
-    standard_dev = float(np.std(chain_data))
-
-    # 95% chance the stability is within this interval
-    TwoStdDevAway = average - (2 * standard_dev)
-    PositiveTwoStdAway = average + (2 * standard_dev)
-
-    # stability cant be over zero
-    if PositiveTwoStdAway > 0:
-        PositiveTwoStdAway = 0
-
-    plt.hlines(average, chain_nr[0], chain_nr[-1], zorder=1, colors='red', linewidth=3, label="Average stability: %.2f" % (average))
-    plt.hlines(PositiveTwoStdAway, chain_nr[0], chain_nr[-1], zorder=1, colors='orange', linestyles="--", label="95 percent confidence interval (std. dev = %.2f )" % (float(standard_dev)))
-    plt.hlines(TwoStdDevAway, chain_nr[0], chain_nr[-1], zorder=1, colors='orange', linestyles="--")
-    plt.plot(x, y, zorder=0, label="Stabilities of multiple chains")
-    plt.xlabel("Chain number")
-    plt.ylabel("Stability")
-    plt.ylim(1, -35)
-    plt.title("Generations of multiple amino chains")
-    plt.legend()
-    plt.show()
+    ax.set_title(f"Protein chain (Stability: {stability})")
+    plt.show()                

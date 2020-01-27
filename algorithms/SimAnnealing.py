@@ -1,15 +1,14 @@
 import copy
 import random
-import numpy as np
-from algorithms.Random import random_chain
+from algorithms.RandomChain import random_chain
 
 def simulated_annealing(
-        amino, iterations, start_temperature, use_linear_temp,
+        protein, iterations, start_temperature, use_linear_temp,
         use_exp_temp, linear_temp_coeff, exp_temp_coeff
     ):
 
-    # make a random protein chain
-    current_state = random_chain(amino)
+    # make a grid object with a random chain configuration with this protein
+    current_state = random_chain(protein)
 
     # for statistic plotting
     stability_over_time = []
@@ -24,12 +23,12 @@ def simulated_annealing(
         stability_over_time.append(current_state.stability)
 
         # remember old state (only filled gridpoints and the chain list)
-        current_state.make_filled_gridpoints()
+        current_state.set_filled_gridpoints_from_grid()
         old_filled_gridpoints = copy.deepcopy(current_state.filled_gridpoints)
         old_chain = copy.deepcopy(current_state.grid_chain)
         old_stability = copy.deepcopy(current_state.stability)
 
-        # perform pullmoves on the whole chain
+        # choose a random node index
         random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
 
         # get node object
@@ -37,10 +36,10 @@ def simulated_annealing(
         node = current_state.grid[node_coords].nodes[0]
 
         # perform a pullmove on this node and update stability and bonds
-        current_state.pull_move(node)
+        pull_move(current_state, node)
 
         # calculate new stability
-        current_state.update_neighbours()
+        current_state.update_all_bonds()
         new_stability = copy.deepcopy(current_state.stability)
 
         # dart shot
@@ -52,8 +51,8 @@ def simulated_annealing(
             # get the old filled gridpoints and put them back into the grid
             current_state.filled_gridpoints = copy.deepcopy(old_filled_gridpoints)
             current_state.grid_chain = copy.deepcopy(old_chain)
-            current_state.merge_filled_gridpoints_back()
-            current_state.update_neighbours()
+            current_state.set_grid_from_filled_gridpoints()
+            current_state.update_all_bonds()
 
         # lower temperature
         if use_linear_temp:

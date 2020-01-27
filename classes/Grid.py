@@ -1,19 +1,23 @@
-import numpy as np
 import random
-from algorithms.CalcUpperbound import calc_upperbound
 from classes.GridPoint import GridPoint
 from classes.Node import Node
 
+# Creates a Grid the size of NxN where N is the stringlength of the protein.
+# Can add Nodes onto it, clear Nodes, transfer Nodes to new coords,
+# clear whole grid, check for overlap of coordinates,
+# check if all points around a coord are filled (stuck chain),
+# update a node's possible bonds, or update all nodes' bonds.
 class Grid:
-    def __init__(self, amino):
+    def __init__(self, protein):
 
-        self.amino = amino
+        # string of all amino nodes
+        self.protein = protein
 
-        # available moves
+        # available moves from a Node to another Node
         self.moves = [[1, 0, 0], [0, 1, 0], [0, 0, 1],
                     [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
 
-        # diagonal moves for chain pulling
+        # Diagonal moves for chain pulling
         self.diagonal_moves = [[-1, 1, 0], [-1, -1, 0], [-1, 0, 1], [-1, 0, -1],
                                 [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
                                 [1, -1, 0], [1, 1, 0], [1, 0, 1], [1, 0, -1]]
@@ -21,18 +25,23 @@ class Grid:
         # gridpoints where chain can be in
         self.grid = {}
 
-        # filled gridpoints (coords where node exists)
+        # only filled gridpoints for quicker deepcopying
         self.filled_gridpoints = {}
 
         # chain itself
         self.grid_chain = {}
 
-        # bonds
+        # Stores the bond-line coordinates between nodes that are bonded.
         self.hh_bonds = []
         self.ch_bonds = []
         self.cc_bonds = []
 
-        # stability of the chain
+        # stability weight of each bond combination
+        self.hh_weight = -1
+        self.ch_weight = -1
+        self.cc_weight = -5
+
+        # stability of the chain (length of the bond-lists combined)
         self.stability = 0
 
     # Create n x n grid
@@ -42,13 +51,14 @@ class Grid:
                 for x in range(-n, n + 1):
                     self.grid[f"{x, y, z}"] = GridPoint(False, [x, y, z])
 
+    # Clear all filled points from the grid
     def clear_grid(self):
         for key, value in self.grid.items():
             self.grid[key].filled = False
             self.grid[key].nodes = []
 
-    # reducing deepcopy time by only copying filled gridpoints
-    def make_filled_gridpoints(self):
+    # reducing deepcopy time by making dict of only the filled gridpoints
+    def set_filled_gridpoints_from_grid(self):
         self.filled_gridpoints = {}
 
         for key, value in self.grid.items():
@@ -56,7 +66,7 @@ class Grid:
                 self.filled_gridpoints[key] = value
 
     # merge the filled gridpoints onto the grid (deepcopy reduce time)
-    def merge_filled_gridpoints_back(self):
+    def set_grid_from_filled_gridpoints(self):
         # clear grid first
         self.clear_grid()
 
@@ -64,7 +74,8 @@ class Grid:
         for key, value in self.filled_gridpoints.items():
             self.grid[key] = self.filled_gridpoints[key]
 
-    def add_neighbours(self, node):
+    # checking the neighbors of a node and adding bonds
+    def update_bonds_of_node(self, node):
         x = node.x
         y = node.y
         z = node.z
@@ -73,6 +84,7 @@ class Grid:
         if node.type == "P":
             return False
 
+        # neighbor of node = 1 move away
         for move in self.moves:
             # coords of neighbor
             x2, y2, z2 = x + move[0], y + move[1], z + move[2]
@@ -111,17 +123,23 @@ class Grid:
                     if bond_line and inverse_bond_line not in self.cc_bonds:
                         self.cc_bonds.append(bond_line)
 
-    def update_neighbours(self):
+    # updating bonds for all nodes and calculating stability with it
+    def update_all_bonds(self):
         # reset bonds
         self.hh_bonds = []
         self.ch_bonds = []
         self.cc_bonds = []
 
+        # finding bonds for each node
         for key, value in self.grid_chain.items():
-            self.add_neighbours(self.grid[value[0]].nodes[0])
+            self.update_bonds_of_node(self.grid[value[0]].nodes[0])
 
-        self.stability = - (len(self.hh_bonds) + len(self.ch_bonds) + (5 * len(self.cc_bonds)))
+        # stability is the amount of bonds times its individual weight
+        self.stability = (len(self.hh_bonds) * self.hh_weight)
+                        + (len(self.ch_bonds) * self.ch_weight)
+                        + (len(self.cc_bonds) * self.cc_weight)
 
+    # adding a node onto the grid
     def add_point(self, node, n):
         x = node.x
         y = node.y
@@ -129,12 +147,14 @@ class Grid:
         self.grid[f"{x, y, z}"].add_node(node)
         self.grid_chain[n] = [f"{x, y, z}", [x, y, z]]
 
+    # clearing a node from the grid
     def clear_point(self, node, n):
         x = node.x
         y = node.y
         z = node.z
         self.grid[f"{x, y, z}"].remove_node(node)
 
+    # transferring a node to new coordinates
     def transfer_point(self, node1, x2, y2, z2):
         n = node1.n
         self.clear_point(node1, n)
@@ -143,12 +163,16 @@ class Grid:
         node1.z = z2
         self.add_point(node1, n)
 
+    # True if given coordinates are already filled
+    # --> overlap of nodes
     def overlap(self, x, y, z):
         if self.grid[f"{x, y, z}"].filled:
             return True
 
         return False
 
+    # True if all coordinates around a point are already filled
+    # --> chain is stuck
     def chain_stuck(self, x, y, z):
         overlap_counter = 0
 
@@ -158,117 +182,8 @@ class Grid:
             ):
                 overlap_counter += 1
 
+        # all possible moves are overlapping --> chain stuck
         if overlap_counter == len(self.moves):
             return True
 
         return False
-
-    def check_diagonals(self, x, y, z):
-        # diagonal moves for chain pulling
-        available_moves = []
-
-        for move in self.diagonal_moves:
-            if not self.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:
-                available_moves.append(move)
-
-        return available_moves
-
-    def create_chain(self):
-        index = 0
-
-        # Create grid
-        # too big?
-        self.create_grid(int(len(self.amino)))
-        first_node = Node(0, 0, 0)
-        first_node.type = self.amino[0]
-        self.add_point(first_node, index)
-
-        while index < len(self.amino) - 1:
-            current_node_key = self.grid_chain[index][0]
-            current_node = self.grid[current_node_key].nodes[0]
-
-            random_move = np.random.randint(len(self.moves))
-
-            new_x = current_node.x + self.moves[random_move][0]
-            new_y = current_node.y + self.moves[random_move][1]
-            new_z = current_node.z + self.moves[random_move][2]
-
-            if not self.overlap(new_x, new_y, new_z):
-                index += 1
-                new_node = Node(new_x, new_y, new_z)
-                new_node.n = index
-                new_node.type = self.amino[index]
-                self.add_point(new_node, index)
-
-            if self.chain_stuck(new_x, new_y, new_z):
-                index = 0
-                self.clear_grid()
-                self.grid_chain = {}
-                self.add_point(first_node, index)
-
-    def create_vectors(self, node):
-        node_i_coords = [node.x, node.y, node.z]
-        node_i1 = self.grid_chain[int(node.n) + 1]
-        node_i1_coords = np.array([node_i1[1][0], node_i1[1][1], node_i1[1][2]])
-        vector1 = node_i1_coords - np.array(node_i_coords)
-
-        return node_i_coords, node_i1_coords, vector1
-
-    def check_requirements(self, available_moves, vector1, node_i_coords, node_i1_coords):
-        viable_moves = []
-        found = False
-
-        for move in available_moves:
-            L = node_i_coords + np.array(move)
-            C = L - vector1
-
-            if (
-                (not self.overlap(L[0], L[1], L[2]))
-                and (not self.overlap(C[0], C[1], C[2]))
-                and (np.linalg.norm(L - node_i1_coords) == 1.0)
-            ):
-                viable_moves.append([L, C])
-                found = True
-
-        if not found:
-            return 0, 0, False
-
-        random_choice = random.choice(viable_moves)
-        return random_choice[0], random_choice[1], True
-
-    def pull_move(self, node):
-
-        node_i_coords, node_i1_coords, vector1 = self.create_vectors(node)
-
-        available_moves = self.check_diagonals(node_i_coords[0], node_i_coords[1], node_i_coords[2])
-
-        L, C, check = self.check_requirements(
-            available_moves, vector1, node_i_coords, node_i1_coords
-        )
-
-        if check:
-
-            # residue of chain follows in footsteps
-            for index in range(int(node.n - 1)):
-
-                residue_node_key = self.grid_chain[index][0]
-                residue_node = self.grid[residue_node_key].nodes[0]
-
-                residue_node_next_key = self.grid_chain[index + 2][0]
-                residue_node_next = self.grid[residue_node_next_key].nodes[0]
-
-                self.transfer_point(
-                    residue_node,
-                    residue_node_next.x,
-                    residue_node_next.y,
-                    residue_node_next.z,
-                )
-
-            # node moves to L
-            self.transfer_point(node, L[0], L[1], L[2])
-
-            # Previous node moves to C
-            previous_node_key = self.grid_chain[int(node.n) - 1][0]
-            previous_node = self.grid[previous_node_key].nodes[0]
-
-            self.transfer_point(previous_node, C[0], C[1], C[2])
