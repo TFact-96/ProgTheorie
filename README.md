@@ -31,11 +31,11 @@ SA = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 1. It first creates a random chain
 2. It deepcopies the old (this) chain and the old score (stability).
 3. It does a pullmove on a random node in this chain, then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
-![Large accept = 2^{(oldScore - newScore) / temperature}]<br>
+![AcceptEquation](https://latex.codecogs.com/gif.latex?accept%20%3D%202%5E%7B%28oldScore%20-%20newScore%29%20/%20temperature%7D)<br>
 4. It does a random shot between 0 and 1, if that random shot is above the accept value, it reverts to the old state.
-5. After this process it lowers the temperature by either of these formulas:<br>
-Exponential: ![ExpEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20%5Cast%20c%5E%7Biteration%7D)<br>
-Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20-%20iteration%20*%20c)<br>
+5. After this process it lowers the temperature by either of these formulas:<br><br>
+Exponential: ![ExpEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20%5Cast%20c%5E%7Biteration%7D)<br><br>
+Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20-%20iteration%20*%20c)<br><br>
 6. The process repeats back to 2, until `iteration` amount of times.<br>
 - The `StartTemp` (between 0 and inf) and `c` (between 0 and 1) are arbitrarily chosen. It differs per chain and configuration, but usually it's good to start at a temperature around 2 and a coefficient `c` chosen such that after the `iteration` amount the Temperature will be extremely low (around 0.001). This can easily be solved by plugging in 0.001 as `Temperature`, `iteration` as amount of iterations, and 2 as `StartTemp`, then solving for `c`<br> 
 It's easy to see that the lower the temperature, the higher the chance is that a better newScore will be accepted. Also a worse newScore would be rejected (plug numbers in with low temp and see for yourself). So at the beginning (`Temp > 1`), the program will still accept bad moves (jump out of local minimum), but at the end (`Temp << 1`) only better scores are accepted (reach for global minimum). Which is why we want to choose the coefficient `c` like explained earlier.
