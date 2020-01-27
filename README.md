@@ -1,16 +1,15 @@
 # Protein Pow(d)er
 
 ## Getting started<br>
-- Do `pip3 install -r requirements.txt` <br>
+- Install the requirements with `pip install -r requirements.txt`
 
-- Format: `python main.py [protein_string] [optimalization_type]`<br>
+- Format for running: `python main.py [protein_string] [optimalization_type]`<br>
 - `protein_string`: A combination of C's, H's and P's. The desired protein chain. Example: `PPCHHPPCHPPPPCHHHHCHHPPHHPPPPHHPPHPP`<br>
 - `optimalization_type`:<br>
 `R` = Generate a random configuration of the protein string.<br>
 `RHC` = Perform a Restart Hill Climb on the protein string.<br>
 `SA` = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
-- The random moves with both the Restart Hill Climb and the Simulated Annealing are Pull Moves on nodes, explained below.<br>
-- Further instructions appear when you run the program for each optimalization algorithm.<br>
+- Further instructions appear when you run the program for each optimalization algorithm, algorithms are explained below.<br>
 
 ## Algorithms
 
@@ -28,7 +27,7 @@
 - Todo
 
 ### (Bruteforce) Simulated Annealing algorithm
-- To be seen in the file `algorithms/SimAnnealing.py`
+- To be seen in the file `algorithms/SimAnnealing.py`<br>
 - This algorithm uses the simulated annealing technique of finding a global minimum (best stability).<br>
 - At the end the user will be queried to plot the stability per iteration and a 3D plot of the chain with its bonds.
 
