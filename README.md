@@ -32,8 +32,8 @@ SA = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
 2. It deepcopies the old (this) chain and the old score (stability).
 3. It does a pullmove on a random node in this chain, then calculates new score (stability). It then either accepts that move, or undoes that move by a formula:<br>
 ![AcceptEquation](https://latex.codecogs.com/gif.latex?accept%20%3D%202%5E%7B%28oldScore%20-%20newScore%29%20/%20temperature%7D)<br>
-4. It does a random shot between 0 and 1, if that random shot is above the accept value, it reverts to the old state.
-5. After this process it lowers the temperature by either of these formulas:<br><br>
+4. It generates a random value between 0 and 1, if that random shot is above the `accept` value, it reverts to the old state.
+5. After this process it lowers the temperature by either of these formulas, chosen at the beginning:<br><br>
 Exponential: ![ExpEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20%5Cast%20c%5E%7Biteration%7D)<br><br>
 Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D%20StartTemp%20-%20iteration%20*%20c)<br><br>
 6. The process repeats back to 2, until `iteration` amount of times.<br>
