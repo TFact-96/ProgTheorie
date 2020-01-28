@@ -8,8 +8,10 @@ from classes.Grid import Grid
 
 class Hill_climber:
     """
-    The hillclimber algorithm. Creates a list of best chains with arguments: 
-    amount of resets, amount of stability checks, amount of pulls per stability change
+    The hillclimber algorithm. Creates a list of best chains.
+    :param amount_of_reset_checks: amount of resets
+    :param amt_stab_change_checks: amount of stability checks
+    :param amt_pulls_per_stab_change_check: amount of pulls per stability change
     """
 
     def __init__(
@@ -32,7 +34,9 @@ class Hill_climber:
 
     def create_grid_object(self, protein):
         """
-        Create initial grid object with random chain in it, arguments: protein
+        Create initial grid object with random chain in it.
+        :param protein: protein chain
+        :return: grid object
         """
         grid_object = Grid(protein)
         grid_object = random_chain(grid_object)
@@ -41,7 +45,9 @@ class Hill_climber:
 
     def get_current_grid_chain(self, grid_object):
         """
-        Deepcopies grid and chain, arguments: grid_object
+        Deepcopies grid and chain.
+        :param grid_object: grid object
+        :return: best current grid, best current chain
         """
         best_current_grid = copy.deepcopy(grid_object.grid)
         best_current_chain = copy.deepcopy(grid_object.grid_chain)
@@ -50,7 +56,9 @@ class Hill_climber:
 
     def pull_move_node(self, grid_object, index):
         """
-        Performs pullmove on node with arguments: grid_object, index
+        Performs pullmove on node.
+        :param grid_object: grid object
+        :param index: index
         """
 
         node_coords = grid_object.grid_chain[index][0]
@@ -63,7 +71,8 @@ class Hill_climber:
 
     def copy_best(self, grid_object):
         """
-        Deepcopies best chain and grid with arguments: gridobject
+        Deepcopies best chain and grid.
+        :param grid_object: grid object
         """
         best_current_grid = copy.deepcopy(grid_object.grid)
         best_current_chain = copy.deepcopy(grid_object.grid_chain)
@@ -74,7 +83,9 @@ class Hill_climber:
 
     def print_message(self, message_num, best_stability):
         """
-        Prints messages with arguments: message number, best stability
+        Prints messages.
+        :param message_num: message number
+        :param best_stability: best stability
         """
         if message_num == 1:
             print(
@@ -89,7 +100,12 @@ class Hill_climber:
         self, best_stability, best_current_grid, best_current_chain, grid_object
     ):
         """
-        Saves local minima to list and creates new grid object, arguments: best stability, best grid, best chain, grid object
+        Saves local minima to list and creates new grid object.
+        :param best_stability: best stability
+        :param best_current_grid: best current grid
+        :param best_current_chain: best current chain
+        :param grid_object: grid object
+        :return: grid object
         """
         self.local_minimum_chains[copy.copy(best_stability)] = [
             copy.deepcopy(best_current_grid),
