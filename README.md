@@ -1,6 +1,6 @@
 # Protein Pow(d)er
 ## The Problem
-- Todo<br>
+- Proteins are long stains of amino-acids that control important proceses in the human body. One of the characteristics of proteins is that they fold themselves so they can be transported by cells in the human body. Proteins that have been folded in the wrong way cause some chronic illnesses such as Alzheimers and cancer. The protein folding problem consists of a sequence of amino acids, each labeled as either hydrophobic (H) or polarised (P). The sequence must be placed on a two-dimensional grid without overlapping, so that adjacent amino acids in the sequence remain horizontally or vertically adjacent in the grid. The goal is to minimize the energy, which in the simplest variation corresponds to maximizing the number of adjacent hydrophobic pairs.<br><br>
 
 ## Getting started<br>
 - Install the requirements with `pip install -r requirements.txt`
