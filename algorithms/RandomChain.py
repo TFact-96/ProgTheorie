@@ -2,10 +2,41 @@ import numpy as np
 from classes.Grid import Grid
 from classes.Node import Node
 
-# creates a protein chain starting at (0, 0, 0)
-# then filling in the grid with Nodes by doing a random move from last added
-# Node to the next one until it has length of whole protein string.
+
+def make_first_node(grid_object, index):
+    """
+    Create first Node and set type as first protein char, arguments: grid_object, index
+    """
+    first_node = Node(0, 0, 0)
+    first_node.type = grid_object.protein[0]
+
+    # Put in Grid
+    grid_object.add_point(first_node, index)
+
+    return first_node
+
+
+def make_new_coords(grid_object, current_node):
+    """
+    Choose random move for a node, arguments: grid_object, current_node
+    """
+    random_move = np.random.randint(len(grid_object.moves))
+
+    return (
+        current_node.x + grid_object.moves[random_move][0],
+        current_node.y + grid_object.moves[random_move][1],
+        current_node.z + grid_object.moves[random_move][2],
+    )
+
+
 def random_chain(grid_object):
+    """
+    creates a protein chain starting at (0, 0, 0)
+    then filling in the grid with Nodes by doing a random move from last added
+    Node to the next one until it has length of whole protein string.
+
+    """
+
     # n'th Node
     index = 0
 
@@ -14,12 +45,7 @@ def random_chain(grid_object):
         grid_object.clear_grid()
         grid_object.grid_chain = {}
 
-    # Create first Node and set type as first protein char
-    first_node = Node(0, 0, 0)
-    first_node.type = grid_object.protein[0]
-
-    # Put in Grid
-    grid_object.add_point(first_node, index)
+    first_node = make_first_node(grid_object, index)
 
     # repeat until the whole protein has finished
     while index < len(grid_object.protein) - 1:
@@ -28,13 +54,7 @@ def random_chain(grid_object):
         current_node_key = grid_object.grid_chain[index][0]
         current_node = grid_object.grid[current_node_key].nodes[0]
 
-        # choose random move
-        random_move = np.random.randint(len(grid_object.moves))
-
-        # make new coordinates of new Node
-        new_x = current_node.x + grid_object.moves[random_move][0]
-        new_y = current_node.y + grid_object.moves[random_move][1]
-        new_z = current_node.z + grid_object.moves[random_move][2]
+        new_x, new_y, new_z = make_new_coords(grid_object, current_node)
 
         # if the move doesnt overlap own chain -> add to grid
         if not grid_object.overlap(new_x, new_y, new_z):
