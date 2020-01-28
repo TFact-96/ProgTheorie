@@ -1,7 +1,9 @@
 def calc_upperbound(protein):
     """
     In 3D, each amino can bond upto 5 times with others. This one calculates that each amino can only bond once with another amino.
-    So this is a naive upperbound calculator in that way. Arguments: protein
+    So this is a naive upperbound calculator in that way. 
+    :param protein: protein chain
+    :return: stability prediction
     """
     c_count = len([amino for amino in protein if amino == "C"])
     h_count = len([amino for amino in protein if amino == "H"])
