@@ -101,10 +101,23 @@ def dart_shot(
         
     return current_state
     
-def lower_temperature():
+def lower_temperature(iteration, use_linear_temp, use_exp_temp, linear_temp_coeff, exp_temp_coeff, start_temperature):
     """
+    Lowers temperature each iteration either linearily or exponentially.
+    :return: new temperature
     """
-    return
+    # lower temperature either linearily or exponentially
+    if use_linear_temp:
+        temperature = start_temperature - (linear_temp_coeff * iteration)
+
+    if use_exp_temp:
+        temperature = start_temperature * (exp_temp_coeff ** iteration)
+
+    # overflow fix, 0.01 is good enough for good moves to accept almost 100% of the time.
+    if temperature <= 0.01:
+        temperature = 0.01
+        
+    return temperature
 
 def simulated_annealing(
     protein,
@@ -155,16 +168,12 @@ def simulated_annealing(
                             amount_of_pulls_per_iteration
                         )
 
-        # lower temperature either linearily or exponentially
-        if use_linear_temp:
-            temperature = start_temperature - (linear_temp_coeff * iteration)
-
-        if use_exp_temp:
-            temperature = start_temperature * (exp_temp_coeff ** iteration)
-
-        # overflow fix, 0.01 is good enough for good moves to accept almost 100% of the time.
-        if temperature <= 0.01:
-            temperature = 0.01
+        # lower temperature for next iteration
+        temperature = lower_temperature(
+                            iteration, linear_temp_coeff, 
+                            exp_temp_coeff, start_temperature,
+                            use_linear_temp, use_exp_temp
+                        )
 
     # return the last iteration
     return (
