@@ -44,13 +44,6 @@ class Grid:
         # stability of the chain (length of the bond-lists combined)
         self.stability = 0
 
-    # Create n x n grid
-    def create_grid(self, n):
-        for z in range(-n, n + 1):
-            for y in range(-n, n + 1):
-                for x in range(-n, n + 1):
-                    self.grid[f"{x, y, z}"] = GridPoint(False, [x, y, z])
-
     # Clear all filled points from the grid
     def clear_grid(self):
         for key, value in self.grid.items():
@@ -90,41 +83,42 @@ class Grid:
             # coords of neighbor
             x2, y2, z2 = x + move[0], y + move[1], z + move[2]
 
-            # cant overflow the grid
-            if f"{x2, y2, z2}" in self.grid:
+            # grid overflow check
+            if f"{x2, y2, z2}" not in self.grid:
+                self.grid[f"{x2, y2, z2}"] = GridPoint(False, [x2, y2, z2])
 
-                neighbor_grid = self.grid[f"{x2, y2, z2}"]
+            neighbor_grid = self.grid[f"{x2, y2, z2}"]
 
-                # if neighbor exists and not next to eachother in chain
-                if neighbor_grid.filled and (abs(neighbor_grid.nodes[0].n - n) > 1):
+            # if neighbor exists and not next to eachother in chain
+            if neighbor_grid.filled and (abs(neighbor_grid.nodes[0].n - n) > 1):
 
-                    # get the node from the grid
-                    neighbor_node = neighbor_grid.nodes[0]
+                # get the node from the grid
+                neighbor_node = neighbor_grid.nodes[0]
 
-                    # create bond lines between the nodes
-                    bond_line = [[x, x2], [y, y2], [z, z2]]
-                    inverse_bond_line = [[x2, x], [y2, y], [z2, z]]
+                # create bond lines between the nodes
+                bond_line = [[x, x2], [y, y2], [z, z2]]
+                inverse_bond_line = [[x2, x], [y2, y], [z2, z]]
 
-                    # H-H bonds
-                    if node.type == "H" and (neighbor_node.type == "H"):
-                        # prevent double bond counting
-                        if bond_line and inverse_bond_line not in self.hh_bonds:
-                            self.hh_bonds.append(bond_line)
+                # H-H bonds
+                if node.type == "H" and (neighbor_node.type == "H"):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.hh_bonds:
+                        self.hh_bonds.append(bond_line)
 
-                    # H-C bonds
-                    if (
-                        (node.type == "H" and neighbor_node.type == "C")
-                        or (node.type == "C" and neighbor_node.type == "H")
-                    ):
-                        # prevent double bond counting
-                        if bond_line and inverse_bond_line not in self.ch_bonds:
-                            self.ch_bonds.append(bond_line)
+                # H-C bonds
+                if (
+                    (node.type == "H" and neighbor_node.type == "C")
+                    or (node.type == "C" and neighbor_node.type == "H")
+                ):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.ch_bonds:
+                        self.ch_bonds.append(bond_line)
 
-                    # C-C bonds
-                    if node.type == "C" and (neighbor_node.type == "C"):
-                        # prevent double bond counting
-                        if bond_line and inverse_bond_line not in self.cc_bonds:
-                            self.cc_bonds.append(bond_line)
+                # C-C bonds
+                if node.type == "C" and (neighbor_node.type == "C"):
+                    # prevent double bond counting
+                    if bond_line and inverse_bond_line not in self.cc_bonds:
+                        self.cc_bonds.append(bond_line)
 
     # updating bonds for all nodes and calculating stability with it
     def update_all_bonds(self):
@@ -145,6 +139,14 @@ class Grid:
         x = node.x
         y = node.y
         z = node.z
+        
+        # Create grid on point and all moves around it
+        temp_grid = {}
+        temp_grid[f"{x, y, z}"] = GridPoint(False, [x, y, z])
+        for move in self.moves:
+            temp_grid[f"{x + move[0], y + move[1], z + move[2]}"] = GridPoint(False, [x + move[0], y + move[1], z + move[2]])
+
+        self.grid = dict(list(temp_grid.items()) + list(self.grid.items()))
         self.grid[f"{x, y, z}"].add_node(node)
         self.grid_chain[n] = [f"{x, y, z}", [x, y, z]]
 
@@ -154,6 +156,13 @@ class Grid:
         y = node.y
         z = node.z
         self.grid[f"{x, y, z}"].remove_node(node)
+        
+        # remove gridpoints around it if not filled
+        for move in self.moves:
+            if f"{x + move[0], y + move[1], z + move[2]}" in self.grid:
+                if not self.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:
+                    self.grid.pop(f"{x + move[0], y + move[1], z + move[2]}", None)
+        
 
     # transferring a node to new coordinates
     def transfer_point(self, node1, x2, y2, z2):

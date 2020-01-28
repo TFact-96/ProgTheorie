@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from classes.GridPoint import GridPoint
 
 # check if diagonal coordinates from a point is not filled
 # returns all available coordinates
@@ -9,10 +10,12 @@ def check_diagonals(grid_object, x, y, z):
 
     for move in grid_object.diagonal_moves:
         # cant overflow the grid       
-        if f"{x + move[0], y + move[1], z + move[2]}" in grid_object.grid:
-            # if its not filled
-            if not grid_object.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:
-                available_moves.append(move)
+        if f"{x + move[0], y + move[1], z + move[2]}" not in grid_object.grid:
+            grid_object.grid[f"{x + move[0], y + move[1], z + move[2]}"] = GridPoint(False, [x + move[0], y + move[1], z + move[2]])
+            
+        # if its not filled
+        if not grid_object.grid[f"{x + move[0], y + move[1], z + move[2]}"].filled:
+            available_moves.append(move)
 
     return available_moves
     

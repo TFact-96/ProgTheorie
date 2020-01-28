@@ -26,9 +26,8 @@ def simulated_annealing(
         # keep track of stability for every iteration
         stability_over_time.append(current_state.stability)
 
-        # remember old state (only filled gridpoints and the chain list)
-        current_state.set_filled_gridpoints_from_grid()
-        old_filled_gridpoints = copy.deepcopy(current_state.filled_gridpoints)
+        # remember old state (only grid and the chain list)
+        old_grid = copy.deepcopy(current_state.grid)
         old_chain = copy.deepcopy(current_state.grid_chain)
         old_stability = copy.deepcopy(current_state.stability)
 
@@ -53,10 +52,9 @@ def simulated_annealing(
 
         # undo move if random shot is above accept value
         if random_shot > accept_value:
-            # get the old filled gridpoints and put them back into the grid
-            current_state.filled_gridpoints = copy.deepcopy(old_filled_gridpoints)
+            # get the old grid and put them back into this grid
+            current_state.grid = copy.deepcopy(old_grid)
             current_state.grid_chain = copy.deepcopy(old_chain)
-            current_state.set_grid_from_filled_gridpoints()
             current_state.update_all_bonds()
             
             print(f"Iteration {iteration}: Undo {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}")

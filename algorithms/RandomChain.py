@@ -9,14 +9,9 @@ def random_chain(grid_object):
     # n'th Node
     index = 0
 
-    # if grid not created yet, create it.
-    if len(grid_object.grid) == 0:
-        grid_object.create_grid(int(len(grid_object.protein)))
-        
-    # otherwise reset the grid and chain
-    else:
+    # Clear grid if it exists
+    if not len(grid_object.grid) != 0:
         grid_object.clear_grid()
-        grid_object.filled_gridpoints = {}
         grid_object.grid_chain = {}
 
     # Create first Node and set type as first protein char
@@ -55,7 +50,7 @@ def random_chain(grid_object):
             grid_object.clear_grid()
             grid_object.grid_chain = {}
             grid_object.add_point(first_node, index)
-    
+
     grid_object.update_all_bonds()
-    
+
     return grid_object

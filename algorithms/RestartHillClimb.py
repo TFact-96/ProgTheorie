@@ -20,9 +20,8 @@ def hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pu
     # Save as initial local minimum
     best_stability = copy.copy(grid_object.stability)
     
-    # only get filled gridpoints and deepcopy that as best chain
-    grid_object.set_filled_gridpoints_from_grid()
-    best_current_grid = copy.deepcopy(grid_object.filled_gridpoints)
+    # only get grid and chain
+    best_current_grid = copy.deepcopy(grid_object.grid)
     best_current_chain = copy.deepcopy(grid_object.grid_chain)
 
     # how many checks if the chain is a local minimum
@@ -51,9 +50,8 @@ def hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pu
             # update best current chain if the stability is better
             if (grid_object.stability < best_stability):
 
-                # only copy the filled gridpoints (the chain) for lower computing time
-                grid_object.set_filled_gridpoints_from_grid()
-                best_current_grid = copy.deepcopy(grid_object.filled_gridpoints)
+                # only get grid and chain for lower computing time
+                best_current_grid = copy.deepcopy(grid_object.grid)
                 best_current_chain = copy.deepcopy(grid_object.grid_chain)
                 best_stability = copy.copy(grid_object.stability)
                 better_stab_found = True
