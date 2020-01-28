@@ -17,15 +17,15 @@
 
 ## Algorithms
 
-### Random Chain Generation<br>
+*Random Chain Generation<br>
 
-### Pull Moves on generated chains<br>
+*#### Pull Moves on generated chains<br>
 
-### Restart Hill Climbing algorithm<br>
+*#### Restart Hill Climbing algorithm<br>
 
-### (Bruteforce) Simulated Annealing algorithm
+*#### (Bruteforce) Simulated Annealing algorithm
 
-### Self Learning algorithm
+*#### Self Learning algorithm
 
 
 
