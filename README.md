@@ -11,25 +11,26 @@
 `R` = Just generate a random configuration of the protein string.<br>
 `RHC` = Perform a Restart Hill Climb on the protein string.<br>
 `SA` = Perform a (Bruteforce) Simulated Annealing on the protein string.<br>
+`SL` = Start a self learning agent to find the best configuration for the given protein.<br>
 - Further instructions appear when you run the program for each optimalization algorithm, algorithms are explained below.<br>
 - At the end the user will be queried to plot a 3D plot of the chain with its bonds, and a stability per iteration plot if its `RHC` or `SA`.
 
 ## Algorithms
 
 ### Random Chain Generation<br>
-- To be seen in the file `algorithms/RandomChain.py`
+- Can be found in the file: `algorithms/RandomChain.py`
 - The program starts with a N x N Grid, contained in the Grid class. First it places a Node object in the grid at (0, 0, 0), with the type as the first char in the protein string. Then for each char in the protein string, it calculates the next coordinate a random move away from the last Node's coordinates (could be 1 in z-direction, -1 in y, etc...). It then checks if the coordinates overlap with another Node, after which it just chooses another move. If all moves are overlapped, the chain is stuck and it just starts all over again. It does this until all Nodes from the protein string are placed in the Grid.
 
 ### Pull Moves on generated chains<br>
-- To be seen in the file `algorithms/PullMove.py`
+- Can be found in the file: `algorithms/PullMove.py`
 - Todo
 
 ### Restart Hill Climbing algorithm<br>
-- To be seen in the file `algorithms/RestartHillClimb.py`
+- Can be found in the file: `algorithms/RestartHillClimb.py`
 - Todo
 
 ### (Bruteforce) Simulated Annealing algorithm
-- To be seen in the file `algorithms/SimAnnealing.py`<br>
+- Can be found in the file: `algorithms/SimAnnealing.py`<br>
 - This algorithm uses the simulated annealing technique of finding a global minimum (best stability).<br>
 
 #### Algorithm
@@ -49,3 +50,20 @@ Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D
 
 #### Bruteforcing
 - There is also function to bruteforce the Sim. Annealing. It's contained in the same file, and if `SA` is chosen as the argument in the program, it will ask immediately how many Sim. Annealings should be bruteforced. After the bruteforce only the best result is returned, so more bruteforcing is always better, but at the cost of computing time.
+
+### Self Learning algorithm
+- Can be found in the folder `algorithms/SelfLearning`
+- This algorithm uses a Q learning agent that finds the step sequence that finds the lowest stability.<br>
+
+#### Algorithm
+1. Take a step according to the highest Q value. Unless there are no more steps to be taken, in that case save Q and frequency tables and start over with the same chain.<br>
+2. Every step calculate reward
+3. With that reward the Q-table and frequency table are updated with the folowing formula:
+4. Repeat from step 1.<br>
+
+#### Explanation
+Q-table: indicates what kind of reward is possible if that step is taken, the higher the Q value the better the chance of a good end result.<br>
+Frequency table: a table that tracks how many times a certain state is visited.<br>
+Epsilon: randomness value. Every step there is a 10% (epsilon = 0.1) chance a random step will be taken to keep the program from overfitting<br>
+First run: in the very first run a completely random chain is generated.<br>
+Saving data: the Q and frequency tables are saved to .csv files.<br>
