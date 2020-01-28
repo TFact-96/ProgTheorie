@@ -7,7 +7,11 @@ from classes.GridPoint import GridPoint
 def check_diagonals(grid_object, x, y, z):
     """
     Check if diagonal coordinates from a point is not filled, returns all available coordinates.
-    Arguments: grid_object, x, y, z
+    :param grid_object: grid_object with gridpoint
+    :param x: x coord
+    :param y: y coord
+    :param z: z coord
+    :return: availaible moves
     """
     # diagonal moves for chain pulling
     available_moves = []
@@ -28,7 +32,10 @@ def check_diagonals(grid_object, x, y, z):
 
 def create_vectors(grid_object, node):
     """
-    Returns coords of i, i+1 (or i-1) and the vector between these coords. Arguments: grid_object, node
+    Returns coords of i, i+1 (or i-1) and the vector between these coords
+    :param grid_object: grid object
+    :param node: node
+    :return: coords of i, i+1 or i-1
     """
     node_i_coords = [node.x, node.y, node.z]
 
@@ -53,7 +60,12 @@ def check_requirements(
     """
     Check requirements if L and C are free --> returns coords of L, coords of C, and True if so.
     Ff multiple L and C's are free, returns a random choice of them.
-    Arguments: grid_object, available_moves, vector1, node_i_coords, node_i1_coords
+    :param grid_object: grid object
+    :param available_moves: availaible moves
+    :param vector1: vector1
+    :param node_i_coords: coords of node i
+    :param node_i1_coords: coords of node i+1 or i-1
+    :return: L and C
     """
     viable_moves = []
     found = False
@@ -79,7 +91,9 @@ def check_requirements(
 
 def move_residue_left(index, grid_object):
     """
-    Function to move residue in first half of chain. Arguments: index, grid_object
+    Function to move residue in first half of chain.
+    :param index: index
+    :param grid_object: grid object
     """
 
     residue_node_key = grid_object.grid_chain[index][0]
@@ -95,7 +109,9 @@ def move_residue_left(index, grid_object):
 
 def move_residue_right(grid_object, node):
     """
-    Function to move residue in second half of chain. Arguments: grid_object, node
+    Function to move residue in second half of chain.
+    :param grid_object: grid object
+    :param node: node
     """
     index_from_end = len(grid_object.protein)
     # residue of chain follows in footsteps
@@ -115,7 +131,9 @@ def move_residue_right(grid_object, node):
 # pulling a node in the grid_object diagonally. Always towards the middle of the chain.
 def pull_move(grid_object, node):
     """
-    The main pull move. Arguments: grid_object, node
+    The main pull move.
+    :param grid_object: grid_object
+    :param node: node
     """
 
     node_i_coords, node_i1_coords, vector1 = create_vectors(grid_object, node)
