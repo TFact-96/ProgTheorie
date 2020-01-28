@@ -6,6 +6,106 @@ from algorithms.PullMove import pull_move
 from classes.Grid import Grid
 
 
+def initialize(protein, start_temperature):
+    """
+    Create Grid object of protein and initialize temperature.
+    :param protein: protein string
+    :param start_temperature: chosen start temperature
+    :return: current_state, stability_over_time, temperature
+    """
+    # make a grid object with a random chain configuration with this protein
+    current_state = Grid(protein)
+    current_state = random_chain(current_state)
+
+    # for statistic plotting
+    stability_over_time = []
+
+    # set initial temperature
+    temperature = start_temperature
+
+    return current_state, stability_over_time, temperature
+    
+def save_current_chain(current_state):
+    """
+    Deepcopies the current chain.
+    :param current_state: the current state
+    :return: old_grid, old_chain, old_stability
+    """
+    # remember old state (only grid and the chain list)
+    old_grid = copy.deepcopy(current_state.grid)
+    old_chain = copy.deepcopy(current_state.grid_chain)
+    old_stability = copy.deepcopy(current_state.stability)
+
+    return old_grid, old_chain, old_stability
+
+def perform_pullmoves(current_state, amount_of_pulls_per_iteration):
+    """
+    Performs n random pullmoves on the chain and updates all bonds.
+    :param current_state: Current state of chain
+    :param amount_of_pulls_per_iteration: Amount of pullmoves
+    :return: current_state
+    """
+    # perform pullmoves
+    for _ in range(amount_of_pulls_per_iteration):
+        # choose a random node index
+        random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
+
+        # get node object
+        node_coords = current_state.grid_chain[random_node_index][0]
+        node = current_state.grid[node_coords].nodes[0]
+
+        # perform a pullmove on this node and update stability and bonds
+        pull_move(current_state, node)
+
+    # calculate new stability
+    current_state.update_all_bonds()
+    
+    return current_state
+
+def dart_shot(
+    current_state, 
+    old_stability, 
+    new_stability, 
+    temperature, 
+    old_grid, 
+    old_chain, 
+    iteration, 
+    amount_of_pulls_per_iteration
+):
+    """
+    Accepts or rejects moves based on new score.
+    :param current_state: Current state of chain after pullmoves
+    :param amount_of_pulls_per_iteration: Amount of pullmoves
+    :param old_grid, old_chain: The old state before pullmoves
+    :param temperature: chosen temperature
+    :param iteration: N'th iteration we're on.
+    :return: Current state after reverted back or accepted moves
+    """
+    accept_value = 2 ** ((old_stability - new_stability) / temperature)
+    random_shot = random.random()
+
+    # undo move if random shot is above accept value
+    if random_shot > accept_value:
+        # get the old grid and put them back into this grid
+        current_state.grid = copy.deepcopy(old_grid)
+        current_state.grid_chain = copy.deepcopy(old_chain)
+        current_state.update_all_bonds()
+
+        print(
+            f"Iteration {iteration}: Undo {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}"
+        )
+    else:
+        print(
+            f"Iteration {iteration}: Accepted {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}"
+        )
+        
+    return current_state
+    
+def lower_temperature():
+    """
+    """
+    return
+
 def simulated_annealing(
     protein,
     iterations,
@@ -28,70 +128,41 @@ def simulated_annealing(
     :param exp_temp_coeff: exponential temperature coefficient
     :return: stability, grid, gridchain
     """
-
-    # make a grid object with a random chain configuration with this protein
-    current_state = Grid(protein)
-    current_state = random_chain(current_state)
-
-    # for statistic plotting
-    stability_over_time = []
-
-    # set temperature
-    temperature = start_temperature
-
+    
+    # initialize with random chain
+    current_state, stability_over_time, temperature = initialize(protein, start_temperature)
+    
     # commence the simulated annealing
     for iteration in range(iterations):
 
         # keep track of stability for every iteration
         stability_over_time.append(current_state.stability)
 
-        # remember old state (only grid and the chain list)
-        old_grid = copy.deepcopy(current_state.grid)
-        old_chain = copy.deepcopy(current_state.grid_chain)
-        old_stability = copy.deepcopy(current_state.stability)
-
-        for _ in range(amount_of_pulls_per_iteration):
-            # choose a random node index
-            random_node_index = np.random.randint(1, len(current_state.grid_chain) - 1)
-
-            # get node object
-            node_coords = current_state.grid_chain[random_node_index][0]
-            node = current_state.grid[node_coords].nodes[0]
-
-            # perform a pullmove on this node and update stability and bonds
-            pull_move(current_state, node)
-
-        # calculate new stability
-        current_state.update_all_bonds()
+        # remember state before pulling
+        old_grid, old_chain, old_stability = save_current_chain(current_state)
+        
+        # Perform given amount of pullmoves on the chain
+        current_chain = perform_pullmoves(current_state, amount_of_pulls_per_iteration)
+        
+        # get new stability
         new_stability = copy.deepcopy(current_state.stability)
 
-        # dart shot
-        accept_value = 2 ** ((old_stability - new_stability) / temperature)
-        random_shot = random.random()
+        # Accepts or rejects the moves based on new score and temperature.
+        current_state = dart_shot(
+                            current_state, old_stability, 
+                            new_stability, temperature, old_grid, 
+                            old_chain, iteration, 
+                            amount_of_pulls_per_iteration
+                        )
 
-        # undo move if random shot is above accept value
-        if random_shot > accept_value:
-            # get the old grid and put them back into this grid
-            current_state.grid = copy.deepcopy(old_grid)
-            current_state.grid_chain = copy.deepcopy(old_chain)
-            current_state.update_all_bonds()
-
-            print(
-                f"Iteration {iteration}: Undo {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}"
-            )
-        else:
-            print(
-                f"Iteration {iteration}: Accepted {amount_of_pulls_per_iteration} pulls: Stability = {current_state.stability}"
-            )
-
-        # lower temperature
+        # lower temperature either linearily or exponentially
         if use_linear_temp:
             temperature = start_temperature - (linear_temp_coeff * iteration)
 
         if use_exp_temp:
             temperature = start_temperature * (exp_temp_coeff ** iteration)
 
-        # overflow fix
+        # overflow fix, 0.01 is good enough for good moves to accept almost 100% of the time.
         if temperature <= 0.01:
             temperature = 0.01
 

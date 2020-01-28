@@ -1,4 +1,4 @@
-from visualisation.plot3D import Plot3D
+from visualisation.Plot3D import Plot3D
 from classes.Grid import Grid
 
 # 3D plotting the best chain out of a dict
@@ -53,4 +53,3 @@ def plot_best_chain(best_chains):
         best_grid_object.stability,
         color,
     )
-
