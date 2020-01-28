@@ -1,4 +1,4 @@
-from visualisation.plot3D import Plot3D
+from visualisation.Plot3D import Plot3D
 from classes.Grid import Grid
 
 # 3D plotting the best chain out of a dict
