@@ -17,7 +17,7 @@
 
 ## Algorithms
 
-- Random Chain Generation<br>
+- #### Random Chain Generation<br>
 
 - #### Pull Moves on generated chains<br>
 
@@ -27,6 +27,6 @@
 
 - #### Self Learning algorithm
 
-These can be found in the folder `Algorithms`
+These can be found in the folder `Algorithms`. 
 
 
