@@ -31,40 +31,31 @@ class Hill_climber:
         naive_upperbound = calc_upperbound(protein)
 
     def create_grid_object(self, protein):
-        """
-        Create initial grid object with random chain in it, arguments: protein
-        """
+        # create initial grid object with random chain in it
         grid_object = Grid(protein)
         grid_object = random_chain(grid_object)
 
         return grid_object
 
     def get_current_grid_chain(self, grid_object):
-        """
-        Deepcopies grid and chain, arguments: grid_object
-        """
+        # only get grid and chain
         best_current_grid = copy.deepcopy(grid_object.grid)
         best_current_chain = copy.deepcopy(grid_object.grid_chain)
 
         return best_current_grid, best_current_chain
 
     def pull_move_node(self, grid_object, index):
-        """
-        Performs pullmove on node with arguments: grid_object, index
-        """
-
+        # get node object
         node_coords = grid_object.grid_chain[index][0]
         node = grid_object.grid[node_coords].nodes[0]
 
+        # perform a pullmove on this node and update stability and bonds
         pull_move(grid_object, node)
 
         # update new bonds and stability of this chain
         grid_object.update_all_bonds()
 
     def copy_best(self, grid_object):
-        """
-        Deepcopies best chain and grid with arguments: gridobject
-        """
         best_current_grid = copy.deepcopy(grid_object.grid)
         best_current_chain = copy.deepcopy(grid_object.grid_chain)
         best_stability = copy.copy(grid_object.stability)
@@ -72,40 +63,58 @@ class Hill_climber:
 
         return best_current_grid, best_current_chain, best_stability, better_stab_found
 
-    def print_message(self, message_num, best_stability):
-        """
-        Prints messages with arguments: message number, best stability
-        """
-        if message_num == 1:
-            print(
-                f"Random chain {self.chain_nr}: Nodes pulled: {self.amt_stab_change_checks * self.amt_pulls_per_stab_change_check}. Stability: {best_stability}"
+    def stability_check(self, grid_object, best_stability):
+        # update best current chain if the stability is better
+        if grid_object.stability < best_stability:
+
+            # only get grid and chain for lower computing time
+            (
+                best_current_grid,
+                best_current_chain,
+                best_stability,
+                better_stab_found,
+            ) = self.copy_best(grid_object)
+
+            return (
+                best_current_grid,
+                best_current_chain,
+                best_stability,
+                better_stab_found,
             )
-        elif message_num == 2:
+
+    def better_stab_check(
+        self,
+        better_stab_found,
+        best_stability,
+        best_current_grid,
+        best_current_chain,
+        grid_object,
+    ):
+        # if it didnt find any upgrades after the amount of random pulls of the whole chain, could be local minimum
+        if not better_stab_found:
+            # terminal info
             print(
                 f"No stability change after {self.amt_stab_change_checks} checks. Saving chain {self.chain_nr} as local minima...\n"
             )
 
-    def save_local_minima(
-        self, best_stability, best_current_grid, best_current_chain, grid_object
-    ):
-        """
-        Saves local minima to list and creates new grid object, arguments: best stability, best grid, best chain, grid object
-        """
-        self.local_minimum_chains[copy.copy(best_stability)] = [
-            copy.deepcopy(best_current_grid),
-            copy.deepcopy(best_current_chain),
-        ]
+            # append to local minima list
+            self.local_minimum_chains[copy.copy(best_stability)] = [
+                copy.deepcopy(best_current_grid),
+                copy.deepcopy(best_current_chain),
+            ]
 
-        grid_object = random_chain(grid_object)
-        self.chain_nr += 1
-        return grid_object
+            # reset to new chain
+            grid_object = random_chain(grid_object)
+            self.chain_nr += 1
 
-    def hill_start(self):
-        """
-        The main hillclimber logic which performs the restart hill climber
-        """
+            # set this as best
+            best_stability = copy.deepcopy(grid_object.stability)
+            best_current_grid = copy.deepcopy(grid_object.grid)
+            best_current_chain = copy.deepcopy(grid_object.grid_chain)
 
-        grid_object = self.create_grid_object(self.protein)
+            return best_stability, best_current_grid, best_current_chain
+
+    def iterator(self, grid_object):
 
         # Save as initial local minimum
         best_stability = copy.copy(grid_object.stability)
@@ -126,32 +135,28 @@ class Hill_climber:
 
                     self.pull_move_node(grid_object, index)
 
-                # update best current chain if the stability is better
-                if grid_object.stability < best_stability:
+                self.stability_check(grid_object, best_stability)
 
-                    # only get grid and chain for lower computing time
-                    (
-                        best_current_grid,
-                        best_current_chain,
-                        best_stability,
-                        better_stab_found,
-                    ) = self.copy_best(grid_object)
+            print(
+                f"Random chain {self.chain_nr}: Nodes pulled: {self.amt_stab_change_checks * self.amt_pulls_per_stab_change_check}. Stability: {best_stability}"
+            )
 
-            self.print_message(1, best_stability)
+            (
+                best_stability,
+                best_current_grid,
+                best_current_chain,
+            ) = self.better_stab_check(
+                better_stab_found,
+                best_stability,
+                best_current_grid,
+                best_current_chain,
+                grid_object,
+            )
 
-            # if it didnt find any upgrades after the amount of random pulls of the whole chain, could be local minimum
-            if not better_stab_found:
-                # terminal info
-                self.print_message(2, best_stability)
+    def hill_start(self):
 
-                # append to local minima list
-                grid_object = self.save_local_minima(
-                    best_stability, best_current_grid, best_current_chain, grid_object
-                )
+        grid_object = self.create_grid_object(self.protein)
 
-                # set this as best
-                best_stability = copy.deepcopy(grid_object.stability)
-                best_current_grid = copy.deepcopy(grid_object.grid)
-                best_current_chain = copy.deepcopy(grid_object.grid_chain)
+        self.iterator(grid_object)
 
         return self.local_minimum_chains, self.stability_over_time
