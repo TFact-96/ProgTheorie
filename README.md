@@ -23,7 +23,7 @@
 
 ### Pull Moves on generated chains<br>
 - Can be found in the file: `algorithms/PullMove.py`
-- Todo
+- Following the results of articles such as `A Complete and Effective Move Set for Simplified Protein Folding` by N. Lesh et al, the pull move has been chosen as an effictive move set for folding a chain. The pullmove is an iterative move which transfers a point `i` diagonally to the next point, which is next to `i + 1` or `i - 1`. After this move, the residue of the chain follows in its footsteps. Which part of the chain follows depends on which half the pull move was made.
 
 ### Restart Hill Climbing algorithm<br>
 - Can be found in the file: `algorithms/RestartHillClimb.py`
