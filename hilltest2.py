@@ -187,8 +187,20 @@ class Grid:
         x = node.x
         y = node.y
         z = node.z
+        temp_grid = {}
+        temp_grid[f"{x, y, z}"] = Grid_point(False, [x, y, z])
+        temp_grid[f"{x + 1, y, z}"] = Grid_point(False, [x + 1, y, z])
+        temp_grid[f"{x, y + 1, z}"] = Grid_point(False, [x, y + 1, z])
+        temp_grid[f"{x, y, z + 1}"] = Grid_point(False, [x, y, z + 1])
+        temp_grid[f"{x - 1, y, z}"] = Grid_point(False, [x - 1, y, z])
+        temp_grid[f"{x, y - 1, z}"] = Grid_point(False, [x, y - 1, z])
+        temp_grid[f"{x, y, z - 1}"] = Grid_point(False, [x, y, z - 1])
+
+        grid = dict(list(temp_grid.items()) + list(grid.items()))
         grid[f"{x, y, z}"].add_node(node)
         grid_chain[n] = [f"{x, y, z}", [x, y, z]]
+
+        return grid
 
     def clear_point(self, node, n, grid):
         x = node.x
@@ -270,11 +282,12 @@ class Grid:
         grid_chain = {}
 
         # Create grid
-        grid = self.create_grid(40)
+        grid = {}
         first_node = Node(0, 0, 0)
         first_node.type = self.amino[0]
-        self.add_point(first_node, index, grid, grid_chain)
+        grid = self.add_point(first_node, index, grid, grid_chain)
 
+        print(f"create chain: {grid}")
         while index < len(self.amino) - 1:
             current_node_key = grid_chain[index][0]
             current_node = grid[current_node_key].nodes[0]
@@ -290,14 +303,14 @@ class Grid:
                 new_node = Node(new_x, new_y, new_z)
                 new_node.n = index
                 new_node.type = self.amino[index]
-                self.add_point(new_node, index, grid, grid_chain)
+                grid = self.add_point(new_node, index, grid, grid_chain)
 
             if self.chain_stuck(new_x, new_y, new_z, grid):
                 index = 0
                 self.clear_grid(grid)
                 grid_chain = {}
-                self.add_point(first_node, index, grid, grid_chain)
-
+                grid = self.add_point(first_node, index, grid, grid_chain)
+        print(f"create chain final{grid}")
         return grid_chain, grid
 
     def create_vectors(self, node, grid_chain):
@@ -422,10 +435,10 @@ class Grid:
             best_c_found = False
             print(iteration)
 
-            for iteration2 in range(200):
+            for iteration2 in range(100):
                 counter = 0
 
-                while counter < 50:
+                while counter < 100:
                     counter += 1
                     index = random.randint(1, len(self.amino) - 2)
 
@@ -437,7 +450,7 @@ class Grid:
 
                     if temp_stability < best_stab_c:
 
-                        if temp_stability < -12:
+                        if temp_stability < -15:
                             best_c = copy.deepcopy(temp_chain)
                             best_grid = copy.deepcopy(temp_grid)
                         best_stab_c = temp_stability
@@ -445,7 +458,7 @@ class Grid:
 
                 if best_c_found:
 
-                    if best_stab_c < -12:
+                    if best_stab_c < -15:
                         current_hilltop = copy.deepcopy(best_c)
                         grid = copy.deepcopy(best_grid)
                     current_stability = best_stab_c
@@ -499,6 +512,6 @@ class Grid:
 
 
 k = Grid("PPPHHPPHHPPPPPHHHHHHHPPHHPPPPHHPPHPP")
-k.hill_climber(20)
+k.hill_climber(100)
 k.find_best_c()
 
