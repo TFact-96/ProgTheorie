@@ -27,6 +27,7 @@
 
 - #### Self Learning algorithm
 
-These can be found in the folder `Algorithms`. 
+These can be found in the folder `algorithms`. The `visualization` folder contains files to graph chains and stability over time.
+In the `classes` folder the gridpoint, grid and node classes created.
 
 
