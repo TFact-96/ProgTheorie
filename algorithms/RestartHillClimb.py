@@ -72,7 +72,7 @@ def hill_climber(protein, amount_of_reset_checks, amt_stab_change_checks, amt_pu
 
             # set this as best
             best_stability = copy.deepcopy(grid_object.stability)
-            best_current_grid = copy.deepcopy(grid_object.filled_gridpoints)
+            best_current_grid = copy.deepcopy(grid_object.grid)
             best_current_chain = copy.deepcopy(grid_object.grid_chain)
 
     return local_minimum_chains, stability_over_time
