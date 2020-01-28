@@ -27,7 +27,7 @@
 
 ### Restart Hill Climbing algorithm<br>
 - Can be found in the file: `algorithms/RestartHillClimb.py`
-- Todo
+- The hillclimbing method creates a randomly folded chain and performs a set amount of pull moves on random nodes. This set of pulls is repeated an arbitrary amount of times. If there are any stability improvements, the next set of pull moves will be performed on this very chain. If the next set does not result in an improvement, a new chain is created and this algorithm repeats.
 
 ### (Bruteforce) Simulated Annealing algorithm
 - Can be found in the file: `algorithms/SimAnnealing.py`<br>
