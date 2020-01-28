@@ -10,6 +10,10 @@ class Amino:
         self.pos = [index, 0]
 
     def Colour(self):
+        """
+        Sets colour for plotting.
+        :return: colour of amino's
+        """
         if self.type == 'H':
             return 'red'
         elif self.type == 'C':
@@ -42,12 +46,23 @@ class Protein:  # The state of the protein
         return self.stability
 
     def getCompactState(self):
+        """
+        Returns current sequence of protein.
+        :return: current sequence of protein
+        """
         compactState = ''
         for amino in self.state:
             compactState += amino.jointAngle
         return compactState
 
     def CalculateReward(self, p_x, p_y, direction):
+        """
+        Calculate reward of current state.
+        :param p_x: last amino x position
+        :param p_y: last amino y position
+        :param direction: direction of movement
+        :return: reward
+        """
         reward = 0
         nextAminioType = self.state[self.nextAminoFold + 1].type
         # Checking around amino acid of action for new bonds
@@ -89,9 +104,20 @@ class Protein:  # The state of the protein
         return reward
 
     def CheckFreeSpot(self, x, y):
+        """
+        Checks if position next to amino is free.
+        :param x: x coordinate of amino
+        :param y: y coordinate of amino
+        :return:
+        """
         return self.stateField[x][y] == 0
 
     def ProcessAction(self, action):
+        """
+        Updates current amino chain with new action given by the agent.
+        :param action: action given by agent
+        :return: reward in new state
+        """
         # Set fold of next amino acid
         self.nextAminoFold += 1
         i = self.nextAminoFold
