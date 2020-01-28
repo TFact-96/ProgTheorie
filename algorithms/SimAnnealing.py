@@ -17,8 +17,16 @@ def simulated_annealing(
     exp_temp_coeff,
 ):
     """
-    Simulated annealing with arguments: protein, iterations, amount_of_pulls_per_iteration, 
-    start_temperature, use_linear_temp, use_exp_temp, linear_temp_coeff, exp_temp_coeff
+    Simulated annealing.
+    :param protein: protein chain
+    :param iterations: amount of iterations
+    :param amount_of_pulls_per_iteration: amount of pulls per iteration
+    :param start_temperature: the start temperature
+    :param use_linear_temp: use the linear temperature
+    :param use_exp_temp: use exponential temperature
+    :param linear_temp_coeff: linear temperature coefficient
+    :param exp_temp_coeff: exponential temperature coefficient
+    :return: stability, grid, gridchain
     """
 
     # make a grid object with a random chain configuration with this protein
@@ -107,8 +115,14 @@ def annealing_bruteforce(
 ):
     """
     Annealing bruteforce, a simple bruteforce repeating for the best simulated annealing run. 
-    Arguments: protein, repeat_amount, iteration_amount, amount_of_pulls_per_iteration, 
-    start_temp, coeff, exponential
+    :param protein: protein chain
+    :param repeat_amount: repeat amount
+    :param iteration_amount: amount of iterations
+    :param amount_of_pulls_per_iteration: amount of pulls per iteration
+    :param start_temp: starting temperature
+    :param coeff: given coefficient
+    :param exponential: given exponential
+    :return: best chain and stability
     """
     best_stability = 0
 
