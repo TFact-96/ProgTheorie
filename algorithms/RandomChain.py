@@ -5,7 +5,10 @@ from classes.Node import Node
 
 def make_first_node(grid_object, index):
     """
-    Create first Node and set type as first protein char, arguments: grid_object, index
+    Create first Node and set type as first protein character.
+    :param grid_object: grid object
+    :param index: index
+    :return: first node
     """
     first_node = Node(0, 0, 0)
     first_node.type = grid_object.protein[0]
@@ -18,7 +21,9 @@ def make_first_node(grid_object, index):
 
 def make_new_coords(grid_object, current_node):
     """
-    Choose random move for a node, arguments: grid_object, current_node
+    Choose random move for a node.
+    :param grid_object: grid object
+    :param current_node: current node
     """
     random_move = np.random.randint(len(grid_object.moves))
 
@@ -31,10 +36,11 @@ def make_new_coords(grid_object, current_node):
 
 def random_chain(grid_object):
     """
-    creates a protein chain starting at (0, 0, 0)
+    Creates a protein chain starting at (0, 0, 0)
     then filling in the grid with Nodes by doing a random move from last added
     Node to the next one until it has length of whole protein string.
-
+    :param grid_object: grid object
+    :return: grid object
     """
 
     # n'th Node
