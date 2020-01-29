@@ -37,10 +37,12 @@ Linear: ![LinearEquation](https://latex.codecogs.com/gif.latex?Temperature%20%3D
 - This algorithm uses a Q learning agent that finds the step sequence that finds the lowest stability.<br>
 
 #### Algorithm
-1. Take a step according to the highest Q value. Unless there are no more steps to be taken, in that case save Q and frequency tables and start over with the same chain.<br>
-2. Every step calculate reward
-3. With that reward the Q-table and frequency table are updated with the folowing formula:
-4. Repeat from step 1.<br>
+1. Get all possible directions to move in.
+2. Take a step according to the highest Q value. Unless there are no more steps to be taken, in that case save Q and frequency tables and start over with the same chain.<br>
+3. Every step calculate reward
+4. With that reward the Q-table and frequency table are updated with the folowing formula:
+![QValueUpdate](https://latex.codecogs.com/gif.latex?Q%5Bs%2Ca%5D%20%3D%20Q%5Bs%2Ca%5D&plus;%5Calpha%28N_%7Bsa%7D%5Bs%2Ca%5D%29%28r&plus;%5Cgamma%20max_%7Ba%27%7D%20Q%5Bs%2Ca%5D%20-%20Q%5Bs%27%2Ca%27%5D%29)
+5. Repeat from step 1.<br>
 
 #### Explanation
 Q-table: indicates what kind of reward is possible if that step is taken, the higher the Q value the better the chance of a good end result.<br>
